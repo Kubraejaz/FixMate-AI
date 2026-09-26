@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF0"/>
+      <stop offset="100%" stop-color="#FFF3C4"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD633"/>
+      <stop offset="100%" stop-color="#FFB300"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <rect width="600" height="450" rx="28" fill="url(#bgGrad1)"/>
+  <!-- Decorative background circles -->
+  <circle cx="500" cy="80" r="100" fill="#FFE082" opacity="0.3"/>
+  <circle cx="80" cy="380" r="80" fill="#FFCC00" opacity="0.15"/>
+  
+  <!-- Modern Clean Room Illustration Backdrop -->
+  <rect x="60" y="80" width="480" height="300" rx="20" fill="#FFFFFF" filter="url(#cardShadow)"/>
+  <rect x="80" y="100" width="220" height="130" rx="12" fill="#F8FAFC"/>
+  <!-- Window frames -->
+  <line x1="190" y1="100" x2="190" y2="230" stroke="#CBD5E1" stroke-width="3"/>
+  <line x1="80" y1="165" x2="300" y2="165" stroke="#CBD5E1" stroke-width="3"/>
+  <circle cx="240" cy="130" r="16" fill="#FDE047" opacity="0.7"/>
+
+  <!-- Living Room Sofa & Plant -->
+  <rect x="80" y="270" width="220" height="70" rx="14" fill="#334155"/>
+  <rect x="95" y="240" width="190" height="40" rx="10" fill="#475569"/>
+  <!-- Plant -->
+  <path d="M490 320 L510 320 L505 350 L495 350 Z" fill="#B45309"/>
+  <ellipse cx="500" cy="290" rx="20" ry="32" fill="#10B981"/>
+  <ellipse cx="485" cy="300" rx="18" ry="24" fill="#059669"/>
+  <ellipse cx="515" cy="295" rx="18" ry="24" fill="#34D399"/>
+
+  <!-- Cleaning Professional Character -->
+  <g transform="translate(320, 110)">
+    <!-- Apron / Body -->
+    <ellipse cx="65" cy="50" rx="22" ry="24" fill="#FCD34D"/>
+    <!-- Head -->
+    <circle cx="65" cy="45" r="20" fill="#FDBA74"/>
+    <!-- Hair -->
+    <path d="M45 42 C45 25 85 25 85 42 C85 30 75 22 65 22 C55 22 45 30 45 42 Z" fill="#1E293B"/>
+    <!-- Friendly Face & Cap -->
+    <path d="M48 35 Q65 25 82 35" stroke="#1E293B" stroke-width="3" fill="none"/>
+    <circle cx="58" cy="45" r="2.5" fill="#0F172A"/>
+    <circle cx="72" cy="45" r="2.5" fill="#0F172A"/>
+    <path d="M60 52 Q65 57 70 52" stroke="#0F172A" stroke-width="2" fill="none"/>
+    <path d="M45 30 Q65 18 85 30" fill="#FFCC00"/>
+    
+    <!-- Torso & Uniform -->
+    <path d="M42 75 L88 75 L95 190 L35 190 Z" fill="#2563EB"/>
+    <path d="M48 90 L82 90 L85 180 L45 180 Z" fill="#FFCC00"/>
+    
+    <!-- Eco-Cleaning Spray & Tool -->
+    <rect x="90" y="110" width="18" height="40" rx="5" fill="#10B981"/>
+    <path d="M99 105 L99 110" stroke="#0F172A" stroke-width="4"/>
+    <path d="M92 105 L106 102" stroke="#0F172A" stroke-width="3"/>
+    
+    <!-- Sparkles -->
+    <path d="M-15 50 L-10 65 L-25 70 L-10 75 L-15 90 L-5 78 L10 82 L0 70 L10 58 L-5 62 Z" fill="#FFCC00"/>
+    <path d="M120 40 L124 50 L135 53 L124 56 L120 66 L116 56 L105 53 L116 50 Z" fill="#38BDF8"/>
+  </g>
+
+  <!-- High-Trust Rating Badge Overlay -->
+  <g transform="translate(80, 290)">
+    <rect width="210" height="60" rx="16" fill="#111111" filter="url(#cardShadow)"/>
+    <text x="20" y="28" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#FFCC00">FIXMATE CERTIFIED PRO</text>
+    <text x="20" y="47" font-family="Inter, sans-serif" font-size="15" font-weight="800" fill="#FFFFFF">★ 4.98 • 1,240+ Cleanings</text>
+  </g>
+</svg>

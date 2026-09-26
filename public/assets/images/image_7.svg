@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cardGrad_community" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8FAFC"/>
+    </linearGradient>
+    <filter id="shadow_community">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <rect width="500" height="360" rx="24" fill="url(#cardGrad_community)" stroke="#EEEEEE" stroke-width="1.5"/>
+  <circle cx="420" cy="70" r="90" fill="#34D399" opacity="0.12"/>
+  
+  <!-- Icon Backdrop -->
+  <circle cx="90" cy="90" r="46" fill="#34D399" opacity="0.18"/>
+  <circle cx="90" cy="90" r="36" fill="#34D399"/>
+
+  <!-- Distinct Service Icons -->
+  <g transform="translate(68, 68)" stroke="#111111" stroke-width="2.8" stroke-linecap="round" fill="none">
+        <path d="M6 36 L6 18 L22 6 L38 18 L38 36 Z"/>
+        <rect x="16" y="24" width="12" height="12"/>
+      </g>
+
+  <!-- Text Details -->
+  <text x="50" y="185" font-family="Inter, sans-serif" font-size="24" font-weight="800" fill="#111111">Community Maintenance & Fixes</text>
+  <text x="50" y="215" font-family="Inter, sans-serif" font-size="14" font-weight="500" fill="#757575">Neighborhood streetlights, potholes & structural fixes</text>
+
+  <!-- Tags & Trust elements -->
+  <rect x="50" y="245" width="135" height="32" rx="16" fill="#FFF9E6" stroke="#FFECB3"/>
+  <text x="70" y="266" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#8C6B00">⚡ Dispatch: &lt;15m</text>
+
+  <rect x="195" y="245" width="115" height="32" rx="16" fill="#ECFDF5" stroke="#A7F3D0"/>
+  <text x="210" y="266" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#047857">✓ Verified KYC</text>
+
+  <!-- Bottom CTA bar -->
+  <line x1="50" y1="300" x2="450" y2="300" stroke="#EEEEEE" stroke-width="1"/>
+  <text x="50" y="332" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#111111">Starting at $65 • Free AI Diagnostics</text>
+  
+  <circle cx="430" cy="326" r="18" fill="#111111"/>
+  <path d="M424 326 L434 326 M430 320 L436 326 L430 332" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
