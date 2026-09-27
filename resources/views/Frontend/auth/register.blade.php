@@ -1,13 +1,150 @@
-@extends('Frontend.layouts.public')
+@extends('Frontend.layouts.auth')
 
 @section('title', 'Register — FixMate AI')
 
 @section('content')
-<script>
-    window.location.href = "{{ url('/register/role') }}";
-</script>
-<div class="site-wrapper" style="text-align: center; padding: 100px 0;">
-    <p>Redirecting to role selection...</p>
-    <a href="{{ url('/register/role') }}" class="btn-yellow">Click here if not redirected</a>
+<div class="auth-form-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; box-shadow: var(--card-shadow); width: 100%; max-width: 960px; min-height: 580px; display: grid; grid-template-columns: 1.15fr 0.85fr; overflow: hidden; margin: 20px 0;">
+    
+    <!-- Left Column: Register Form (Exact twin layout of Login) -->
+    <div style="padding: 48px 48px; display: flex; flex-direction: column; justify-content: center;">
+        
+        <!-- Brand Header matching Login page -->
+        <div style="margin-bottom: 24px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFC107; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <path d="M9 22V12h6v10"></path>
+                    </svg>
+                </div>
+                <span style="font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.01em;">FixMate <span style="color: #FFB300;">AI</span></span>
+            </div>
+
+            <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 6px;">Create Account</h1>
+            <p style="font-size: 14px; color: #64748B; margin: 0;">Sign up to your account to continue</p>
+        </div>
+
+        <!-- Register Form -->
+        <form action="{{ url('/verify-otp') }}" method="GET">
+            
+            <!-- Full Name -->
+            <div style="margin-bottom: 14px;">
+                <label class="app-label" for="registerName">Full Name</label>
+                <input type="text" id="registerName" class="app-input" required placeholder="Enter your full name">
+            </div>
+
+            <!-- Email or Phone -->
+            <div style="margin-bottom: 14px;">
+                <label class="app-label" for="registerIdentifier">Email or Phone</label>
+                <input type="text" id="registerIdentifier" class="app-input" required placeholder="Enter your email or phone">
+            </div>
+
+            <!-- Password -->
+            <div style="margin-bottom: 16px;">
+                <label class="app-label" for="registerPassword">Password</label>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="password" id="registerPassword" class="app-input" required placeholder="Enter your password" style="padding-right: 44px;">
+                    <button type="button" onclick="toggleRegisterPass()" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #94A3B8; padding: 4px; display: flex; align-items: center;" title="Toggle Password">
+                        <svg id="regEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Terms & Conditions Checkbox -->
+            <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #475569; user-select: none;">
+                    <input type="checkbox" required style="accent-color: #FFC107; width: 16px; height: 16px; border-radius: 4px; cursor: pointer;">
+                    <span>I agree to <a href="{{ url('/terms') }}" target="_blank" style="color: #0F172A; font-weight: 700; text-decoration: none;">Terms</a> & <a href="{{ url('/privacy-policy') }}" target="_blank" style="color: #0F172A; font-weight: 700; text-decoration: none;">Privacy Policy</a></span>
+                </label>
+            </div>
+
+            <!-- Main Submit Button -->
+            <button type="submit" class="app-btn-primary" style="margin-bottom: 18px;">
+                <span>Register</span>
+            </button>
+        </form>
+
+        <!-- Login Link -->
+        <div style="text-align: center; margin-bottom: 20px; font-size: 13.5px; color: #64748B;">
+            Already have an account? 
+            <a href="{{ url('/login') }}" style="color: #0F172A; font-weight: 700; text-decoration: none;">Login</a>
+        </div>
+
+        <!-- Or Divider -->
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+            <div style="flex: 1; height: 1px; background: #E2E8F0;"></div>
+            <span style="font-size: 12.5px; color: #94A3B8; text-transform: lowercase;">or</span>
+            <div style="flex: 1; height: 1px; background: #E2E8F0;"></div>
+        </div>
+
+        <!-- Social Buttons -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button type="button" class="app-btn-social" onclick="window.location.href='{{ url('/verify-otp') }}'">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.55 0 2.94.55 4.03 1.45l3.02-3.02C17.21 1.7 14.77 1 12 1 7.42 1 3.53 3.61 1.67 7.41l3.69 2.87C6.25 7.15 8.9 5 12 5z"/>
+                    <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.7 2.87c2.16-2 3.72-4.94 3.72-8.69z"/>
+                    <path fill="#FBBC05" d="M5.36 14.72A7.3 7.3 0 0 1 5 12c0-.95.16-1.87.45-2.72L1.76 6.41A11.96 11.96 0 0 0 0 12c0 1.92.45 3.74 1.25 5.37l4.11-2.65z"/>
+                    <path fill="#34A853" d="M12 23c3.24 0 5.96-1.07 7.95-2.92l-3.7-2.87c-1.08.72-2.45 1.16-4.25 1.16-3.1 0-5.75-2.15-6.64-5.28L1.67 15.74C3.53 19.54 7.42 23 12 23z"/>
+                </svg>
+                <span>Continue with Google</span>
+            </button>
+
+            <button type="button" class="app-btn-social" onclick="window.location.href='{{ url('/verify-otp') }}'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                <span>Continue with Facebook</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Right Column: Visual Banner from Mockup (Exact identical to Login) -->
+    <div class="auth-side-banner" style="position: relative; background: #0F172A; display: flex; flex-direction: column; justify-content: flex-end; padding: 36px; overflow: hidden;">
+        
+        <!-- Real Living Room Asset from Mockup -->
+        <img src="{{ asset('assets/images/image_7.png') }}" alt="Your Home Our Priority" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+        
+        <!-- Elegant Gradient Overlay -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.5) 55%, rgba(15, 23, 42, 0.92) 100%);"></div>
+
+        <!-- Bottom Tagline Box matching mockup -->
+        <div style="position: relative; z-index: 2; color: #FFFFFF;">
+            
+            <div style="font-size: 32px; font-weight: 800; line-height: 1.15; color: #FFFFFF; letter-spacing: -0.02em;">
+                Your Home
+            </div>
+            
+            <div style="font-family: 'Caveat', cursive; font-size: 40px; font-weight: 700; color: #FFC107; line-height: 1.1; margin: -2px 0 10px 0;">
+                Our Priority
+            </div>
+
+            <div style="font-size: 13.5px; font-weight: 500; color: #E2E8F0; letter-spacing: 0.02em;">
+                Trusted • Fast • Professional
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    function toggleRegisterPass() {
+        const pass = document.getElementById('registerPassword');
+        const eyeIcon = document.getElementById('regEyeIcon');
+        if (pass.type === 'password') {
+            pass.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            pass.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+</script>
 @endsection
