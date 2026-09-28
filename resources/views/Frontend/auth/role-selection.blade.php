@@ -1,59 +1,137 @@
-@extends('Frontend.layouts.public')
+@extends('Frontend.layouts.auth')
 
-@section('title', 'Select Your Account Type — FixMate AI Registration')
+@section('title', 'Choose Account Type — FixMate AI')
 
 @section('content')
-<div class="site-wrapper" style="background: #FAFAFA; min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 50px 0;">
-    <div class="container" style="max-width: 720px; text-align: center;">
-        
-        <div style="margin-bottom: 32px;">
-            <div style="display: inline-flex; width: 44px; height: 44px; border-radius: 12px; background: #FFCC00; align-items: center; justify-content: center; margin-bottom: 12px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
+<div class="auth-form-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; box-shadow: var(--card-shadow); width: 100%; max-width: 960px; display: grid; grid-template-columns: 1.15fr 0.85fr; overflow: hidden; margin: 20px 0;">
+
+    <!-- Left Column: Account Type Choice -->
+    <div style="padding: 48px; display: flex; flex-direction: column; justify-content: center;">
+
+        <!-- Brand Header -->
+        <div style="margin-bottom: 28px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+                <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFC107; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <path d="M9 22V12h6v10"></path>
+                    </svg>
+                </div>
+                <span style="font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.01em;">FixMate <span style="color: #FFB300;">AI</span></span>
             </div>
-            <h1 style="font-size: 30px; font-weight: 900; color: #111; margin-bottom: 8px;">Join FixMate AI</h1>
-            <p style="font-size: 15px; color: #666; margin: 0;">Please select how you would like to use FixMate AI</p>
+
+            <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 6px;">Join FixMate AI</h1>
+            <p style="font-size: 14px; color: #64748B; margin: 0;">Tell us how you will use the platform so we can set up the right account for you.</p>
         </div>
 
         <!-- Role Choice Cards -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; text-align: left;">
-            
+        <div style="display: grid; gap: 14px; margin-bottom: 24px;">
+
             <!-- Customer Card -->
-            <a href="{{ url('/register/customer') }}" class="portal-card" style="padding: 32px; text-decoration: none; border: 2px solid transparent; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFCC00'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-                <div style="width: 56px; height: 56px; border-radius: 16px; background: #EFF6FF; border: 1px solid #DBEAFE; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 18px;">
-                    🏠
+            <a href="{{ route('register.customer') }}" class="role-card">
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div class="role-icon" style="background: #EFF6FF; border: 1px solid #DBEAFE;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <path d="M9 22V12h6v10"></path>
+                        </svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <span class="role-tag" style="background: #ECFDF5; color: #047857;">I need home repairs</span>
+                        <h3>Customer</h3>
+                        <p>Scan defects with AI, get instant cost estimates, book certified technicians, and track them live with arrival OTPs.</p>
+                        <span class="role-cta">
+                            <span>Register as Customer</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
-                <div style="display: inline-block; background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;">I need home repairs</div>
-                <h3 style="font-size: 20px; font-weight: 800; color: #111; margin-bottom: 8px;">Customer</h3>
-                <p style="font-size: 13.5px; color: #666; line-height: 1.5; margin-bottom: 20px;">
-                    Scan defects using AI, get instant cost estimates, book certified technicians, and track them live with arrival OTPs.
-                </p>
-                <span class="btn-yellow" style="display: block; text-align: center; padding: 10px 0; font-size: 13.5px;">Register as Customer →</span>
             </a>
 
             <!-- Technician Card -->
-            <a href="{{ url('/register/technician') }}" class="portal-card" style="padding: 32px; text-decoration: none; border: 2px solid transparent; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFCC00'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-                <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFF9E6; border: 1px solid #FFECB3; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 18px;">
-                    🛠️
+            <a href="{{ route('register.technician') }}" class="role-card">
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div class="role-icon" style="background: #FFFBEB; border: 1px solid #FDE68A;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a4 4 0 0 0 5 5l-9.6 9.6a2.8 2.8 0 0 1-4-4l9.6-9.6z"></path>
+                            <path d="M17.5 3.5l3 3"></path>
+                        </svg>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <span class="role-tag" style="background: #FFFBEB; color: #B45309;">I provide trade services</span>
+                        <h3>Technician Partner</h3>
+                        <p>Receive instant nearby job dispatches, review AI diagnosis photos before accepting, and get guaranteed payouts.</p>
+                        <span class="role-cta">
+                            <span>Register as Technician</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
-                <div style="display: inline-block; background: #FFF9E6; color: #B45309; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;">I provide trade services</div>
-                <h3 style="font-size: 20px; font-weight: 800; color: #111; margin-bottom: 8px;">Technician Partner</h3>
-                <p style="font-size: 13.5px; color: #666; line-height: 1.5; margin-bottom: 20px;">
-                    Receive instant nearby job dispatches, view AI diagnosis photos before accepting, and receive guaranteed payouts.
-                </p>
-                <span class="btn-outline" style="display: block; text-align: center; padding: 10px 0; font-size: 13.5px;">Register as Technician →</span>
             </a>
 
         </div>
 
-        <p style="font-size: 13.5px; color: #777;">
-            Already have an account? <a href="{{ url('/login') }}" style="color: #111; font-weight: 800; text-decoration: none;">Sign in here</a>
-        </p>
+        <!-- Login Link -->
+        <div style="text-align: center; font-size: 13.5px; color: #64748B;">
+            Already have an account?
+            <a href="{{ route('login') }}" style="color: #0F172A; font-weight: 700; text-decoration: none;">Login</a>
+        </div>
 
     </div>
+
+    <!-- Right Column: Visual Banner -->
+    <div class="auth-side-banner" style="position: relative; background: #0F172A; display: flex; flex-direction: column; justify-content: flex-end; padding: 36px; overflow: hidden;">
+
+        <img src="{{ asset('assets/images/image_7.png') }}" alt="FixMate AI home services" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.5) 55%, rgba(15, 23, 42, 0.92) 100%);"></div>
+
+        <div style="position: relative; z-index: 2; color: #FFFFFF;">
+
+            <div style="font-size: 32px; font-weight: 800; line-height: 1.15; color: #FFFFFF; letter-spacing: -0.02em;">
+                One Platform
+            </div>
+
+            <div style="font-family: 'Caveat', cursive; font-size: 40px; font-weight: 700; color: #FFC107; line-height: 1.1; margin: -2px 0 16px 0;">
+                Two Ways to Grow
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="auth-feature">
+                    <span class="tick">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6L9 17l-5-5"></path>
+                        </svg>
+                    </span>
+                    <span>Free AI defect diagnosis with instant cost estimates</span>
+                </div>
+                <div class="auth-feature">
+                    <span class="tick">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6L9 17l-5-5"></path>
+                        </svg>
+                    </span>
+                    <span>Verified technicians with background and CNIC checks</span>
+                </div>
+                <div class="auth-feature">
+                    <span class="tick">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6L9 17l-5-5"></path>
+                        </svg>
+                    </span>
+                    <span>Live tracking and guaranteed payouts for partners</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 @endsection
