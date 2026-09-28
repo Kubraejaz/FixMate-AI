@@ -92,9 +92,6 @@
                 <a href="{{ url('/technician/skills') }}" class="portal-nav-link {{ Request::is('technician/skills*') ? 'active' : '' }}">
                     <span>🔧</span> <span>Skills & Services</span>
                 </a>
-                <a href="{{ url('/technician/reviews') }}" class="portal-nav-link {{ Request::is('technician/reviews*') ? 'active' : '' }}">
-                    <span>⭐</span> <span>Customer Reviews</span>
-                </a>
                 <a href="{{ url('/technician/messages') }}" class="portal-nav-link {{ Request::is('technician/messages*') ? 'active' : '' }}">
                     <span>💬</span> <span>Messages</span>
                 </a>

@@ -289,7 +289,7 @@ Route::prefix('technician')->name('technician.')->group(function () {
     })->name('settings');
 
     Route::get('/messages', function () {
-        return view('Frontend.customer.messages');
+        return view('Frontend.technician.messages');
     })->name('messages');
 
 });
