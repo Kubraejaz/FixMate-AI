@@ -26,7 +26,7 @@
         </div>
 
         <!-- Registration Form -->
-        <form action="{{ route('verify-otp') }}" method="GET" novalidate>
+        <form action="{{ route('verify-otp', ['role' => 'customer']) }}" method="GET" novalidate>
 
             <!-- Full Name -->
             <div style="margin-bottom: 15px;">
