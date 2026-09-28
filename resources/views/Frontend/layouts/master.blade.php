@@ -34,7 +34,7 @@
             </a>
 
             <!-- Centered Desktop Nav Menu with Yellow Active Bar matching mockup -->
-            <nav class="desktop-nav-menu">
+            <nav class="desktop-nav-menu" style="margin-left: 48px;">
                 <ul style="display: flex; align-items: center; gap: 28px; list-style: none; margin: 0; padding: 0;">
                     <li>
                         <a href="{{ url('/') }}" class="custom-nav-link {{ Request::is('/') ? 'active' : '' }}">

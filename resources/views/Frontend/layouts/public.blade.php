@@ -26,6 +26,10 @@
             z-index: 1000;
         }
 
+        .desktop-nav-menu {
+            margin-left: 48px;
+        }
+
         .custom-nav-link {
             font-size: 14.5px;
             font-weight: 500;
