@@ -288,6 +288,11 @@ Route::prefix('technician')->name('technician.')->group(function () {
         return view('Frontend.technician.profile');
     })->name('settings');
 
+    // Customer Reviews
+    Route::get('/reviews', function () {
+        return view('Frontend.technician.reviews');
+    })->name('reviews');
+
     Route::get('/messages', function () {
         return view('Frontend.technician.messages');
     })->name('messages');
