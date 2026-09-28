@@ -10,15 +10,9 @@
 
         <!-- Brand Header -->
         <div style="margin-bottom: 26px;">
-            <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;">
-                <div style="width: 32px; height: 32px; border-radius: 8px; background: #FFC107; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <path d="M9 22V12h6v10"></path>
-                    </svg>
-                </div>
-                <span style="font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.01em;">FixMate <span style="color: #FFB300;">AI</span></span>
-            </div>
+            <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 42px; width: auto; object-fit: contain; display: block;">
+            </a>
 
             <div style="display: inline-flex; align-items: center; gap: 7px; background: #FFFBEB; border: 1px solid #FDE68A; color: #B45309; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">

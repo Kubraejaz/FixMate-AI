@@ -6,8 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
     <title>@yield('title', 'Technician Portal — FixMate AI')</title>
-    
-    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/logo.svg') }}">
+    <!-- Application Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/Logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,13 +23,8 @@
     <header class="site-header">
         <div class="container site-nav">
             <!-- Brand Logo -->
-            <a href="{{ url('/technician/dashboard') }}" class="brand-logo">
-                <div class="brand-icon-sq">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    </svg>
-                </div>
-                <span>FixMate</span>
+            <a href="{{ url('/technician/dashboard') }}" class="brand-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 38px; width: auto; object-fit: contain; display: block;">
                 <span style="color: #B45309; font-weight: 800; background: #FFF9E6; border: 1px solid #FFECB3; padding: 2px 7px; border-radius: 6px; font-size: 11px;">Technician Pro</span>
             </a>
 

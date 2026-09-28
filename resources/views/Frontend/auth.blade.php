@@ -10,7 +10,9 @@
         
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 24px;">
-            <img src="{{ asset('assets/images/logo.svg') }}" alt="FixMate AI" style="height: 48px; margin: 0 auto 14px auto;">
+            <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 14px; text-decoration: none;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 48px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
+            </a>
             <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Welcome to FixMate AI</h1>
             <p class="text-secondary" style="font-size: 13.5px;">Intelligent Home Repairs & Verified Pro Dispatch</p>
         </div>

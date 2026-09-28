@@ -6,6 +6,11 @@
     <meta name="description" content="FixMate AI - Smart Home Services Authentication">
     <title>@yield('title', 'Authentication — FixMate AI')</title>
     
+    <!-- Application Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/Logo.png') }}">
+    
     <!-- Modern Application Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -444,14 +449,8 @@
 
     <!-- Minimal Header -->
     <header class="auth-topbar">
-        <a href="{{ url('/') }}" class="auth-brand">
-            <div class="brand-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <path d="M9 22V12h6v10"></path>
-                </svg>
-            </div>
-            <span class="brand-text">FixMate <span>AI</span></span>
+        <a href="{{ url('/') }}" class="auth-brand" style="text-decoration: none;">
+            <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 38px; width: auto; object-fit: contain; display: block;">
         </a>
 
         <div style="display: flex; align-items: center; gap: 12px;">

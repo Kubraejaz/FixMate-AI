@@ -12,15 +12,9 @@
         <!-- Registration Form Card -->
         <div id="techRegCard" class="card-box" style="padding: 40px; box-shadow: var(--shadow-md);">
             <div style="text-align: center; margin-bottom: 24px;">
-                <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                    <div class="brand-icon-sq" style="width: 32px; height: 32px; font-size: 16px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        </svg>
-                    </div>
-                    <span style="font-size: 20px; font-weight: 800; color: #111;">FixMate</span>
-                    <span style="color: #FFCC00; font-weight: 900; background: #111; padding: 2px 6px; border-radius: 6px; font-size: 11px;">AI</span>
-                </div>
+                <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 16px; text-decoration: none;">
+                    <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 40px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
+                </a>
 
                 <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Become a Technician</h1>
                 <p style="font-size: 13.5px; color: #757575;">Join our network of verified professionals</p>

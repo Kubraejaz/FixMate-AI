@@ -1,240 +1,247 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'Admin Dashboard & System Analytics — FixMate AI')
+@section('title', 'Dashboard & KPIs — FixMate AI Admin')
 
 @section('content')
-<div>
-    
-    <!-- Header matching Mockup 1 & 2 -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
-        <div>
-            <h1 style="font-size: 26px; font-weight: 900; color: #FFFFFF; margin-bottom: 4px;">Admin Dashboard</h1>
-            <p style="font-size: 14px; color: #9CA3AF; margin: 0;">Overview of platform activities, AI diagnostics, and key revenue metrics.</p>
-        </div>
-        <div style="display: flex; gap: 8px;">
-            <a href="{{ url('/admin/categories') }}" class="btn-yellow" style="padding: 9px 18px; font-size: 13px; font-weight: 800;">
-                + Manage Categories
-            </a>
-            <a href="{{ url('/admin/technicians/verification') }}" class="btn-outline" style="border-color: #333; color: #FFF; padding: 9px 16px; font-size: 13px;">
-                Review Pending KYC (3)
-            </a>
-        </div>
+
+<!-- Page Header -->
+<div class="adm-page-head">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Overview of platform activity, AI diagnostics, and revenue metrics.</p>
     </div>
-
-    <!-- 8 KPI Metrics Cards matching Mockup 1 & 2 -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
-        
-        <!-- Total Customers -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 18px 20px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; display: block; margin-bottom: 4px;">Total Customers</span>
-            <strong style="font-size: 28px; font-weight: 900; color: #FFFFFF;">2,548</strong>
-            <span style="font-size: 11px; color: #10B981; font-weight: 700; display: block; margin-top: 4px;">↑ +14% this month</span>
-        </div>
-
-        <!-- Total Technicians -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 18px 20px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; display: block; margin-bottom: 4px;">Total Technicians</span>
-            <strong style="font-size: 28px; font-weight: 900; color: #FFFFFF;">1,203</strong>
-            <span style="font-size: 11px; color: #FFCC00; font-weight: 700; display: block; margin-top: 4px;">987 Verified (82%)</span>
-        </div>
-
-        <!-- Total Bookings -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 18px 20px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; display: block; margin-bottom: 4px;">Total Bookings</span>
-            <strong style="font-size: 28px; font-weight: 900; color: #FFFFFF;">4,892</strong>
-            <span style="font-size: 11px; color: #10B981; font-weight: 700; display: block; margin-top: 4px;">3,902 Completed</span>
-        </div>
-
-        <!-- Gross Platform GMV / Revenue -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 18px 20px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; display: block; margin-bottom: 4px;">Platform Revenue</span>
-            <strong style="font-size: 28px; font-weight: 900; color: #FFCC00;">Rs. 1,245,000</strong>
-            <span style="font-size: 11px; color: #10B981; font-weight: 700; display: block; margin-top: 4px;">12% Net Commission</span>
-        </div>
-
+    <div class="adm-page-actions">
+        <a href="{{ url('/admin/technicians/verification') }}" class="adm-btn adm-btn-ghost">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Review Pending KYC (3)
+        </a>
+        <a href="{{ url('/admin/categories') }}" class="adm-btn adm-btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+                <path d="M12 5v14"></path>
+                <path d="M5 12h14"></path>
+            </svg>
+            Manage Categories
+        </a>
     </div>
+</div>
 
-    <!-- Charts Row matching Mockup 1 & 2 -->
-    <div style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 20px; margin-bottom: 24px;">
-        
-        <!-- Monthly Bookings Trend Chart Graphic -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 16px; padding: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0;">Monthly Bookings Growth</h3>
-                <span style="font-size: 12px; color: #9CA3AF;">Jan 2026 – Sep 2026</span>
-            </div>
+<!-- KPI Row -->
+<div class="adm-kpi-grid">
 
-            <!-- SVG Vector Line / Area Chart -->
-            <div style="height: 220px; width: 100%;">
-                <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
-                    <defs>
-                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#FFCC00" stop-opacity="0.35"/>
-                            <stop offset="100%" stop-color="#FFCC00" stop-opacity="0.0"/>
-                        </linearGradient>
-                    </defs>
-                    <!-- Grid Lines -->
-                    <line x1="0" y1="40" x2="500" y2="40" stroke="#2B2B2B" stroke-dasharray="3 3"/>
-                    <line x1="0" y1="90" x2="500" y2="90" stroke="#2B2B2B" stroke-dasharray="3 3"/>
-                    <line x1="0" y1="140" x2="500" y2="140" stroke="#2B2B2B" stroke-dasharray="3 3"/>
-                    <line x1="0" y1="190" x2="500" y2="190" stroke="#333333"/>
-
-                    <!-- Area Fill -->
-                    <path d="M 0 160 Q 70 140 140 130 T 280 80 T 420 50 L 500 30 L 500 190 L 0 190 Z" fill="url(#chartGrad)"/>
-                    <!-- Trend Stroke -->
-                    <path d="M 0 160 Q 70 140 140 130 T 280 80 T 420 50 L 500 30" fill="none" stroke="#FFCC00" stroke-width="3.5"/>
-                    
-                    <!-- Data Points -->
-                    <circle cx="140" cy="130" r="4" fill="#FFCC00"/>
-                    <circle cx="280" cy="80" r="4" fill="#FFCC00"/>
-                    <circle cx="420" cy="50" r="4" fill="#FFCC00"/>
-                    <circle cx="500" cy="30" r="5" fill="#FFFFFF" stroke="#FFCC00" stroke-width="2"/>
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Total Customers</span>
+            <span class="kpi-icon" style="background: var(--adm-info-soft);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
                 </svg>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #777; margin-top: 10px;">
-                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep (Peak 4,892)</span>
-            </div>
+            </span>
         </div>
-
-        <!-- Bookings by City Donut Breakdown matching Mockup 1 -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 16px; padding: 24px;">
-            <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0 0 18px 0;">Bookings by Location</h3>
-
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                        <span style="color: #DDD;">Karachi</span>
-                        <strong style="color: #FFCC00;">45% (2,201)</strong>
-                    </div>
-                    <div style="height: 6px; background: #2B2B2B; border-radius: 3px; overflow: hidden;">
-                        <div style="width: 45%; height: 100%; background: #FFCC00;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                        <span style="color: #DDD;">Lahore</span>
-                        <strong style="color: #3B82F6;">28% (1,370)</strong>
-                    </div>
-                    <div style="height: 6px; background: #2B2B2B; border-radius: 3px; overflow: hidden;">
-                        <div style="width: 28%; height: 100%; background: #3B82F6;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                        <span style="color: #DDD;">Islamabad</span>
-                        <strong style="color: #10B981;">18% (880)</strong>
-                    </div>
-                    <div style="height: 6px; background: #2B2B2B; border-radius: 3px; overflow: hidden;">
-                        <div style="width: 18%; height: 100%; background: #10B981;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                        <span style="color: #DDD;">Rawalpindi & Others</span>
-                        <strong style="color: #A855F7;">9% (441)</strong>
-                    </div>
-                    <div style="height: 6px; background: #2B2B2B; border-radius: 3px; overflow: hidden;">
-                        <div style="width: 9%; height: 100%; background: #A855F7;"></div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
+        <div class="kpi-value">2,548</div>
+        <div class="kpi-foot up">&#8593; 14% this month</div>
     </div>
 
-    <!-- Most Requested Services & Live AI Diagnostics Inspection matching Mockup 1 & 2 -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        
-        <!-- Most Requested Services Bar Chart -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 16px; padding: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0;">Most Requested Services</h3>
-                <a href="{{ url('/admin/categories') }}" style="font-size: 12px; color: #FFCC00; text-decoration: none;">Manage All →</a>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #AAA; margin-bottom: 4px;">
-                        <span>Plumbing (Pipes & Sinks)</span>
-                        <span style="color: #FFF; font-weight: 700;">1,248 Jobs</span>
-                    </div>
-                    <div style="height: 8px; background: #2B2B2B; border-radius: 4px; overflow: hidden;">
-                        <div style="width: 85%; height: 100%; background: #FFCC00;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #AAA; margin-bottom: 4px;">
-                        <span>Electrical (Wiring & DB)</span>
-                        <span style="color: #FFF; font-weight: 700;">892 Jobs</span>
-                    </div>
-                    <div style="height: 8px; background: #2B2B2B; border-radius: 4px; overflow: hidden;">
-                        <div style="width: 65%; height: 100%; background: #3B82F6;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #AAA; margin-bottom: 4px;">
-                        <span>AC & Cooling (Inverter Wash)</span>
-                        <span style="color: #FFF; font-weight: 700;">740 Jobs</span>
-                    </div>
-                    <div style="height: 8px; background: #2B2B2B; border-radius: 4px; overflow: hidden;">
-                        <div style="width: 55%; height: 100%; background: #10B981;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #AAA; margin-bottom: 4px;">
-                        <span>Deep Cleaning & Sanitation</span>
-                        <span style="color: #FFF; font-weight: 700;">520 Jobs</span>
-                    </div>
-                    <div style="height: 8px; background: #2B2B2B; border-radius: 4px; overflow: hidden;">
-                        <div style="width: 40%; height: 100%; background: #A855F7;"></div>
-                    </div>
-                </div>
-            </div>
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Total Technicians</span>
+            <span class="kpi-icon" style="background: var(--adm-accent-soft);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a4 4 0 0 0 5 5l-9.6 9.6a2.8 2.8 0 0 1-4-4l9.6-9.6z"></path>
+                </svg>
+            </span>
         </div>
+        <div class="kpi-value">1,203</div>
+        <div class="kpi-foot warn">987 verified (82%)</div>
+    </div>
 
-        <!-- AI Diagnostics Real-Time Engine Health -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 16px; padding: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0;">AI Diagnostics Accuracy</h3>
-                <span style="background: rgba(16,185,129,0.2); color: #10B981; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
-                    94.2% Precision
-                </span>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2B2B2B; padding-bottom: 8px;">
-                    <span style="color: #AAA;">Total Images Processed</span>
-                    <strong style="color: #FFF;">14,920 Scans</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2B2B2B; padding-bottom: 8px;">
-                    <span style="color: #AAA;">Mean Analysis Latency</span>
-                    <strong style="color: #10B981;">1.24 seconds</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2B2B2B; padding-bottom: 8px;">
-                    <span style="color: #AAA;">Cost Prediction Accuracy</span>
-                    <strong style="color: #FFCC00;">91.8% within bounds</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: #AAA;">Customer Acceptance Rate</span>
-                    <strong style="color: #FFF;">87% Confirmed</strong>
-                </div>
-            </div>
-            
-            <a href="{{ url('/admin/analytics') }}" style="display: block; text-align: center; margin-top: 18px; color: #FFCC00; font-size: 13px; font-weight: 700; text-decoration: none;">
-                Open Recommendation Analytics Suite →
-            </a>
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Total Bookings</span>
+            <span class="kpi-icon" style="background: var(--adm-success-soft);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4"></path>
+                    <path d="M8 2v4"></path>
+                    <path d="M3 10h18"></path>
+                </svg>
+            </span>
         </div>
+        <div class="kpi-value">4,892</div>
+        <div class="kpi-foot up">3,902 completed</div>
+    </div>
 
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Platform Revenue</span>
+            <span class="kpi-icon" style="background: var(--adm-accent);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20"></path>
+                    <path d="M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.6 5 3.4 5 1.5 5 3.4-2.2 3-5 3-5-1.1-5-3"></path>
+                </svg>
+            </span>
+        </div>
+        <div class="kpi-value accent">Rs. 1,245,000</div>
+        <div class="kpi-foot">12% net commission</div>
     </div>
 
 </div>
+
+<!-- Charts Row -->
+<div class="adm-grid-2">
+
+    <!-- Bookings Trend -->
+    <div class="adm-card">
+        <div class="adm-card-head">
+            <h3>Monthly Bookings Growth</h3>
+            <span class="sub">Jan 2026 &ndash; Sep 2026</span>
+        </div>
+
+        <svg class="adm-chart" viewBox="0 0 500 200" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="admChartGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#FFC107" stop-opacity="0.30"></stop>
+                    <stop offset="100%" stop-color="#FFC107" stop-opacity="0"></stop>
+                </linearGradient>
+            </defs>
+            <line x1="0" y1="40" x2="500" y2="40" stroke="#E2E8F0" stroke-dasharray="3 4"></line>
+            <line x1="0" y1="90" x2="500" y2="90" stroke="#E2E8F0" stroke-dasharray="3 4"></line>
+            <line x1="0" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-dasharray="3 4"></line>
+            <line x1="0" y1="190" x2="500" y2="190" stroke="#CBD5E1"></line>
+            <path d="M 0 160 Q 70 140 140 130 T 280 80 T 420 50 L 500 30 L 500 190 L 0 190 Z" fill="url(#admChartGrad)"></path>
+            <path d="M 0 160 Q 70 140 140 130 T 280 80 T 420 50 T 500 30" fill="none" stroke="#E0A800" stroke-width="3" stroke-linecap="round"></path>
+            <circle cx="140" cy="130" r="4" fill="#FFC107"></circle>
+            <circle cx="280" cy="80" r="4" fill="#FFC107"></circle>
+            <circle cx="420" cy="50" r="4" fill="#FFC107"></circle>
+            <circle cx="500" cy="30" r="5" fill="#FFFFFF" stroke="#E0A800" stroke-width="2.5"></circle>
+        </svg>
+
+        <div class="adm-axis">
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
+            <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
+            <span>Sep &middot; peak 4,892</span>
+        </div>
+    </div>
+
+    <!-- Location Split -->
+    <div class="adm-card">
+        <div class="adm-card-head">
+            <h3>Bookings by Location</h3>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Karachi</span>
+                <span class="val">45% &middot; 2,201</span>
+            </div>
+            <div class="adm-bar yellow"><span style="width: 45%;"></span></div>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Lahore</span>
+                <span class="val">28% &middot; 1,370</span>
+            </div>
+            <div class="adm-bar blue"><span style="width: 28%;"></span></div>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Islamabad</span>
+                <span class="val">18% &middot; 880</span>
+            </div>
+            <div class="adm-bar green"><span style="width: 18%;"></span></div>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Rawalpindi &amp; Others</span>
+                <span class="val">9% &middot; 441</span>
+            </div>
+            <div class="adm-bar purple"><span style="width: 9%;"></span></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Detail Row -->
+<div class="adm-grid-2-even">
+
+    <!-- Requested Services -->
+    <div class="adm-card">
+        <div class="adm-card-head">
+            <h3>Most Requested Services</h3>
+            <a href="{{ url('/admin/categories') }}" class="adm-card-link">Manage All &rarr;</a>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Plumbing &mdash; Pipes &amp; Sinks</span>
+                <span class="val">1,248 jobs</span>
+            </div>
+            <div class="adm-bar yellow"><span style="width: 85%;"></span></div>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Electrical &mdash; Wiring &amp; DB</span>
+                <span class="val">892 jobs</span>
+            </div>
+            <div class="adm-bar blue"><span style="width: 65%;"></span></div>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">AC &amp; Cooling &mdash; Inverter Wash</span>
+                <span class="val">740 jobs</span>
+            </div>
+            <div class="adm-bar green"><span style="width: 55%;"></span></div>
+        </div>
+
+        <div class="adm-bar-row">
+            <div class="adm-bar-head">
+                <span class="name">Deep Cleaning &amp; Sanitation</span>
+                <span class="val">520 jobs</span>
+            </div>
+            <div class="adm-bar purple"><span style="width: 40%;"></span></div>
+        </div>
+    </div>
+
+    <!-- AI Engine Health -->
+    <div class="adm-card">
+        <div class="adm-card-head">
+            <h3>AI Diagnostics Accuracy</h3>
+            <span class="adm-badge green">94.2% precision</span>
+        </div>
+
+        <div class="adm-stat-row">
+            <span class="label">Total images processed</span>
+            <span class="value">14,920 scans</span>
+        </div>
+        <div class="adm-stat-row">
+            <span class="label">Mean analysis latency</span>
+            <span class="value">1.24 seconds</span>
+        </div>
+        <div class="adm-stat-row">
+            <span class="label">Cost prediction accuracy</span>
+            <span class="value">91.8% within bounds</span>
+        </div>
+        <div class="adm-stat-row">
+            <span class="label">Customer acceptance rate</span>
+            <span class="value">87% confirmed</span>
+        </div>
+
+        <a href="{{ url('/admin/analytics') }}" class="adm-btn adm-btn-ghost" style="width: 100%; margin-top: 18px;">
+            Open Analytics Suite
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="M12 5l7 7-7 7"></path>
+            </svg>
+        </a>
+    </div>
+
+</div>
+
 @endsection

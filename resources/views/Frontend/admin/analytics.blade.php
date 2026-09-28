@@ -1,148 +1,161 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'AI Recommendation & Matching Analytics — FixMate AI Admin')
+@section('title', 'Growth Analytics — FixMate AI Admin')
 
 @section('content')
-<div>
-    
-    <!-- Title matching Mockup 2 -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
-        <div>
-            <h1 style="font-size: 26px; font-weight: 900; color: #FFFFFF; margin-bottom: 4px;">Recommendation & AI Matching Analytics</h1>
-            <p style="font-size: 14px; color: #9CA3AF; margin: 0;">Performance of computer vision diagnostics, technician recommendation algorithms, and conversion metrics.</p>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="background: rgba(255, 204, 0, 0.2); color: #FFCC00; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
-                Average Matching Score: 87%
+
+<div class="adm-page-head">
+    <div>
+        <h1>Recommendation &amp; AI Matching Analytics</h1>
+        <p>Performance of computer vision diagnostics, technician matching, and conversion.</p>
+    </div>
+    <div class="adm-page-actions">
+        <span class="adm-badge yellow">Average matching score 87%</span>
+    </div>
+</div>
+
+<!-- Funnel KPIs -->
+<div class="adm-kpi-grid" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Total Inquiries (AI Scans)</span>
+            <span class="kpi-icon" style="background: var(--adm-info-soft);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 2v3"></path><path d="M12 19v3"></path>
+                    <path d="M2 12h3"></path><path d="M19 12h3"></path>
+                </svg>
             </span>
         </div>
+        <div class="kpi-value">1,248</div>
+        <div class="kpi-foot up">Processed by computer vision</div>
     </div>
 
-    <!-- 3 Metrics Cards matching Mockup 2 -->
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 28px;">
-        
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 22px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px;">Total Inquiries (AI Scans)</span>
-            <strong style="font-size: 32px; font-weight: 900; color: #FFFFFF; display: block; margin-bottom: 4px;">1,248</strong>
-            <span style="font-size: 11.5px; color: #10B981; font-weight: 700;">Processed by computer vision</span>
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Successful Matches</span>
+            <span class="kpi-icon" style="background: var(--adm-success-soft);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+            </span>
         </div>
-
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 22px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px;">Successful Matches</span>
-            <strong style="font-size: 32px; font-weight: 900; color: #3B82F6; display: block; margin-bottom: 4px;">892</strong>
-            <span style="font-size: 11.5px; color: #AAA;">71.4% match confidence</span>
-        </div>
-
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 14px; padding: 22px;">
-            <span style="font-size: 12px; color: #9CA3AF; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px;">Confirmed Bookings</span>
-            <strong style="font-size: 32px; font-weight: 900; color: #FFCC00; display: block; margin-bottom: 4px;">356</strong>
-            <span style="font-size: 11.5px; color: #10B981; font-weight: 700;">39.9% booking conversion</span>
-        </div>
-
+        <div class="kpi-value">892</div>
+        <div class="kpi-foot">71.4% match confidence</div>
     </div>
 
-    <!-- Two Columns: Most Recommended Technicians & Common Problems matching Mockup 2 -->
-    <div style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 24px;">
-        
-        <!-- Left: Most Recommended Technicians Table matching Mockup 2 -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 16px; padding: 24px;">
-            <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0 0 18px 0;">Most Recommended Technicians</h3>
-
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                
-                <!-- Row 1: Ali Khan -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2B2B2B; padding-bottom: 14px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="{{ asset('assets/images/image_1.png') }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
-                        <div>
-                            <strong style="font-size: 14.5px; color: #FFFFFF; display: block;">1. Ali Khan</strong>
-                            <span style="font-size: 12px; color: #9CA3AF;">Plumber • 4.9 ★ Rating</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <strong style="font-size: 14px; color: #FFCC00; display: block;">124 Inquiries</strong>
-                        <span style="font-size: 11px; color: #10B981; font-weight: 700;">98% Match Rate</span>
-                    </div>
-                </div>
-
-                <!-- Row 2: Riaz Ahmed -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2B2B2B; padding-bottom: 14px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="{{ asset('assets/images/image_2.png') }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
-                        <div>
-                            <strong style="font-size: 14.5px; color: #FFFFFF; display: block;">2. Riaz Ahmed</strong>
-                            <span style="font-size: 12px; color: #9CA3AF;">Electrician • 4.8 ★ Rating</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <strong style="font-size: 14px; color: #FFCC00; display: block;">98 Inquiries</strong>
-                        <span style="font-size: 11px; color: #10B981; font-weight: 700;">94% Match Rate</span>
-                    </div>
-                </div>
-
-                <!-- Row 3: Imran Shah -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2B2B2B; padding-bottom: 14px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="{{ asset('assets/images/image_3.png') }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
-                        <div>
-                            <strong style="font-size: 14.5px; color: #FFFFFF; display: block;">3. Imran Shah</strong>
-                            <span style="font-size: 12px; color: #9CA3AF;">AC Specialist • 4.9 ★ Rating</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <strong style="font-size: 14px; color: #FFCC00; display: block;">82 Inquiries</strong>
-                        <span style="font-size: 11px; color: #10B981; font-weight: 700;">96% Match Rate</span>
-                    </div>
-                </div>
-
-                <!-- Row 4: Usman Tariq -->
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="{{ asset('assets/images/image_4.png') }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
-                        <div>
-                            <strong style="font-size: 14.5px; color: #FFFFFF; display: block;">4. Usman Tariq</strong>
-                            <span style="font-size: 12px; color: #9CA3AF;">Cleaner • 4.8 ★ Rating</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <strong style="font-size: 14px; color: #FFCC00; display: block;">65 Inquiries</strong>
-                        <span style="font-size: 11px; color: #10B981; font-weight: 700;">91% Match Rate</span>
-                    </div>
-                </div>
-
-            </div>
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Confirmed Bookings</span>
+            <span class="kpi-icon" style="background: var(--adm-accent);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4"></path><path d="M8 2v4"></path>
+                    <path d="M3 10h18"></path>
+                </svg>
+            </span>
         </div>
-
-        <!-- Right: Common Detected Problems matching Mockup 2 -->
-        <div style="background: #1C1C1C; border: 1px solid #2B2B2B; border-radius: 16px; padding: 24px;">
-            <h3 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0 0 18px 0;">Common Detected Problems</h3>
-
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                
-                <div style="background: #242424; border-radius: 10px; padding: 12px 14px;">
-                    <strong style="font-size: 13.5px; color: #FFFFFF; display: block; margin-bottom: 2px;">Kitchen Sink Leakage</strong>
-                    <span style="font-size: 11.5px; color: #9CA3AF;">382 scans • 92% AI precision</span>
-                </div>
-
-                <div style="background: #242424; border-radius: 10px; padding: 12px 14px;">
-                    <strong style="font-size: 13.5px; color: #FFFFFF; display: block; margin-bottom: 2px;">AC Not Cooling (Gas / Filter)</strong>
-                    <span style="font-size: 11.5px; color: #9CA3AF;">294 scans • 89% AI precision</span>
-                </div>
-
-                <div style="background: #242424; border-radius: 10px; padding: 12px 14px;">
-                    <strong style="font-size: 13.5px; color: #FFFFFF; display: block; margin-bottom: 2px;">Circuit Breaker Tripping</strong>
-                    <span style="font-size: 11.5px; color: #9CA3AF;">188 scans • 94% AI precision</span>
-                </div>
-
-                <div style="background: #242424; border-radius: 10px; padding: 12px 14px;">
-                    <strong style="font-size: 13.5px; color: #FFFFFF; display: block; margin-bottom: 2px;">Sofa & Carpet Stain Wash</strong>
-                    <span style="font-size: 11.5px; color: #9CA3AF;">142 scans • 88% AI precision</span>
-                </div>
-
-            </div>
-        </div>
-
+        <div class="kpi-value accent">356</div>
+        <div class="kpi-foot up">39.9% booking conversion</div>
     </div>
 
 </div>
+
+<!-- Two Columns -->
+<div class="adm-grid-2">
+
+    <!-- Most Recommended Technicians -->
+    <div class="adm-card">
+        <div class="adm-card-head">
+            <h3>Most Recommended Technicians</h3>
+            <a href="{{ url('/admin/technicians') }}" class="adm-card-link">View Pool &rarr;</a>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
+            <div class="adm-person">
+                <img src="{{ asset('assets/images/image_1.png') }}" alt="Ali Khan" style="width: 42px; height: 42px; border-color: var(--adm-accent);">
+                <div>
+                    <div class="pname">1. Ali Khan</div>
+                    <div class="pmeta">Plumber &middot; &#9733; 4.9</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div class="pname">124 inquiries</div>
+                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">98% match rate</div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
+            <div class="adm-person">
+                <img src="{{ asset('assets/images/image_2.png') }}" alt="Riaz Ahmed" style="width: 42px; height: 42px; border-color: var(--adm-accent);">
+                <div>
+                    <div class="pname">2. Riaz Ahmed</div>
+                    <div class="pmeta">Electrician &middot; &#9733; 4.8</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div class="pname">98 inquiries</div>
+                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">94% match rate</div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
+            <div class="adm-person">
+                <img src="{{ asset('assets/images/image_3.png') }}" alt="Imran Shah" style="width: 42px; height: 42px; border-color: var(--adm-accent);">
+                <div>
+                    <div class="pname">3. Imran Shah</div>
+                    <div class="pmeta">AC Specialist &middot; &#9733; 4.9</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div class="pname">82 inquiries</div>
+                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">96% match rate</div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0;">
+            <div class="adm-person">
+                <img src="{{ asset('assets/images/image_4.png') }}" alt="Umar Tariq" style="width: 42px; height: 42px;">
+                <div>
+                    <div class="pname">4. Umar Tariq</div>
+                    <div class="pmeta">Cleaner &middot; &#9733; 4.8</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div class="pname">65 inquiries</div>
+                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">91% match rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Common Problems -->
+    <div class="adm-card">
+        <div class="adm-card-head">
+            <h3>Common Detected Problems</h3>
+        </div>
+
+        <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
+            <div class="pname" style="font-size: 13.5px;">Kitchen Sink Leakage</div>
+            <div class="pmeta" style="margin-top: 3px;">382 scans &middot; 92% precision</div>
+        </div>
+
+        <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
+            <div class="pname" style="font-size: 13.5px;">AC Not Cooling (Gas / Filter)</div>
+            <div class="pmeta" style="margin-top: 3px;">294 scans &middot; 89% precision</div>
+        </div>
+
+        <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
+            <div class="pname" style="font-size: 13.5px;">Circuit Breaker Tripping</div>
+            <div class="pmeta" style="margin-top: 3px;">188 scans &middot; 94% precision</div>
+        </div>
+
+        <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px;">
+            <div class="pname" style="font-size: 13.5px;">Sofa &amp; Carpet Stain Wash</div>
+            <div class="pmeta" style="margin-top: 3px;">142 scans &middot; 88% precision</div>
+        </div>
+    </div>
+
+</div>
+
 @endsection

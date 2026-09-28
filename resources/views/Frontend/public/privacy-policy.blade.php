@@ -29,7 +29,7 @@
 
                 <h3 style="font-size: 18px; font-weight: 800; color: #111; margin-top: 10px;">3. Security & OWASP Compliance</h3>
                 <p>
-                    In accordance with OWASP Top 10 recommendations, authentication is strictly enforced for file uploads, passwords are encrypted using bcrypt, and role-based access control (RBAC) isolates customer, technician, and administrator data.
+                    In accordance with OWASP Top 10 recommendations, authentication is strictly enforced for file uploads, passwords are encrypted using bcrypt, and role-based access control (RBAC) keeps customer and technician data strictly separated.
                 </p>
             </div>
         </div>
