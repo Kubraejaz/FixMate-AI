@@ -26,7 +26,9 @@
         </div>
 
         <!-- Registration Form -->
-        <form action="{{ route('verify-otp', ['role' => 'customer']) }}" method="GET" novalidate>
+        @include('Frontend.auth.partials.errors')
+        <form action="{{ route('register.customer.store') }}" method="POST" novalidate>
+            @csrf
 
             <!-- Full Name -->
             <div style="margin-bottom: 15px;">
@@ -52,7 +54,7 @@
                             <path d="M4 6l8 6 8-6"></path>
                         </svg>
                     </span>
-                    <input type="text" id="custIdentifier" name="identifier" class="app-input has-icon" required placeholder="0300-1234567 or name@email.com" autocomplete="username">
+                    <input type="text" id="custIdentifier" name="identifier" class="app-input has-icon" required placeholder="0300-1234567 or name@email.com" autocomplete="username" value="{{ old('identifier') }}">
                 </div>
                 <p class="app-hint">We send a verification code to this contact within a minute.</p>
             </div>

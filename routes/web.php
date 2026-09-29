@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\OtpVerificationController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredCustomerController;
+use App\Http\Controllers\Auth\RegisteredTechnicianController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -86,6 +93,12 @@ Route::get('/login', function () {
     return view('Frontend.auth.login');
 })->name('login');
 
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('login.store');
+
+Route::post('/logout', [LogoutController::class, 'destroy'])->name('logout');
+
 Route::get('/register', function () {
     return view('Frontend.auth.role-selection');
 })->name('register');
@@ -98,31 +111,42 @@ Route::get('/register/customer', function () {
     return view('Frontend.auth.register-customer');
 })->name('register.customer');
 
+Route::post('/register/customer', [RegisteredCustomerController::class, 'store'])
+    ->name('register.customer.store');
+
 Route::get('/register/technician', function () {
     return view('Frontend.auth.register-technician');
 })->name('register.technician');
+
+Route::post('/register/technician', [RegisteredTechnicianController::class, 'store'])
+    ->name('register.technician.store');
 
 Route::get('/technician-register', function () {
     return view('Frontend.auth.register-technician');
 });
 
-Route::get('/verify-otp', function () {
-    return view('Frontend.auth.verify-otp');
-})->name('verify-otp');
+Route::get('/verify-otp', [OtpVerificationController::class, 'show'])->name('verify-otp');
+
+Route::post('/verify-otp', [OtpVerificationController::class, 'store'])
+    ->middleware('throttle:10,1');
 
 Route::get('/forgot-password', function () {
     return view('Frontend.auth.forgot-password');
 })->name('forgot-password');
 
-Route::get('/reset-password', function () {
-    return view('Frontend.auth.reset-password');
-})->name('reset-password');
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('forgot-password.store');
+
+Route::get('/reset-password', [NewPasswordController::class, 'create'])->name('reset-password');
+
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('reset-password.store');
 
 
 // ==========================================
 // 3. CUSTOMER PORTAL — LOGIN REQUIRED
 // ==========================================
-Route::prefix('customer')->name('customer.')->group(function () {
+Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:3'])->group(function () {
     
     // Customer Dashboard
     Route::get('/dashboard', function () {
@@ -231,7 +255,7 @@ Route::get('/chat', function () {
 // ==========================================
 // 4. TECHNICIAN PORTAL — TECHNICIAN ONLY
 // ==========================================
-Route::prefix('technician')->name('technician.')->group(function () {
+Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:2'])->group(function () {
     
     // Technician Dashboard
     Route::get('/dashboard', function () {
@@ -314,7 +338,7 @@ Route::get('/provider-dashboard', function () {
 // ==========================================
 // 5. ADMIN PORTAL — ADMIN ONLY
 // ==========================================
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:1'])->group(function () {
     
     // Admin Dashboard
     Route::get('/', function () {

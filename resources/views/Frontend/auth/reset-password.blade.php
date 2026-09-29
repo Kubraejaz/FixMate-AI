@@ -15,19 +15,30 @@
             </a>
 
             <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 6px;">Set New Password</h1>
-            <p style="font-size: 14px; color: #64748B; margin: 0; line-height: 1.5;">Create a strong, secure password for your FixMate AI account.</p>
+            <p style="font-size: 14px; color: #64748B; margin: 0; line-height: 1.5;">Create a strong, secure password for your FixMate AI account ({{ $maskedIdentifier }}).</p>
         </div>
 
+        @if ($errors->any())
+            <div style="margin-bottom: 18px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; font-size: 13px; color: #B91C1C;">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
+
         <!-- Form -->
-        <form action="{{ url('/login') }}" method="GET">
+        <form action="{{ route('reset-password.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="identifier" value="{{ $identifier }}">
+
             <div style="margin-bottom: 16px;">
                 <label class="app-label" for="newPassword">New Password</label>
-                <input type="password" id="newPassword" class="app-input" required placeholder="Minimum 8 characters" value="newpassword123">
+                <input type="password" id="newPassword" name="password" class="app-input" required placeholder="Minimum 8 characters" autocomplete="new-password">
             </div>
 
             <div style="margin-bottom: 22px;">
                 <label class="app-label" for="newPasswordConfirm">Confirm New Password</label>
-                <input type="password" id="newPasswordConfirm" class="app-input" required placeholder="Re-type new password" value="newpassword123">
+                <input type="password" id="newPasswordConfirm" name="password_confirmation" class="app-input" required placeholder="Re-type new password" autocomplete="new-password">
             </div>
 
             <button type="submit" class="app-btn-primary" style="margin-bottom: 20px;">

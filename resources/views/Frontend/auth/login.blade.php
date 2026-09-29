@@ -19,22 +19,24 @@
         </div>
 
         <!-- Login Form -->
-        <form action="{{ url('/customer/dashboard') }}" method="GET">
-            
+        @include('Frontend.auth.partials.errors')
+        <form action="{{ route('login.store') }}" method="POST">
+            @csrf
+
             <!-- Email or Phone -->
             <div style="margin-bottom: 16px;">
                 <label class="app-label" for="loginIdentifier">Email or Phone</label>
-                <input type="text" id="loginIdentifier" class="app-input" required placeholder="Enter your email or phone" value="customer@fixmate.ai">
+                <input type="text" id="loginIdentifier" name="identifier" class="app-input" required placeholder="Enter your email or phone" value="{{ old('identifier') }}" autocomplete="username">
             </div>
 
             <!-- Password -->
             <div style="margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <label class="app-label" for="loginPassword" style="margin-bottom: 0;">Password</label>
-                    <a href="{{ url('/forgot-password') }}" style="font-size: 12.5px; font-weight: 600; color: #B45309; text-decoration: none;">Forgot password?</a>
+                    <a href="{{ route('forgot-password') }}" style="font-size: 12.5px; font-weight: 600; color: #B45309; text-decoration: none;">Forgot password?</a>
                 </div>
                 <div style="position: relative; display: flex; align-items: center;">
-                    <input type="password" id="loginPassword" class="app-input" required placeholder="Enter your password" value="password123" style="padding-right: 44px;">
+                    <input type="password" id="loginPassword" name="password" class="app-input" required placeholder="Enter your password" style="padding-right: 44px;" autocomplete="current-password">
                     <button type="button" onclick="togglePassVisibility()" style="position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #94A3B8; padding: 4px; display: flex; align-items: center;" title="Toggle Password">
                         <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -47,7 +49,7 @@
             <!-- Remember Me -->
             <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 22px;">
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13.5px; color: #475569; user-select: none;">
-                    <input type="checkbox" checked style="accent-color: #FFC107; width: 16px; height: 16px; border-radius: 4px; cursor: pointer;">
+                    <input type="checkbox" name="remember" value="1" checked style="accent-color: #FFC107; width: 16px; height: 16px; border-radius: 4px; cursor: pointer;">
                     <span>Remember me</span>
                 </label>
             </div>

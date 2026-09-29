@@ -27,7 +27,9 @@
         </div>
 
         <!-- Registration Form -->
-        <form action="{{ route('verify-otp', ['role' => 'technician']) }}" method="GET" novalidate>
+        @include('Frontend.auth.partials.errors')
+        <form action="{{ route('register.technician.store') }}" method="POST" novalidate>
+            @csrf
 
             <!-- Full Legal Name -->
             <div style="margin-bottom: 15px;">
@@ -39,7 +41,7 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </span>
-                    <input type="text" id="techName" name="name" class="app-input has-icon" required placeholder="As printed on your CNIC" autocomplete="name">
+                    <input type="text" id="techName" name="name" class="app-input has-icon" required placeholder="As printed on your CNIC" autocomplete="name" value="{{ old('name') }}">
                 </div>
             </div>
 
@@ -53,7 +55,7 @@
                             <path d="M11 18h2"></path>
                         </svg>
                     </span>
-                    <input type="tel" id="techPhone" name="phone" class="app-input has-icon" required placeholder="03XX-XXXXXXX" autocomplete="tel">
+                    <input type="tel" id="techPhone" name="phone" class="app-input has-icon" required placeholder="03XX-XXXXXXX" autocomplete="tel" value="{{ old('phone') }}">
                 </div>
                 <p class="app-hint">Job dispatches and arrival OTPs are sent to this number.</p>
             </div>

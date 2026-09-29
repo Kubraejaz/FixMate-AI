@@ -19,12 +19,13 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ url('/verify-otp') }}" method="GET">
-            <input type="hidden" name="flow" value="reset">
+        @include('Frontend.auth.partials.errors')
+        <form action="{{ route('forgot-password.store') }}" method="POST">
+            @csrf
 
             <div style="margin-bottom: 20px;">
                 <label class="app-label" for="resetIdentifier">Email Address or Phone Number</label>
-                <input type="text" id="resetIdentifier" class="app-input" required placeholder="e.g. customer@fixmate.ai or 0300-1234567" value="customer@fixmate.ai">
+                <input type="text" id="resetIdentifier" name="identifier" class="app-input" required placeholder="e.g. customer@fixmate.ai or 0300-1234567" value="{{ old('identifier') }}" autocomplete="username">
             </div>
 
             <button type="submit" class="app-btn-primary" style="margin-bottom: 20px;">

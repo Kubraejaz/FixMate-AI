@@ -17,26 +17,36 @@
             <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 6px;">Verify Security Code</h1>
             <p style="font-size: 14px; color: #64748B; margin: 0; line-height: 1.5;">
                 We sent a 6-digit verification code to <br>
-                <strong style="color: #0F172A;">+92 300 1234567</strong> or your email.
+                <strong style="color: #0F172A;">{{ $maskedIdentifier }}</strong>.
+                <br>Once verified you will {{ $targetText }}.
             </p>
         </div>
 
-        @php
-            $targetUrl = request('flow') === 'reset' ? url('/reset-password') : (request('role') === 'technician' ? url('/technician/verification') : url('/customer/dashboard'));
-        @endphp
+        @if ($devCode)
+            <div style="margin-bottom: 18px; padding: 12px 16px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; font-size: 13px; color: #B45309; font-weight: 700;">
+                Development code: <span style="font-size: 18px; letter-spacing: 0.12em;">{{ $devCode }}</span>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div style="margin-bottom: 18px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; font-size: 13px; color: #B91C1C;">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
 
         <!-- Form with 6 digit boxes -->
-        <form action="{{ $targetUrl }}" method="GET">
-            
+        <form action="{{ url('/verify-otp') }}" method="POST">
+            @csrf
+            <input type="hidden" name="identifier" value="{{ $identifier }}">
+
             <div style="margin-bottom: 24px;">
                 <label class="app-label" style="margin-bottom: 10px; font-size: 12.5px;">Enter 6-Digit Code</label>
                 <div style="display: flex; gap: 8px; justify-content: flex-start;" id="otpBoxContainer">
-                    <input type="text" maxlength="1" value="5" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;">
-                    <input type="text" maxlength="1" value="8" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;">
-                    <input type="text" maxlength="1" value="2" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;">
-                    <input type="text" maxlength="1" value="9" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;">
-                    <input type="text" maxlength="1" value="4" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;">
-                    <input type="text" maxlength="1" value="1" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;">
+                    @for ($i = 0; $i < 6; $i++)
+                        <input type="text" name="otp[]" maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="app-input otp-digit" style="width: 48px; height: 52px; text-align: center; font-size: 20px; font-weight: 800; padding: 0;" required>
+                    @endfor
                 </div>
             </div>
 
