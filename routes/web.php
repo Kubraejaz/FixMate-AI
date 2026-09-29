@@ -130,6 +130,10 @@ Route::get('/verify-otp', [OtpVerificationController::class, 'show'])->name('ver
 Route::post('/verify-otp', [OtpVerificationController::class, 'store'])
     ->middleware('throttle:10,1');
 
+Route::post('/verify-otp/resend', [OtpVerificationController::class, 'resend'])
+    ->middleware('throttle:3,1')
+    ->name('verify-otp.resend');
+
 Route::get('/forgot-password', function () {
     return view('Frontend.auth.forgot-password');
 })->name('forgot-password');

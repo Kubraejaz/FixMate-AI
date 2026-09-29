@@ -20,6 +20,9 @@ class PasswordResetLinkController extends Controller
 
         if ($user && $user->is_active) {
             $login = OtpService::isEmail($identifier) ? strtolower($identifier) : OtpService::normalizePhone($identifier);
+
+            session()->forget('otp.role');
+
             OtpService::issue($user, $login, OtpService::PURPOSE_RESET);
         }
 

@@ -83,6 +83,44 @@ class OtpTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_resend_issues_a_new_working_code(): void
+    {
+        Notification::fake();
+
+        $this->post(route('register.customer.store'), [
+            'name' => 'Resend Customer',
+            'identifier' => 'resend@example.com',
+            'city' => 'Lahore',
+            'password' => 'secretpass123',
+            'password_confirmation' => 'secretpass123',
+        ]);
+
+        $user = User::where('email', 'resend@example.com')->firstOrFail();
+        $staleCode = $this->capturedCode($user);
+
+        $this->post(route('verify-otp.resend'))
+            ->assertRedirect(route('verify-otp'))
+            ->assertSessionHas('status');
+
+        $freshCode = $this->capturedCode($user);
+        $this->assertNotSame($staleCode, $freshCode);
+
+        $this->post('/verify-otp', [
+            'identifier' => 'resend@example.com',
+            'otp' => ['0', '0', '0', '0', '0', '0'],
+        ])->assertSessionHasErrors('otp');
+
+        $this->post('/verify-otp', [
+            'identifier' => 'resend@example.com',
+            'otp' => $this->digits($freshCode),
+        ])->assertRedirect(route('customer.dashboard'));
+    }
+
+    public function test_resend_requires_an_active_verification_session(): void
+    {
+        $this->post(route('verify-otp.resend'))->assertRedirect(route('register'));
+    }
+
     public function test_wrong_otp_is_rejected_and_attempts_increment(): void
     {
         Notification::fake();

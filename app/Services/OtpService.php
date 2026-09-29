@@ -38,7 +38,7 @@ class OtpService
             Log::info("[OTP][{$identifier}] purpose={$purpose} code={$code}");
         }
 
-        if (app()->environment('local') && ! session()->has('otp.dev_code')) {
+        if (app()->environment('local')) {
             session()->put('otp.dev_code', $code);
         }
 

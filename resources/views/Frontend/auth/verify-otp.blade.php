@@ -28,6 +28,12 @@
             </div>
         @endif
 
+        @if (session('status'))
+            <div style="margin-bottom: 18px; padding: 12px 16px; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; font-size: 13px; color: #15803D; font-weight: 700;">
+                {{ session('status') }}
+            </div>
+        @endif
+
         @if ($errors->any())
             <div style="margin-bottom: 18px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; font-size: 13px; color: #B91C1C;">
                 @foreach ($errors->all() as $error)
@@ -57,8 +63,14 @@
 
         <!-- Resend and change phone -->
         <div style="font-size: 13px; color: #64748B;">
-            Didn't receive the SMS code? 
-            <span style="color: #94A3B8; font-size: 12px; margin-left: 4px;">Resend in <strong style="color: #0F172A;" id="countdownText">45s</strong></span>
+            Didn't receive the SMS code?
+            <form action="{{ route('verify-otp.resend') }}" method="POST" style="display: inline;">
+                @csrf
+                <button type="submit" id="resendButton" disabled
+                    style="background: none; border: none; padding: 0; margin-left: 4px; color: #94A3B8; font-size: 12px; font-weight: 700; cursor: not-allowed; font-family: inherit;">
+                    Resend in <span id="countdownText">45s</span>
+                </button>
+            </form>
             <div style="margin-top: 8px;">
                 <a href="{{ url('/register') }}" style="color: #B45309; font-weight: 700; text-decoration: none; font-size: 12.5px;">← Edit Phone Number</a>
             </div>
@@ -129,11 +141,18 @@
     // Countdown simulation
     let timeLeft = 45;
     const countdownEl = document.getElementById('countdownText');
+    const resendButton = document.getElementById('resendButton');
     const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft <= 0) {
             clearInterval(timer);
-            if (countdownEl) countdownEl.innerHTML = '<a href="#" style="color:#FFB300; font-weight:700; text-decoration:underline;">Resend Code</a>';
+            if (resendButton) {
+                resendButton.disabled = false;
+                resendButton.style.color = '#FFB300';
+                resendButton.style.cursor = 'pointer';
+                resendButton.style.textDecoration = 'underline';
+                resendButton.textContent = 'Resend Code';
+            }
         } else {
             if (countdownEl) countdownEl.textContent = timeLeft + 's';
         }

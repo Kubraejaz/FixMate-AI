@@ -78,4 +78,25 @@ class OtpVerificationController extends Controller
 
         return redirect()->route('customer.dashboard');
     }
+
+    public function resend(): RedirectResponse
+    {
+        $identifier = session('otp.identifier');
+        $purpose = session('otp.purpose');
+
+        if (! $identifier || ! $purpose) {
+            return redirect()->route('register');
+        }
+
+        $user = OtpService::findByIdentifier($identifier);
+
+        if (! $user) {
+            return redirect()->route('register');
+        }
+
+        OtpService::issue($user, $identifier, $purpose);
+
+        return redirect()->route('verify-otp')
+            ->with('status', 'A new verification code has been sent.');
+    }
 }
