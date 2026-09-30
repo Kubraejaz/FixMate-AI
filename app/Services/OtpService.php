@@ -83,11 +83,39 @@ class OtpService
         return true;
     }
 
+    /**
+     * Canonicalise a phone number to E.164 (+923xxxxxxxxx).
+     *
+     * The same number can be typed as 03187417012, 0318-7417012, 3187417012,
+     * 923187417012, 00923187417012 or +923187417012. All of them must resolve
+     * to the same users.phone value, otherwise login silently fails on an
+     * exact string match.
+     */
     public static function normalizePhone(string $phone): string
     {
         $digits = preg_replace('/\D+/', '', $phone) ?? '';
 
-        return str_starts_with(trim($phone), '+') ? '+'.$digits : $digits;
+        if ($digits === '') {
+            return '';
+        }
+
+        if (str_starts_with($digits, '0092')) {
+            return '+92'.substr($digits, 4);
+        }
+
+        if (str_starts_with($digits, '92') && strlen($digits) === 12) {
+            return '+'.$digits;
+        }
+
+        if (strlen($digits) === 11 && str_starts_with($digits, '0')) {
+            return '+92'.substr($digits, 1);
+        }
+
+        if (strlen($digits) === 10 && str_starts_with($digits, '3')) {
+            return '+92'.$digits;
+        }
+
+        return '+'.$digits;
     }
 
     public static function isEmail(string $identifier): bool

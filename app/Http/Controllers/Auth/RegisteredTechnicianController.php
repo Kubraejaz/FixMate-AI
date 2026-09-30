@@ -16,14 +16,22 @@ class RegisteredTechnicianController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:20'],
             'cnic' => ['required', 'string', 'max:20'],
             'experience' => ['required', 'string', 'max:255'],
             'trade' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.unique' => 'An account already exists with this email.',
         ]);
 
         $phone = OtpService::normalizePhone($data['phone']);
+        $email = strtolower(trim($data['email']));
+
+        if (User::whereRaw('LOWER(email) = ?', [$email])->exists()) {
+            throw ValidationException::withMessages(['email' => 'An account already exists with this email.']);
+        }
 
         if (User::where('phone', $phone)->exists()) {
             throw ValidationException::withMessages(['phone' => 'A technician is already registered with this phone number.']);
@@ -31,6 +39,7 @@ class RegisteredTechnicianController extends Controller
 
         $user = User::create([
             'name' => $data['name'],
+            'email' => $email,
             'phone' => $phone,
             'password' => $data['password'],
             'role' => User::ROLE_TECHNICIAN,

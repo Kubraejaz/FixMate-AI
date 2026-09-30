@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Technician;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Database\Seeder;
 
 class DemoAccountsSeeder extends Seeder
@@ -19,7 +20,7 @@ class DemoAccountsSeeder extends Seeder
             [
                 'name' => 'Ayesha Khan',
                 'password' => 'password123',
-                'phone' => '03001234567',
+                'phone' => OtpService::normalizePhone('03001234567'),
                 'city' => 'Karachi — DHA, Clifton, Gulshan, Nazimabad',
                 'role' => User::ROLE_CUSTOMER,
                 'is_active' => true,
@@ -30,9 +31,10 @@ class DemoAccountsSeeder extends Seeder
         $this->command->info('Demo customer: customer@fixmate.ai / password123');
 
         $technician = User::updateOrCreate(
-            ['phone' => '03441234567'],
+            ['phone' => OtpService::normalizePhone('03441234567')],
             [
                 'name' => 'Ali Khan',
+                'email' => 'technician@fixmate.ai',
                 'password' => 'password123',
                 'role' => User::ROLE_TECHNICIAN,
                 'is_active' => true,
@@ -49,6 +51,6 @@ class DemoAccountsSeeder extends Seeder
             ]
         );
 
-        $this->command->info('Demo technician: 03441234567 / password123');
+        $this->command->info('Demo technician: technician@fixmate.ai or 0344-1234567 / password123');
     }
 }

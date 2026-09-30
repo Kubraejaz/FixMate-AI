@@ -53,7 +53,7 @@ class RegistrationTest extends TestCase
         ]));
 
         $this->assertDatabaseHas('users', [
-            'phone' => '03217654321',
+            'phone' => '+923217654321',
             'email' => null,
             'role' => User::ROLE_CUSTOMER,
         ]);
@@ -84,6 +84,7 @@ class RegistrationTest extends TestCase
 
         $this->post(route('register.technician.store'), [
             'name' => 'Rida Ahmed',
+            'email' => 'rida@example.com',
             'phone' => '0333-1112223',
             'cnic' => '42201-1234567-1',
             'experience' => '3 - 5 Years',
@@ -92,10 +93,11 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'secretpass123',
         ]);
 
-        $user = User::where('phone', '03331112223')->first();
+        $user = User::where('phone', '+923331112223')->first();
 
         $this->assertNotNull($user);
         $this->assertTrue($user->isTechnician());
+        $this->assertSame('rida@example.com', $user->email);
 
         $this->assertDatabaseHas('technicians', [
             'user_id' => $user->id,
@@ -111,7 +113,7 @@ class RegistrationTest extends TestCase
 
     public function test_duplicate_phone_is_rejected(): void
     {
-        User::factory()->create(['phone' => '03332225566', 'role' => User::ROLE_CUSTOMER]);
+        User::factory()->create(['phone' => '+923332225566', 'role' => User::ROLE_CUSTOMER]);
 
         $response = $this->post(route('register.customer.store'), [
             'name' => 'Duplicate User',
@@ -122,6 +124,41 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('identifier');
+    }
+
+    public function test_technician_registration_requires_an_email(): void
+    {
+        Notification::fake();
+
+        $this->post(route('register.technician.store'), [
+            'name' => 'No Email',
+            'phone' => '03001112233',
+            'cnic' => '42201-1234567-1',
+            'experience' => '3 - 5 Years',
+            'trade' => 'Carpentry & Locksmith',
+            'password' => 'secretpass123',
+            'password_confirmation' => 'secretpass123',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertDatabaseMissing('users', ['phone' => '+923001112233']);
+    }
+
+    public function test_technician_registration_rejects_a_duplicate_email(): void
+    {
+        Notification::fake();
+
+        User::factory()->create(['email' => 'taken@example.com']);
+
+        $this->post(route('register.technician.store'), [
+            'name' => 'Duplicate Email',
+            'email' => 'TAKEN@example.com',
+            'phone' => '03001112233',
+            'cnic' => '42201-1234567-1',
+            'experience' => '3 - 5 Years',
+            'trade' => 'Carpentry & Locksmith',
+            'password' => 'secretpass123',
+            'password_confirmation' => 'secretpass123',
+        ])->assertSessionHasErrors('email');
     }
 
     public function test_password_confirmation_mismatch_is_rejected(): void

@@ -45,6 +45,21 @@
                 </div>
             </div>
 
+            <!-- Email Address -->
+            <div style="margin-bottom: 15px;">
+                <label class="app-label" for="techEmail">Email Address <span class="req">*</span></label>
+                <div class="app-field">
+                    <span class="app-field-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2.5"></rect>
+                            <path d="M2.5 6.5l9.5 7 9.5-7"></path>
+                        </svg>
+                    </span>
+                    <input type="email" id="techEmail" name="email" class="app-input has-icon" required placeholder="you@example.com" autocomplete="email" value="{{ old('email') }}">
+                </div>
+                <p class="app-hint">Use this to sign in. Job alerts also go to your mobile number.</p>
+            </div>
+
             <!-- Mobile Number -->
             <div style="margin-bottom: 15px;">
                 <label class="app-label" for="techPhone">Mobile Number <span class="req">*</span></label>

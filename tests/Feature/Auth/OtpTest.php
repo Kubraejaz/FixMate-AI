@@ -63,6 +63,7 @@ class OtpTest extends TestCase
 
         $this->post(route('register.technician.store'), [
             'name' => 'OTP Technician',
+            'email' => 'otp-tech@example.com',
             'phone' => '0346-1122334',
             'cnic' => '42201-0000000-1',
             'experience' => '1 - 2 Years',
@@ -71,11 +72,11 @@ class OtpTest extends TestCase
             'password_confirmation' => 'secretpass123',
         ]);
 
-        $user = User::where('phone', '03461122334')->firstOrFail();
+        $user = User::where('phone', '+923461122334')->firstOrFail();
         $code = $this->capturedCode($user);
 
         $response = $this->post('/verify-otp', [
-            'identifier' => '03461122334',
+            'identifier' => '+923461122334',
             'otp' => $this->digits($code),
         ]);
 
