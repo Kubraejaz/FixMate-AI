@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Auth\RegisteredTechnicianController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -340,14 +341,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         return view('Frontend.admin.dashboard');
     })->name('dashboard');
 
-    // Catalog & Category Management
-    Route::get('/categories', function () {
-        return view('Frontend.admin.categories');
-    })->name('categories');
+    // Catalog & Category / Services Management (Full CRUD)
+    Route::get('/categories', [ServiceController::class, 'index'])->name('categories');
+    Route::post('/categories', [ServiceController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{service}', [ServiceController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{service}', [ServiceController::class, 'destroy'])->name('categories.destroy');
+    Route::patch('/categories/{service}/toggle', [ServiceController::class, 'toggle'])->name('categories.toggle');
 
-    Route::get('/services', function () {
-        return view('Frontend.admin.categories');
-    })->name('services');
+    Route::get('/services', [ServiceController::class, 'index'])->name('services');
 
     // AI Diagnostics Analytics
     Route::get('/analytics', function () {
