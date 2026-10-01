@@ -1033,13 +1033,17 @@
                     <span>Escrow &amp; Settlements</span>
                 </a>
 
-                <a href="{{ url('/admin/complaints') }}" class="adm-nav-link {{ Request::is('admin/complaints*') ? 'active' : '' }}">
+                <a href="{{ route('admin.inquiries') }}" class="adm-nav-link {{ Request::is('admin/inquiries*', 'admin/complaints*') ? 'active' : '' }}">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3v18"></path>
-                        <path d="M5 8l7-5 7 5"></path>
-                        <path d="M5 8v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"></path>
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    <span>Dispute Arbitration</span>
+                    <span>Support &amp; Inquiries</span>
+                    @php
+                        $newInquiriesCount = \App\Models\ContactInquiry::where('status', 'new')->count();
+                    @endphp
+                    @if($newInquiriesCount > 0)
+                        <span class="count">{{ $newInquiriesCount }}</span>
+                    @endif
                 </a>
 
                 <span class="adm-nav-group">System</span>

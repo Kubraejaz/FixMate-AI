@@ -144,26 +144,60 @@
                 </div>
 
                 <!-- Right: Categorized Smart Contact Form -->
-                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 20px; padding: 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+                <div id="inquiry-form" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 20px; padding: 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
                     
                     <div style="margin-bottom: 20px;">
                         <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Send Us a Message</h3>
                         <p style="font-size: 13.5px; color: #64748B; margin: 0;">Fill in your details below and our dispatch coordinator will assist you right away.</p>
                     </div>
 
-                    <form action="#" method="POST" onsubmit="alert('Thank you! Your inquiry has been logged. Our dispatch desk will contact you via phone/WhatsApp within 15 minutes.'); return false;">
+                    @if(session('success_inquiry'))
+                        <div style="background: #ECFDF5; border: 2px solid #86EFAC; border-radius: 14px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);">
+                            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #10B981; color: #FFF; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; flex-shrink: 0;">
+                                    ✓
+                                </div>
+                                <div>
+                                    <strong style="display: block; font-size: 15px; color: #065F46; margin-bottom: 4px;">Inquiry Dispatched Successfully!</strong>
+                                    <p style="font-size: 13px; color: #047857; margin: 0 0 10px 0; line-height: 1.5;">
+                                        {{ session('success_inquiry') }}
+                                    </p>
+                                    @if(session('inquiry_ref'))
+                                        <div style="display: inline-flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px dashed #059669; padding: 6px 14px; border-radius: 8px; font-size: 13px;">
+                                            <span style="color: #64748B;">Tracking Reference:</span>
+                                            <strong style="color: #0F172A; font-family: monospace; font-size: 14px;">{{ session('inquiry_ref') }}</strong>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 14px; margin-bottom: 20px; font-size: 13px; color: #991B1B;">
+                            <strong style="display: block; margin-bottom: 4px;">Please correct the following:</strong>
+                            <ul style="margin: 0; padding-left: 18px;">
+                                @foreach($errors->all() as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.submit') }}" method="POST">
+                        @csrf
                         
                         <!-- Inquiry Category -->
                         <div style="margin-bottom: 16px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">How can we assist you? *</label>
-                            <select required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; color: #0F172A; font-family: inherit;">
+                            <select name="department" required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; color: #0F172A; font-family: inherit;">
                                 <option value="">Select Department / Category</option>
-                                <option value="booking">Customer: Booking Question or Status Tracking</option>
-                                <option value="emergency">Customer: Emergency Breakdown / Rapid Dispatch</option>
-                                <option value="escrow">Customer: Payment, Invoice or Escrow Query</option>
-                                <option value="technician">Technician: Onboarding & NADRA Biometric KYC</option>
-                                <option value="corporate">Business: Commercial / Housing Society AMC</option>
-                                <option value="feedback">General Feedback or Partnership</option>
+                                <option value="booking" {{ old('department') == 'booking' ? 'selected' : '' }}>Customer: Booking Question or Status Tracking</option>
+                                <option value="emergency" {{ old('department') == 'emergency' ? 'selected' : '' }}>Customer: Emergency Breakdown / Rapid Dispatch</option>
+                                <option value="escrow" {{ old('department') == 'escrow' ? 'selected' : '' }}>Customer: Payment, Invoice or Escrow Query</option>
+                                <option value="technician" {{ old('department') == 'technician' ? 'selected' : '' }}>Technician: Onboarding & NADRA Biometric KYC</option>
+                                <option value="corporate" {{ old('department') == 'corporate' ? 'selected' : '' }}>Business: Commercial / Housing Society AMC</option>
+                                <option value="feedback" {{ old('department') == 'feedback' ? 'selected' : '' }}>General Feedback or Partnership</option>
                             </select>
                         </div>
 
@@ -171,38 +205,38 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div>
                                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">Full Name *</label>
-                                <input type="text" placeholder="e.g. Tariq Mehmood" required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit;">
+                                <input type="text" name="name" value="{{ old('name', auth()->user()?->name) }}" placeholder="e.g. Tariq Mehmood" required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit;">
                             </div>
                             <div>
                                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">Mobile / WhatsApp Number *</label>
-                                <input type="tel" placeholder="0300 1234567" required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit;">
+                                <input type="tel" name="phone" value="{{ old('phone', auth()->user()?->phone) }}" placeholder="0300 1234567" required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit;">
                             </div>
                         </div>
 
-                        <!-- 2 Columns: City & Order Ref -->
+                        <!-- 2 Columns: City & Optional Email -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div>
                                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">City / Region *</label>
-                                <select required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; color: #0F172A; font-family: inherit;">
-                                    <option value="Islamabad">Islamabad / Rawalpindi</option>
-                                    <option value="Lahore">Lahore</option>
-                                    <option value="Karachi">Karachi</option>
-                                    <option value="Peshawar">Peshawar</option>
-                                    <option value="Faisalabad">Faisalabad</option>
-                                    <option value="Multan">Multan</option>
-                                    <option value="Other">Other City</option>
+                                <select name="city" required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; color: #0F172A; font-family: inherit;">
+                                    <option value="Islamabad" {{ old('city', auth()->user()?->city) == 'Islamabad' ? 'selected' : '' }}>Islamabad / Rawalpindi</option>
+                                    <option value="Lahore" {{ old('city', auth()->user()?->city) == 'Lahore' ? 'selected' : '' }}>Lahore</option>
+                                    <option value="Karachi" {{ old('city', auth()->user()?->city) == 'Karachi' ? 'selected' : '' }}>Karachi</option>
+                                    <option value="Peshawar" {{ old('city', auth()->user()?->city) == 'Peshawar' ? 'selected' : '' }}>Peshawar</option>
+                                    <option value="Faisalabad" {{ old('city', auth()->user()?->city) == 'Faisalabad' ? 'selected' : '' }}>Faisalabad</option>
+                                    <option value="Multan" {{ old('city', auth()->user()?->city) == 'Multan' ? 'selected' : '' }}>Multan</option>
+                                    <option value="Other" {{ old('city', auth()->user()?->city) == 'Other' ? 'selected' : '' }}>Other City</option>
                                 </select>
                             </div>
                             <div>
-                                <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">Booking ID (Optional)</label>
-                                <input type="text" placeholder="e.g. FXM-8492" style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit;">
+                                <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">Email Address (Optional)</label>
+                                <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" placeholder="name@example.com" style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit;">
                             </div>
                         </div>
 
                         <!-- Message -->
                         <div style="margin-bottom: 20px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">Your Message / Issue Details *</label>
-                            <textarea rows="4" placeholder="Please describe your issue, address or questions in detail..." required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit; resize: vertical;"></textarea>
+                            <textarea name="message" rows="4" placeholder="Please describe your issue, address or questions in detail..." required style="width: 100%; border: 1px solid #CBD5E1; border-radius: 10px; padding: 11px 14px; font-size: 14px; outline: none; background: #FFFFFF; font-family: inherit; resize: vertical;">{{ old('message') }}</textarea>
                         </div>
 
                         <!-- Submit Button -->

@@ -7,7 +7,9 @@ use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Auth\RegisteredTechnicianController;
+use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +62,8 @@ Route::get('/faqs', function () {
 Route::get('/contact', function () {
     return view('Frontend.public.contact');
 })->name('contact');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::get('/become-technician', function () {
     return view('Frontend.public.become-technician');
@@ -391,9 +395,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         return view('Frontend.admin.dashboard');
     })->name('payments');
 
-    Route::get('/complaints', function () {
-        return view('Frontend.admin.dashboard');
-    })->name('complaints');
+    // Contact Inquiries & Dispute Arbitration (Full CRUD)
+    Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries');
+    Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
+    Route::put('/inquiries/{inquiry}', [InquiryController::class, 'update'])->name('inquiries.update');
+    Route::delete('/inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
+
+    Route::get('/complaints', [InquiryController::class, 'index'])->name('complaints');
 
 });
 
