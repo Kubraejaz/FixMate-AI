@@ -197,4 +197,24 @@ class LoginTest extends TestCase
         $loginResponse->assertRedirect('/customer/diagnose');
         $this->assertAuthenticatedAs($user);
     }
+
+    public function test_admin_logging_in_is_not_hijacked_by_customer_intended_url(): void
+    {
+        $admin = User::factory()->admin()->create([
+            'email' => 'admin-safe@example.com',
+            'password' => 'secretpass123',
+        ]);
+
+        // Put a customer intended URL in session
+        $this->withSession(['url.intended' => 'http://localhost/customer/diagnose']);
+
+        $loginResponse = $this->post(route('login.store'), [
+            'identifier' => 'admin-safe@example.com',
+            'password' => 'secretpass123',
+        ]);
+
+        // Admin must go directly to /admin/dashboard, NOT /customer/diagnose!
+        $loginResponse->assertRedirect('/admin/dashboard');
+        $this->assertAuthenticatedAs($admin);
+    }
 }

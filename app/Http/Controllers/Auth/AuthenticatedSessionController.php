@@ -39,6 +39,24 @@ class AuthenticatedSessionController extends Controller
 
         $user->forceFill(['last_login_at' => now()])->save();
 
-        return redirect()->intended($user->dashboardRoute());
+        $intended = $request->session()->pull('url.intended');
+
+        if ($intended) {
+            $path = parse_url($intended, PHP_URL_PATH) ?? '';
+
+            if ($user->isAdmin() && str_starts_with($path, '/admin')) {
+                return redirect()->to($intended);
+            }
+
+            if ($user->isCustomer() && str_starts_with($path, '/customer')) {
+                return redirect()->to($intended);
+            }
+
+            if ($user->isTechnician() && str_starts_with($path, '/technician')) {
+                return redirect()->to($intended);
+            }
+        }
+
+        return redirect($user->dashboardRoute());
     }
 }
