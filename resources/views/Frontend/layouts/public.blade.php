@@ -279,13 +279,25 @@
                     </svg>
                 </button>
 
-                <a href="{{ url('/login') }}" class="custom-btn-login">
-                    Login
-                </a>
+                @auth
+                    <a href="{{ auth()->user()->dashboardRoute() }}" class="custom-btn-login" style="background: #FFF9E6; border-color: #FEF08A; color: #92400E;">
+                        Dashboard
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST" style="margin: 0; display: inline;">
+                        @csrf
+                        <button type="submit" class="custom-btn-signup" style="background: #F1F5F9; color: #475569; border-color: #CBD5E1; cursor: pointer; box-shadow: none;">
+                            Logout
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ url('/login') }}" class="custom-btn-login">
+                        Login
+                    </a>
 
-                <a href="{{ url('/register/role') }}" class="custom-btn-signup">
-                    Sign Up
-                </a>
+                    <a href="{{ url('/register/role') }}" class="custom-btn-signup">
+                        Sign Up
+                    </a>
+                @endauth
 
                 <!-- Mobile Menu Button -->
                 <button type="button" class="mobile-hamburger-btn" onclick="toggleMobileNav()" aria-label="Toggle Navigation Menu">
@@ -341,8 +353,16 @@
                 </ul>
             </nav>
             <div style="display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid #F1F5F9;">
-                <a href="{{ url('/login') }}" class="custom-btn-login" style="flex: 1; text-align: center; justify-content: center;">Login</a>
-                <a href="{{ url('/register/role') }}" class="custom-btn-signup" style="flex: 1; text-align: center; justify-content: center;">Sign Up</a>
+                @auth
+                    <a href="{{ auth()->user()->dashboardRoute() }}" class="custom-btn-login" style="flex: 1; text-align: center; justify-content: center; background: #FFF9E6; border-color: #FEF08A; color: #92400E;">Dashboard</a>
+                    <form action="{{ route('logout') }}" method="POST" style="flex: 1; margin: 0; display: flex;">
+                        @csrf
+                        <button type="submit" class="custom-btn-signup" style="width: 100%; text-align: center; justify-content: center; background: #F1F5F9; color: #475569; border-color: #CBD5E1; cursor: pointer; box-shadow: none;">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ url('/login') }}" class="custom-btn-login" style="flex: 1; text-align: center; justify-content: center;">Login</a>
+                    <a href="{{ url('/register/role') }}" class="custom-btn-signup" style="flex: 1; text-align: center; justify-content: center;">Sign Up</a>
+                @endauth
             </div>
         </div>
     </header>

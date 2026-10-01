@@ -35,6 +35,11 @@ class EnsureUserHasRole
         $expectedType = $typeMap[$role] ?? (int) $role;
 
         if ((int) $user->user_type !== $expectedType) {
+            if ($request->is('customer/diagnose*') || $request->is('customer/booking*')) {
+                return redirect()->guest(route('login'))
+                    ->with('info', 'You are currently signed in as a Technician. Please sign in with a Customer account to book or diagnose services.');
+            }
+
             return redirect($user->dashboardRoute());
         }
 
