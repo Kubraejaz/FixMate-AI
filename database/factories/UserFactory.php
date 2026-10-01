@@ -44,6 +44,13 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function customer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type' => User::TYPE_CUSTOMER,
+        ]);
+    }
+
     public function technician(): static
     {
         return $this->state(fn (array $attributes) => [

@@ -175,4 +175,26 @@ class LoginTest extends TestCase
         $response->assertSessionHasErrors('identifier');
         $this->assertGuest();
     }
+
+    public function test_guest_attempting_diagnose_is_redirected_to_intended_page_after_login(): void
+    {
+        $user = User::factory()->customer()->create([
+            'email' => 'booking-user@example.com',
+            'password' => 'secretpass123',
+        ]);
+
+        // Guest accesses protected diagnose page
+        $accessResponse = $this->get('/customer/diagnose');
+        $accessResponse->assertRedirect('/login');
+
+        // Customer logs in
+        $loginResponse = $this->post(route('login.store'), [
+            'identifier' => 'booking-user@example.com',
+            'password' => 'secretpass123',
+        ]);
+
+        // Should land directly on the diagnose page!
+        $loginResponse->assertRedirect('/customer/diagnose');
+        $this->assertAuthenticatedAs($user);
+    }
 }

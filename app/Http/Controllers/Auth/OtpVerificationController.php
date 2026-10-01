@@ -76,7 +76,7 @@ class OtpVerificationController extends Controller
             return redirect()->route('technician.verification');
         }
 
-        return redirect()->route('customer.dashboard');
+        return redirect()->intended(route('customer.dashboard'));
     }
 
     public function resend(): RedirectResponse

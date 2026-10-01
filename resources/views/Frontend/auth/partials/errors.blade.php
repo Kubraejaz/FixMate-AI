@@ -12,3 +12,10 @@
         {{ session('status') }}
     </div>
 @endif
+
+@if (session('info'))
+    <div style="margin-bottom: 18px; padding: 12px 16px; background: #FFFDF0; border: 1px solid #FEF08A; border-radius: 12px; font-size: 13px; color: #92400E; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 16px;">💡</span>
+        <span>{{ session('info') }}</span>
+    </div>
+@endif

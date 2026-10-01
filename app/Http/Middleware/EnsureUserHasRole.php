@@ -19,7 +19,8 @@ class EnsureUserHasRole
         $user = $request->user();
 
         if (! $user) {
-            return redirect()->route('login');
+            return redirect()->guest(route('login'))
+                ->with('info', 'Please sign in or create an account to book a service or diagnose your problem.');
         }
 
         $typeMap = [
