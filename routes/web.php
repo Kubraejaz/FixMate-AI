@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Auth\RegisteredTechnicianController;
+use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,41 +26,27 @@ use Illuminate\Support\Facades\Route;
 // ==========================================
 // 1. PUBLIC WEBSITE — NO LOGIN REQUIRED
 // ==========================================
-Route::get('/', function () {
-    return view('Frontend.public.home');
-})->name('home');
+Route::get('/', [PublicPageController::class, 'home'])->name('home');
 
 Route::get('/about', function () {
     return view('Frontend.public.about');
 })->name('about');
 
-Route::get('/services', function () {
-    return view('Frontend.public.services');
-})->name('services');
+Route::get('/services', [PublicPageController::class, 'services'])->name('services');
 
-Route::get('/services/{slug}', function ($slug = 'plumbing') {
-    return view('Frontend.public.service-details', ['slug' => $slug]);
-})->name('service-details');
+Route::get('/services/{slug}', [PublicPageController::class, 'serviceDetails'])->name('service-details');
 
 Route::get('/how-it-works', function () {
     return view('Frontend.public.how-it-works');
 })->name('how-it-works');
 
-Route::get('/technicians', function () {
-    return view('Frontend.public.technicians');
-})->name('technicians');
+Route::get('/technicians', [PublicPageController::class, 'technicians'])->name('technicians');
 
-Route::get('/find-technician', function () {
-    return view('Frontend.public.technicians');
-});
+Route::get('/find-technician', [PublicPageController::class, 'technicians']);
 
-Route::get('/technicians/{id}', function ($id = 'ali-khan') {
-    return view('Frontend.public.technician-profile', ['techId' => $id]);
-})->name('technician-profile');
+Route::get('/technicians/{id}', [PublicPageController::class, 'technicianProfile'])->name('technician-profile');
 
-Route::get('/technician-profile/{id?}', function ($id = 'ali-khan') {
-    return view('Frontend.public.technician-profile', ['techId' => $id]);
-});
+Route::get('/technician-profile/{id?}', [PublicPageController::class, 'technicianProfile']);
 
 Route::get('/community', function () {
     return view('Frontend.public.community');

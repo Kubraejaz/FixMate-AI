@@ -155,72 +155,33 @@
                 </a>
             </div>
 
-            <!-- 7 Services in a single clean row matching mockup -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px;">
-                
-                <!-- Plumbing -->
-                <a href="{{ url('/services/plumbing') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#93C5FD';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #E0F2FE; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        💧
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Plumbing</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">120+ Technicians</span>
-                </a>
+            @php
+                $iconMap = [
+                    'plumber' => ['icon' => '💧', 'bg' => '#E0F2FE', 'border' => '#93C5FD'],
+                    'electrician' => ['icon' => '⚡', 'bg' => '#FEF3C7', 'border' => '#FDE68A'],
+                    'ac-refrigeration' => ['icon' => '❄️', 'bg' => '#E0F7FA', 'border' => '#A5F3FC'],
+                    'deep-cleaning' => ['icon' => '🧹', 'bg' => '#DCFCE7', 'border' => '#86EFAC'],
+                    'painter' => ['icon' => '🖌️', 'bg' => '#FFEDD5', 'border' => '#FDBA74'],
+                    'carpenter' => ['icon' => '🔨', 'bg' => '#F3E8FF', 'border' => '#D8B4FE'],
+                    'home-appliances' => ['icon' => '🧺', 'bg' => '#CCFBF1', 'border' => '#99F6E4'],
+                ];
+            @endphp
 
-                <!-- Electrical -->
-                <a href="{{ url('/services/electrical') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#FDE68A';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #FEF3C7; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        ⚡
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Electrical</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">98+ Technicians</span>
-                </a>
-
-                <!-- AC Repair -->
-                <a href="{{ url('/services/ac-cooling') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#A5F3FC';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #E0F7FA; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        ❄️
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">AC Repair</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">76+ Technicians</span>
-                </a>
-
-                <!-- Cleaning -->
-                <a href="{{ url('/services/cleaning') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#86EFAC';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #DCFCE7; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        🧹
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Cleaning</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">64+ Technicians</span>
-                </a>
-
-                <!-- Painting -->
-                <a href="{{ url('/services/painting') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#FDBA74';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #FFEDD5; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        🖌️
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Painting</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">52+ Technicians</span>
-                </a>
-
-                <!-- Carpentry -->
-                <a href="{{ url('/services/carpentry') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#D8B4FE';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #F3E8FF; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        🔨
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Carpentry</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">48+ Technicians</span>
-                </a>
-
-                <!-- Appliance Repair -->
-                <a href="{{ url('/services/appliance-repair') }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#99F6E4';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
-                    <div style="width: 50px; height: 50px; border-radius: 14px; background: #CCFBF1; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
-                        🧺
-                    </div>
-                    <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Appliance Repair</strong>
-                    <span style="font-size: 11.5px; color: #64748B;">73+ Technicians</span>
-                </a>
-
+            <!-- Dynamic Services from database -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px;">
+                @foreach(($professions ?? \App\Models\Profession::where('is_active', true)->get()) as $prof)
+                    @php
+                        $style = $iconMap[$prof->slug] ?? ['icon' => '🔧', 'bg' => '#F1F5F9', 'border' => '#CBD5E1'];
+                        $techCount = $prof->professionals_count ?? $prof->professionals()->count();
+                    @endphp
+                    <a href="{{ url('/services/' . $prof->slug) }}" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 14px; text-align: center; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='{{ $style['border'] }}';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#E2E8F0';">
+                        <div style="width: 50px; height: 50px; border-radius: 14px; background: {{ $style['bg'] }}; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px auto;">
+                            {{ $style['icon'] }}
+                        </div>
+                        <strong style="display: block; font-size: 14px; color: #0F172A; margin-bottom: 4px;">{{ $prof->name }}</strong>
+                        <span style="font-size: 11.5px; color: #64748B;">{{ $techCount > 0 ? $techCount . '+ Active' : 'Available' }}</span>
+                    </a>
+                @endforeach
             </div>
 
         </div>
@@ -381,85 +342,47 @@
                 </a>
             </div>
 
-            <!-- 4 Featured Technicians Cards matching mockup -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;">
-                
-                <!-- Ali Khan -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <img src="{{ asset('assets/images/image_1.png') }}" alt="Ali Khan" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #FFC107;">
-                        <div>
-                            <strong style="display: block; font-size: 15px; color: #0F172A; margin-bottom: 2px;">Ali Khan</strong>
-                            <span style="font-size: 12px; color: #64748B; display: block; margin-bottom: 4px;">Plumber</span>
-                            <div style="font-size: 11.5px; color: #64748B; display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #F59E0B;">★ 4.8</span>
-                                <span>(120 jobs)</span>
-                                <span>• 📍 3.2 km away</span>
+            <!-- Featured Technicians Cards dynamically loaded from database -->
+            @php
+                $avatarList = [
+                    asset('assets/images/image_1.png'),
+                    asset('assets/images/image_2.png'),
+                    asset('assets/images/image_3.png'),
+                    asset('assets/images/image_4.png'),
+                ];
+                $pros = isset($featuredProfessionals) && $featuredProfessionals->isNotEmpty()
+                    ? $featuredProfessionals
+                    : \App\Models\Professional::with('profession')->take(4)->get();
+            @endphp
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px;">
+                @forelse($pros as $idx => $pro)
+                    @php
+                        $avatar = $avatarList[$idx % count($avatarList)];
+                    @endphp
+                    <a href="{{ url('/technicians/' . $pro->id) }}" style="text-decoration: none; color: inherit; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#FFC107'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)';">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <img src="{{ $avatar }}" alt="{{ $pro->name }}" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #FFC107;">
+                            <div>
+                                <strong style="display: block; font-size: 15px; color: #0F172A; margin-bottom: 2px;">{{ $pro->name }}</strong>
+                                <span style="font-size: 12px; color: #64748B; display: block; margin-bottom: 4px;">{{ $pro->profession?->name ?? 'Technician' }}</span>
+                                <div style="font-size: 11.5px; color: #64748B; display: flex; align-items: center; gap: 4px;">
+                                    <span style="color: #F59E0B;">★ 4.8</span>
+                                    <span>• {{ $pro->experience ?? '5+ yrs' }}</span>
+                                </div>
                             </div>
                         </div>
+                        @if($pro->is_verified ?? true)
+                            <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0; white-space: nowrap;">
+                                ✓ Verified
+                            </span>
+                        @endif
+                    </a>
+                @empty
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 24px; color: #64748B;">
+                        No technicians currently listed.
                     </div>
-                    <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0; white-space: nowrap;">
-                        ✓ Verified
-                    </span>
-                </div>
-
-                <!-- Rida Ahmed -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <img src="{{ asset('assets/images/image_2.png') }}" alt="Rida Ahmed" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #FFC107;">
-                        <div>
-                            <strong style="display: block; font-size: 15px; color: #0F172A; margin-bottom: 2px;">Rida Ahmed</strong>
-                            <span style="font-size: 12px; color: #64748B; display: block; margin-bottom: 4px;">Electrician</span>
-                            <div style="font-size: 11.5px; color: #64748B; display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #F59E0B;">★ 4.7</span>
-                                <span>(98 jobs)</span>
-                                <span>• 📍 2.5 km away</span>
-                            </div>
-                        </div>
-                    </div>
-                    <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0; white-space: nowrap;">
-                        ✓ Verified
-                    </span>
-                </div>
-
-                <!-- Imran Shah -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <img src="{{ asset('assets/images/image_3.png') }}" alt="Imran Shah" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #FFC107;">
-                        <div>
-                            <strong style="display: block; font-size: 15px; color: #0F172A; margin-bottom: 2px;">Imran Shah</strong>
-                            <span style="font-size: 12px; color: #64748B; display: block; margin-bottom: 4px;">AC Technician</span>
-                            <div style="font-size: 11.5px; color: #64748B; display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #F59E0B;">★ 4.6</span>
-                                <span>(87 jobs)</span>
-                                <span>• 📍 4.1 km away</span>
-                            </div>
-                        </div>
-                    </div>
-                    <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0; white-space: nowrap;">
-                        ✓ Verified
-                    </span>
-                </div>
-
-                <!-- Umar Tariq -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <img src="{{ asset('assets/images/image_4.png') }}" alt="Umar Tariq" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #FFC107;">
-                        <div>
-                            <strong style="display: block; font-size: 15px; color: #0F172A; margin-bottom: 2px;">Umar Tariq</strong>
-                            <span style="font-size: 12px; color: #64748B; display: block; margin-bottom: 4px;">Carpenter</span>
-                            <div style="font-size: 11.5px; color: #64748B; display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #F59E0B;">★ 4.5</span>
-                                <span>(76 jobs)</span>
-                                <span>• 📍 5.8 km away</span>
-                            </div>
-                        </div>
-                    </div>
-                    <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0; white-space: nowrap;">
-                        ✓ Verified
-                    </span>
-                </div>
-
+                @endforelse
             </div>
 
         </div>

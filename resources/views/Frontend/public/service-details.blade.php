@@ -2,16 +2,12 @@
 
 @php
     $servicesData = [
-        'plumbing' => [
-            'title' => 'Plumbing, Pipe Leaks & Sanitary Repair',
-            'category' => 'Plumbing Specialty',
-            'image' => asset('assets/images/image_3.png'),
-            'badge' => 'Plumbing Specialty',
-            'active_in' => 'Active in Islamabad, Lahore & Karachi',
+        'plumber' => [
             'headline' => 'Kitchen Sink, Mixer Faucets & Water Pipe Leak Repair',
             'desc' => 'Precision leak detection and rapid repair for dripping mixer taps, kitchen sink P-trap joint leaks, concealed wall pipe seepage, and water suction motors. Carried out by licensed master plumbers with a 60-day rework warranty.',
             'base_price' => 'Rs. 650',
             'duration' => '30 – 50 mins',
+            'image' => asset('assets/images/image_3.png'),
             'included' => [
                 'Full ultrasonic & joint leak pressure inspection',
                 'Slip-joint washer and Teflon thread seal replacement',
@@ -26,16 +22,12 @@
             'review_text' => 'Ali arrived within 25 minutes with the exact PVC replacement joint in his toolkit. Tested twice before leaving. Excellent!',
             'rating' => '4.8 ★'
         ],
-        'electrical' => [
-            'title' => 'Electrical Short-Circuit, DB Box & Wiring Repair',
-            'category' => 'Electrical Specialty',
-            'image' => asset('assets/images/image_2.png'),
-            'badge' => 'Electrical Specialty',
-            'active_in' => 'Active in Islamabad, Lahore & Karachi',
+        'electrician' => [
             'headline' => 'Circuit Breaker Tripping, DB Box & UPS Wiring Diagnosis',
             'desc' => 'Certified high-voltage electricians for tracing short-circuits, fixing burned main breakers, rewiring UPS/solar changeover switches, and mounting modern SMD lights and chandeliers with total insulation safety.',
             'base_price' => 'Rs. 700',
             'duration' => '40 – 60 mins',
+            'image' => asset('assets/images/image_2.png'),
             'included' => [
                 'Digital multimeter voltage & phase grounding audit',
                 'Main DB circuit breaker diagnostic & replacement labor',
@@ -50,16 +42,12 @@
             'review_text' => 'The technician tracked down a hidden neutral short in our ceiling within 20 minutes that two roadside electricians could not solve.',
             'rating' => '4.9 ★'
         ],
-        'ac-cooling' => [
-            'title' => 'Inverter AC Jet Foam Wash & Refrigerant Refill',
-            'category' => 'HVAC & Cooling Specialty',
-            'image' => asset('assets/images/image_1.png'),
-            'badge' => 'HVAC & Cooling',
-            'active_in' => 'Active in Islamabad, Lahore & Karachi',
+        'ac-refrigeration' => [
             'headline' => 'High-Pressure Chemical Coil Wash & R410a Gas Charging',
             'desc' => 'Restore optimum 16°C chilling with an industrial master jet wash. Removes stubborn bacteria, dirt, and mold from indoor cooling fins and outdoor condenser coils, drastically cutting your electric units consumption.',
             'base_price' => 'Rs. 1,499',
             'duration' => '60 – 75 mins',
+            'image' => asset('assets/images/image_1.png'),
             'included' => [
                 'Waterproof wall protection jacket installation',
                 'High-pressure chemical jet wash indoor cooling coils',
@@ -74,16 +62,12 @@
             'review_text' => 'My inverter AC was tripping at 28C. After their chemical service it cools like day one and whisper quiet. Very professional!',
             'rating' => '4.8 ★'
         ],
-        'cleaning' => [
-            'title' => 'Full Home Deep Cleaning & Upholstery Sanitization',
-            'category' => 'Hygiene Specialty',
-            'image' => asset('assets/images/image_4.png'),
-            'badge' => 'Deep Cleaning Specialty',
-            'active_in' => 'Active in Islamabad, Lahore & Karachi',
+        'deep-cleaning' => [
             'headline' => 'Hospital-Grade Chemical Sanitization, Sofa & Floor Descaling',
             'desc' => 'Complete deep cleaning service for pre-move in homes, post-renovation dust removal, tile grout restoration, and industrial extraction shampooing for 5-seater sofa sets and heavy carpets.',
             'base_price' => 'Rs. 2,499',
             'duration' => '2 – 3 hours',
+            'image' => asset('assets/images/image_4.png'),
             'included' => [
                 'Industrial wet/dry suction extraction equipment',
                 'Tile grout chemical descaling and stain lift',
@@ -98,16 +82,12 @@
             'review_text' => 'The 3-person team had heavy duty machines. Our sofa set looks brand new and smelled fresh. Worth every rupee.',
             'rating' => '4.7 ★'
         ],
-        'carpentry' => [
-            'title' => 'Door Locks, Modular Cabinets & Woodwork',
-            'category' => 'Carpentry Specialty',
-            'image' => asset('assets/images/image_3.png'),
-            'badge' => 'Carpentry Specialty',
-            'active_in' => 'Active in Islamabad, Lahore & Karachi',
+        'carpenter' => [
             'headline' => 'Smart Lock Fitting, Cabinet Hydraulic Hinges & Repairs',
             'desc' => 'Master finish carpenters equipped with precision routing tools for fitting digital door locks, re-aligning sagging wooden doors, installing soft-close kitchen drawer runners, and bespoke shelving.',
             'base_price' => 'Rs. 800',
             'duration' => '45 – 70 mins',
+            'image' => asset('assets/images/image_3.png'),
             'included' => [
                 'Precision mortise cut and strike plate alignment',
                 'Hydraulic soft-close hinge calibration',
@@ -122,16 +102,12 @@
             'review_text' => 'Umar fixed 4 sticky doors and installed a fingerprint lock on our main gate. Perfect precision and cleaned up wood shavings.',
             'rating' => '4.6 ★'
         ],
-        'painting' => [
-            'title' => 'Wall Putty, Anti-Fungal Paint & Waterproofing',
-            'category' => 'Painting Specialty',
-            'image' => asset('assets/images/image_2.png'),
-            'badge' => 'Painting Specialty',
-            'active_in' => 'Active in Islamabad, Lahore & Karachi',
+        'painter' => [
             'headline' => 'Seepage Chemical Treatment & Premium Wall Finish',
             'desc' => 'Experienced painters skilled in scraping efflorescence, applying elastomeric waterproofing coats on damp walls, double-coat putty sanding, and spray lacquer finishes.',
             'base_price' => 'Rs. 25 / sq.ft',
             'duration' => '1 – 2 days',
+            'image' => asset('assets/images/image_2.png'),
             'included' => [
                 'Floor masking and furniture protective plastic covering',
                 'Chemical dampness treatment and anti-salt scraper',
@@ -145,15 +121,44 @@
             'review_author' => 'Saad Rasheed',
             'review_text' => 'The seepage in my drawing room had ruined the paint twice. FixMate team applied their elastomeric seal first. 4 months later, completely dry!',
             'rating' => '4.8 ★'
+        ],
+        'home-appliances' => [
+            'headline' => 'Washing Machine, Microwave & Kitchen Appliances Repair',
+            'desc' => 'Fast on-site diagnosis and repair for all top appliance brands. Skilled in PCB boards, spin motor issues, drainage pump failures, and microwave magnetron replacements.',
+            'base_price' => 'Rs. 950',
+            'duration' => '45 – 60 mins',
+            'image' => asset('assets/images/image_1.png'),
+            'included' => [
+                'Full electrical multimeter amp & circuit diagnosis',
+                'Internal drum/pump clearing & seal lubrication',
+                'Component replacement labor & voltage calibration',
+                'Post-repair 30-minute stress test'
+            ],
+            'excluded' => [
+                'New motor, pump, or capacitor parts cost',
+                'Transportation if workshop repair required'
+            ],
+            'review_author' => 'Maria Khan',
+            'review_text' => 'Technician arrived within 40 minutes and replaced the drain pump on my automatic washing machine. Works like new!',
+            'rating' => '4.9 ★'
         ]
     ];
 
-    $currentSlug = strtolower($slug ?? 'plumbing');
-    $service = $servicesData[$currentSlug] ?? $servicesData['plumbing'];
+    // Aliases
+    $servicesData['plumbing'] = $servicesData['plumber'];
+    $servicesData['electrical'] = $servicesData['electrician'];
+    $servicesData['ac-cooling'] = $servicesData['ac-refrigeration'];
+    $servicesData['cleaning'] = $servicesData['deep-cleaning'];
+    $servicesData['carpentry'] = $servicesData['carpenter'];
+    $servicesData['painting'] = $servicesData['painter'];
+
+    $activeKey = $profession->slug ?? strtolower($slug ?? 'plumber');
+    $service = $servicesData[$activeKey] ?? $servicesData['plumber'];
+    $profName = $profession->name ?? ucwords(str_replace('-', ' ', $activeKey));
 @endphp
 
-@section('title', $service['title'] . ' — FixMate AI')
-@section('meta_desc', $service['desc'])
+@section('title', $profName . ' Services & Upfront Pricing — FixMate AI')
+@section('meta_desc', $profession->description ?? $service['desc'])
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 70px;">
@@ -164,7 +169,7 @@
         <span>/</span>
         <a href="{{ url('/services') }}" style="color: #64748B; text-decoration: none;">Services</a>
         <span>/</span>
-        <span style="color: #0F172A; font-weight: 700;">{{ $service['title'] }}</span>
+        <span style="color: #0F172A; font-weight: 700;">{{ $profName }}</span>
     </div>
 
     <!-- Service Details Hero Grid -->
@@ -173,21 +178,21 @@
         <div>
             <!-- Banner Image -->
             <div style="border-radius: 18px; overflow: hidden; margin-bottom: 24px; border: 1px solid #E2E8F0; height: 280px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                <img src="{{ $service['image'] }}" alt="{{ $service['title'] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="{{ $service['image'] }}" alt="{{ $profName }}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
 
             <div style="margin-bottom: 24px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                     <span style="font-size: 11.5px; font-weight: 800; background: #FFF9E6; color: #92400E; border: 1px solid #FEF08A; padding: 4px 12px; border-radius: 50px;">
-                        {{ $service['badge'] }}
+                        {{ $profName }} Specialty
                     </span>
-                    <span style="font-size: 12.5px; color: #059669; font-weight: 700;">● {{ $service['active_in'] }}</span>
+                    <span style="font-size: 12.5px; color: #059669; font-weight: 700;">● Active in Islamabad, Lahore & Karachi</span>
                 </div>
                 <h1 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 0 0 12px 0; letter-spacing: -0.02em;">
                     {{ $service['headline'] }}
                 </h1>
                 <p style="font-size: 15px; color: #64748B; line-height: 1.6; margin: 0;">
-                    {{ $service['desc'] }}
+                    {{ $profession->description ?? $service['desc'] }}
                 </p>
             </div>
 
@@ -216,6 +221,38 @@
                     @endforeach
                 </div>
             </div>
+
+            <!-- Dynamic Available Technicians in this Profession -->
+            @if(isset($technicians) && $technicians->count() > 0)
+            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Available {{ $profName }} Technicians</h3>
+                        <span style="font-size: 12.5px; color: #64748B;">NADRA biometric verified and background checked.</span>
+                    </div>
+                    <a href="{{ url('/technicians?profession=' . ($profession->id ?? '')) }}" style="font-size: 12.5px; font-weight: 700; color: #2563EB; text-decoration: none;">View All →</a>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px;">
+                    @foreach($technicians as $tech)
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%; background: #FFC107; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #0F172A; flex-shrink: 0;">
+                                    {{ strtoupper(substr($tech->name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <strong style="display: block; font-size: 13.5px; color: #0F172A;">{{ $tech->name }}</strong>
+                                    <span style="font-size: 11.5px; color: #64748B;">{{ $tech->experience ?? '5+ yrs' }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ url('/technicians/' . $tech->id) }}" style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 6px; text-decoration: none; white-space: nowrap;">
+                                Profile
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             <!-- Real Customer Review Card -->
             <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 22px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
@@ -265,11 +302,11 @@
 
                 <!-- Booking Action Buttons -->
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="{{ url('/customer/booking') }}" style="background: #FFB800; color: #0F172A; text-align: center; font-weight: 800; font-size: 15px; padding: 13px 0; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35); transition: background 0.15s;" onmouseover="this.style.background='#F59E0B'" onmouseout="this.style.background='#FFB800'">
+                    <a href="{{ url('/customer/booking?profession=' . ($profession->slug ?? '')) }}" style="background: #FFB800; color: #0F172A; text-align: center; font-weight: 800; font-size: 15px; padding: 13px 0; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35); transition: background 0.15s;" onmouseover="this.style.background='#F59E0B'" onmouseout="this.style.background='#FFB800'">
                         Book This Service Now →
                     </a>
                     
-                    <a href="{{ url('/customer/diagnose?q=' . urlencode($currentSlug)) }}" style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; text-align: center; font-weight: 700; font-size: 13.5px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <a href="{{ url('/customer/diagnose?q=' . urlencode($profession->slug ?? 'repair')) }}" style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; text-align: center; font-weight: 700; font-size: 13.5px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
                         <span>📸</span>
                         <span>Diagnose Problem with AI First</span>
                     </a>
@@ -285,18 +322,33 @@
 
     </div>
 
-    <!-- Related Categories Strip -->
+    <!-- Dynamic Related Categories Strip -->
+    @php
+        $otherList = isset($otherProfessions) && $otherProfessions->isNotEmpty()
+            ? $otherProfessions
+            : \App\Models\Profession::where('is_active', true)->where('id', '!=', $profession->id ?? 0)->get();
+        $iconMap = [
+            'plumber' => '💧',
+            'electrician' => '⚡',
+            'ac-refrigeration' => '❄️',
+            'deep-cleaning' => '🧹',
+            'painter' => '🖌️',
+            'carpenter' => '🔨',
+            'home-appliances' => '🧺',
+        ];
+    @endphp
     <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #E2E8F0;">
         <h4 style="font-size: 16px; font-weight: 800; color: #0F172A; margin: 0 0 14px 0;">Explore Other Services</h4>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="{{ url('/services/plumbing') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none;">💧 Plumbing</a>
-            <a href="{{ url('/services/electrical') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none;">⚡ Electrical</a>
-            <a href="{{ url('/services/ac-cooling') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none;">❄️ AC Cooling</a>
-            <a href="{{ url('/services/cleaning') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none;">🧹 Deep Cleaning</a>
-            <a href="{{ url('/services/carpentry') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none;">🔨 Carpentry</a>
-            <a href="{{ url('/services/painting') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none;">🖌️ Painting</a>
+            @foreach($otherList as $other)
+                @php $icon = $iconMap[$other->slug] ?? '🔧'; @endphp
+                <a href="{{ url('/services/' . $other->slug) }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 700; color: #0F172A; text-decoration: none; transition: all 0.15s;" onmouseover="this.style.background='#FFB800'; this.style.borderColor='#FFB800';" onmouseout="this.style.background='#F8FAFC'; this.style.borderColor='#E2E8F0';">
+                    {{ $icon }} {{ $other->name }}
+                </a>
+            @endforeach
         </div>
     </div>
 
 </div>
 @endsection
+

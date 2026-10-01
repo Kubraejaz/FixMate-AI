@@ -25,44 +25,39 @@
     <section style="padding: 32px 0 20px 0;">
         <div class="container">
             
-            <!-- Filter Bar -->
-            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; padding: 12px 18px; display: flex; gap: 14px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex-wrap: wrap;">
+            <!-- Dynamic Filter Bar -->
+            <form method="GET" action="{{ url('/technicians') }}" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; padding: 12px 18px; display: flex; gap: 14px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 240px; display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 18px; color: #94A3B8;">🔍</span>
-                    <input type="text" placeholder="Search by name, skill (e.g. Inverter AC, Leak repair)..." style="width: 100%; border: none; background: transparent; outline: none; font-size: 14px; font-family: inherit;">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, profession, or experience..." style="width: 100%; border: none; background: transparent; outline: none; font-size: 14px; font-family: inherit;">
                 </div>
                 <div style="border-left: 1px solid #CBD5E1; padding-left: 14px;">
-                    <select style="border: none; background: transparent; outline: none; font-size: 13.5px; font-weight: 700; color: #0F172A; cursor: pointer;">
-                        <option>All Specialities</option>
-                        <option>Master Plumber</option>
-                        <option>Licensed Electrician</option>
-                        <option>HVAC / AC Technician</option>
-                        <option>Finish Carpenter</option>
-                        <option>Deep Cleaning Specialist</option>
+                    <select name="profession" style="border: none; background: transparent; outline: none; font-size: 13.5px; font-weight: 700; color: #0F172A; cursor: pointer;">
+                        <option value="">All Professions</option>
+                        @foreach(($professions ?? \App\Models\Profession::where('is_active', true)->get()) as $prof)
+                            <option value="{{ $prof->id }}" {{ request('profession') == $prof->id ? 'selected' : '' }}>
+                                {{ $prof->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
-                <div style="border-left: 1px solid #CBD5E1; padding-left: 14px;">
-                    <select style="border: none; background: transparent; outline: none; font-size: 13.5px; font-weight: 700; color: #0F172A; cursor: pointer;">
-                        <option>All Cities (Pakistan)</option>
-                        <option>Islamabad / Rawalpindi</option>
-                        <option>Lahore</option>
-                        <option>Karachi</option>
-                        <option>Peshawar</option>
-                        <option>Faisalabad</option>
-                    </select>
-                </div>
-                <button style="background: #FFB800; border: none; outline: none; padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #0F172A; cursor: pointer; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
+                <button type="submit" style="background: #FFB800; border: none; outline: none; padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #0F172A; cursor: pointer; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
                     Find Pro
                 </button>
-            </div>
+                @if(request('search') || request('profession'))
+                    <a href="{{ url('/technicians') }}" style="font-size: 13px; color: #64748B; text-decoration: none; font-weight: 600;">Clear</a>
+                @endif
+            </form>
 
             <!-- Quick Filter Chips -->
             <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; font-size: 13px;">
                 <span style="font-weight: 700; color: #64748B; align-self: center;">Quick Filters:</span>
-                <span style="background: #0F172A; color: #FFF; padding: 4px 14px; border-radius: 50px; font-weight: 700; cursor: pointer;">All (2,400+)</span>
-                <span style="background: #F1F5F9; color: #334155; padding: 4px 14px; border-radius: 50px; font-weight: 600; cursor: pointer;">⚡ Available Now (&lt; 30 mins)</span>
-                <span style="background: #F1F5F9; color: #334155; padding: 4px 14px; border-radius: 50px; font-weight: 600; cursor: pointer;">★ Top Rated (4.8+)</span>
-                <span style="background: #F1F5F9; color: #334155; padding: 4px 14px; border-radius: 50px; font-weight: 600; cursor: pointer;">🛡️ Emergency Squad Certified</span>
+                <a href="{{ url('/technicians') }}" style="text-decoration: none; {{ !request('profession') ? 'background: #0F172A; color: #FFF;' : 'background: #F1F5F9; color: #334155;' }} padding: 4px 14px; border-radius: 50px; font-weight: 700;">All</a>
+                @foreach(($professions ?? \App\Models\Profession::where('is_active', true)->get())->take(5) as $prof)
+                    <a href="{{ url('/technicians?profession=' . $prof->id) }}" style="text-decoration: none; {{ request('profession') == $prof->id ? 'background: #0F172A; color: #FFF;' : 'background: #F1F5F9; color: #334155;' }} padding: 4px 14px; border-radius: 50px; font-weight: 600;">
+                        {{ $prof->name }}
+                    </a>
+                @endforeach
             </div>
 
         </div>
@@ -72,130 +67,70 @@
     <section style="padding: 24px 0 60px 0;">
         <div class="container">
             
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;">
-                
-                <!-- 1. Ali Khan -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
-                            <img src="{{ asset('assets/images/image_1.png') }}" alt="Ali Khan" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #FFB800;">
-                            <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
-                        </div>
-                        <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
-                        <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 2px;">Ali Khan</strong>
-                        <span style="font-size: 12.5px; color: #64748B; display: block; margin-bottom: 6px;">Master Plumber • 8 yrs exp</span>
-                        
-                        <div style="font-size: 12px; color: #64748B; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                            <span style="color: #D97706; font-weight: 800;">★ 4.8</span>
-                            <span>(124 jobs)</span>
-                            <span>•</span>
-                            <span style="color: #0F172A; font-weight: 600;">📍 2.8 km</span>
-                        </div>
+            @php
+                $avatarList = [
+                    asset('assets/images/image_1.png'),
+                    asset('assets/images/image_2.png'),
+                    asset('assets/images/image_3.png'),
+                    asset('assets/images/image_4.png'),
+                ];
+            @endphp
 
-                        <div style="background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 10px; padding: 8px; font-size: 12px; color: #475569; margin-bottom: 14px; text-align: left;">
-                            <div>• Pipe leak detection & repair</div>
-                            <div>• Geyser thermostat & element</div>
-                            <div>• High-rise bathroom fittings</div>
-                        </div>
-                    </div>
+            @if(isset($technicians) && $technicians->count() > 0)
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px;">
+                    @foreach($technicians as $index => $tech)
+                        @php
+                            $avatar = $avatarList[$index % count($avatarList)];
+                        @endphp
+                        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFB800'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
+                            <div>
+                                <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
+                                    <img src="{{ $avatar }}" alt="{{ $tech->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #FFB800;">
+                                    <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
+                                </div>
+                                <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
+                                <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 2px;">{{ $tech->name }}</strong>
+                                <span style="font-size: 12.5px; color: #64748B; display: block; margin-bottom: 6px;">
+                                    {{ $tech->profession?->name ?? 'Service Specialist' }} • {{ $tech->experience ?? '5+ yrs exp' }}
+                                </span>
+                                
+                                <div style="font-size: 12px; color: #64748B; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                                    <span style="color: #D97706; font-weight: 800;">★ 4.8</span>
+                                    <span>(Active Partner)</span>
+                                    <span>•</span>
+                                    <span style="color: #0F172A; font-weight: 600;">📍 {{ $tech->user?->city ?? 'Verified Area' }}</span>
+                                </div>
 
-                    <a href="{{ url('/register/role') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 13.5px; padding: 10px 0; border-radius: 10px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
-                        Book Technician →
-                    </a>
+                                <div style="background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 10px; padding: 10px; font-size: 12px; color: #475569; margin-bottom: 14px; text-align: left;">
+                                    <div>• Verified biometric credentials</div>
+                                    <div>• Standard labor benchmark tools</div>
+                                    <div>• 60-day FixMate rework warranty</div>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <a href="{{ url('/technicians/' . $tech->id) }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Profile</a>
+                                <a href="{{ url('/customer/diagnose') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
+                                    Book Pro
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
-                <!-- 2. Rida Ahmed -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
-                            <img src="{{ asset('assets/images/image_2.png') }}" alt="Rida Ahmed" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #FFB800;">
-                            <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
-                        </div>
-                        <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
-                        <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 2px;">Rida Ahmed</strong>
-                        <span style="font-size: 12.5px; color: #64748B; display: block; margin-bottom: 6px;">Senior Electrician • 6 yrs exp</span>
-                        
-                        <div style="font-size: 12px; color: #64748B; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                            <span style="color: #D97706; font-weight: 800;">★ 4.9</span>
-                            <span>(98 jobs)</span>
-                            <span>•</span>
-                            <span style="color: #0F172A; font-weight: 600;">📍 1.9 km</span>
-                        </div>
-
-                        <div style="background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 10px; padding: 8px; font-size: 12px; color: #475569; margin-bottom: 14px; text-align: left;">
-                            <div>• DB Short-circuit fault tracing</div>
-                            <div>• UPS / Inverter panel wiring</div>
-                            <div>• Smart home lighting switches</div>
-                        </div>
+                @if(method_exists($technicians, 'links'))
+                    <div style="margin-top: 30px; display: flex; justify-content: center;">
+                        {{ $technicians->links() }}
                     </div>
-
-                    <a href="{{ url('/register/role') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 13.5px; padding: 10px 0; border-radius: 10px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
-                        Book Technician →
-                    </a>
+                @endif
+            @else
+                <div style="text-align: center; padding: 48px; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 18px;">
+                    <div style="font-size: 36px; margin-bottom: 12px;">🔍</div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">No technicians found</h3>
+                    <p style="font-size: 14px; color: #64748B; margin: 0 0 16px 0;">Try adjusting your search keywords or profession filter.</p>
+                    <a href="{{ url('/technicians') }}" style="background: #0F172A; color: #FFF; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700;">View All Technicians</a>
                 </div>
-
-                <!-- 3. Imran Shah -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
-                            <img src="{{ asset('assets/images/image_3.png') }}" alt="Imran Shah" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #FFB800;">
-                            <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
-                        </div>
-                        <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
-                        <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 2px;">Imran Shah</strong>
-                        <span style="font-size: 12.5px; color: #64748B; display: block; margin-bottom: 6px;">HVAC & AC Lead • 7 yrs exp</span>
-                        
-                        <div style="font-size: 12px; color: #64748B; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                            <span style="color: #D97706; font-weight: 800;">★ 4.7</span>
-                            <span>(142 jobs)</span>
-                            <span>•</span>
-                            <span style="color: #0F172A; font-weight: 600;">📍 3.4 km</span>
-                        </div>
-
-                        <div style="background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 10px; padding: 8px; font-size: 12px; color: #475569; margin-bottom: 14px; text-align: left;">
-                            <div>• Inverter AC PCB troubleshooting</div>
-                            <div>• Master chemical pressure wash</div>
-                            <div>• Pure R410a gas charging</div>
-                        </div>
-                    </div>
-
-                    <a href="{{ url('/register/role') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 13.5px; padding: 10px 0; border-radius: 10px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
-                        Book Technician →
-                    </a>
-                </div>
-
-                <!-- 4. Umar Tariq -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 22px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
-                            <img src="{{ asset('assets/images/image_4.png') }}" alt="Umar Tariq" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #FFB800;">
-                            <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
-                        </div>
-                        <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
-                        <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 2px;">Umar Tariq</strong>
-                        <span style="font-size: 12.5px; color: #64748B; display: block; margin-bottom: 6px;">Finish Carpenter • 5 yrs exp</span>
-                        
-                        <div style="font-size: 12px; color: #64748B; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                            <span style="color: #D97706; font-weight: 800;">★ 4.6</span>
-                            <span>(89 jobs)</span>
-                            <span>•</span>
-                            <span style="color: #0F172A; font-weight: 600;">📍 4.1 km</span>
-                        </div>
-
-                        <div style="background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 10px; padding: 8px; font-size: 12px; color: #475569; margin-bottom: 14px; text-align: left;">
-                            <div>• Hydraulic kitchen cabinet hinges</div>
-                            <div>• Main entrance deadbolt & smart lock</div>
-                            <div>• Custom wooden door polish</div>
-                        </div>
-                    </div>
-
-                    <a href="{{ url('/register/role') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 13.5px; padding: 10px 0; border-radius: 10px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
-                        Book Technician →
-                    </a>
-                </div>
-
-            </div>
-
+            @endif
         </div>
     </section>
 

@@ -46,170 +46,88 @@
                 </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
-                
-                <!-- 1. Plumbing -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#93C5FD'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #E0F2FE; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                            💧
-                        </div>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #0369A1; background: #E0F2FE; padding: 3px 10px; border-radius: 12px;">120+ Technicians</span>
-                    </div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Plumbing & Sanitary</h3>
-                    <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
-                        Leak detection, pipe repairs, geyser servicing, commode fittings, water pump fixes, and unclogging.
-                    </p>
-                    <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                        <div>✓ Pipe leak repair & Teflon sealing</div>
-                        <div>✓ Electric/Gas geyser heating element & thermostat</div>
-                        <div>✓ Water pressure motor & suction pump overhaul</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: #64748B;">Starting from</span>
-                        <strong style="font-size: 16px; color: #0F172A;">Rs. 650 <span style="font-size: 11px; font-weight: normal; color: #64748B;">base</span></strong>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{{ url('/services/plumbing') }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
-                        <a href="{{ url('/register/role') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
-                    </div>
-                </div>
+            @php
+                $profDetails = [
+                    'plumber' => [
+                        'icon' => '💧', 'bg' => '#E0F2FE', 'border' => '#93C5FD', 'textColor' => '#0369A1',
+                        'price' => 'Rs. 650', 'type' => 'base',
+                        'points' => ['Pipe leak repair & Teflon sealing', 'Electric/Gas geyser heating element & thermostat', 'Water pressure motor & suction pump overhaul']
+                    ],
+                    'electrician' => [
+                        'icon' => '⚡', 'bg' => '#FEF3C7', 'border' => '#FDE68A', 'textColor' => '#92400E',
+                        'price' => 'Rs. 700', 'type' => 'base',
+                        'points' => ['Short circuit detection & breaker trip repair', 'UPS/Inverter wiring & battery maintenance', 'SMD light & modern chandelier installations']
+                    ],
+                    'ac-refrigeration' => [
+                        'icon' => '❄️', 'bg' => '#E0F7FA', 'border' => '#A5F3FC', 'textColor' => '#0E7490',
+                        'price' => 'Rs. 1,499', 'type' => 'service',
+                        'points' => ['High-pressure foam deep wash indoor & outdoor', 'Genuine DuPont / Honeywell R410a / R32 gas refill', 'Inverter PCB board sensor diagnosis & repair']
+                    ],
+                    'deep-cleaning' => [
+                        'icon' => '🧹', 'bg' => '#DCFCE7', 'border' => '#86EFAC', 'textColor' => '#15803D',
+                        'price' => 'Rs. 2,499', 'type' => 'package',
+                        'points' => ['Hospital-grade eco-friendly disinfectant wash', 'Industrial vacuum upholstery steam cleaning', 'Post-construction deep residue stripping']
+                    ],
+                    'painter' => [
+                        'icon' => '🖌️', 'bg' => '#FFEDD5', 'border' => '#FDBA74', 'textColor' => '#C2410C',
+                        'price' => 'Rs. 25', 'type' => '/ sq.ft',
+                        'points' => ['Roof chemical elastomeric waterproofing', 'Wall putty smooth finish & anti-fungal paint', 'Wood door lacquer & deco paint finish']
+                    ],
+                    'carpenter' => [
+                        'icon' => '🔨', 'bg' => '#F3E8FF', 'border' => '#D8B4FE', 'textColor' => '#7E22CE',
+                        'price' => 'Rs. 800', 'type' => 'base',
+                        'points' => ['Main door smart lock & deadbolt fittings', 'Kitchen cabinet hydraulic hinges & runners', 'Wooden bed frame & sofa structure repair']
+                    ],
+                    'home-appliances' => [
+                        'icon' => '🧺', 'bg' => '#CCFBF1', 'border' => '#99F6E4', 'textColor' => '#0F766E',
+                        'price' => 'Rs. 950', 'type' => 'diagnosis',
+                        'points' => ['Washing machine spin/drain motor repair', 'Microwave magnetron & heating fault fix', 'Refrigerator cooling compressor testing']
+                    ],
+                ];
+            @endphp
 
-                <!-- 2. Electrical -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#FDE68A'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #FEF3C7; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                            ⚡
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+                @foreach(($professions ?? \App\Models\Profession::where('is_active', true)->get()) as $prof)
+                    @php
+                        $cfg = $profDetails[$prof->slug] ?? [
+                            'icon' => '🔧', 'bg' => '#F1F5F9', 'border' => '#CBD5E1', 'textColor' => '#334155',
+                            'price' => 'Rs. 750', 'type' => 'base',
+                            'points' => ['Verified inspection & transparent pricing', 'Professional labor with standard tools', '60-day rework warranty on all fixes']
+                        ];
+                        $techCount = $prof->professionals_count ?? $prof->professionals()->count();
+                    @endphp
+                    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between;" onmouseover="this.style.borderColor='{{ $cfg['border'] }}'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                                <div style="width: 52px; height: 52px; border-radius: 14px; background: {{ $cfg['bg'] }}; display: flex; align-items: center; justify-content: center; font-size: 26px;">
+                                    {{ $cfg['icon'] }}
+                                </div>
+                                <span style="font-size: 11.5px; font-weight: 700; color: {{ $cfg['textColor'] }}; background: {{ $cfg['bg'] }}; padding: 3px 10px; border-radius: 12px;">
+                                    {{ $techCount > 0 ? $techCount . '+ Technicians' : 'Available' }}
+                                </span>
+                            </div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">{{ $prof->name }}</h3>
+                            <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
+                                {{ $prof->description ?? 'Reliable home repair and maintenance services by certified background-checked technicians.' }}
+                            </p>
+                            <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
+                                @foreach($cfg['points'] as $pt)
+                                    <div>✓ {{ $pt }}</div>
+                                @endforeach
+                            </div>
                         </div>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #92400E; background: #FEF3C7; padding: 3px 10px; border-radius: 12px;">98+ Technicians</span>
-                    </div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Electrical & Power Backup</h3>
-                    <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
-                        Short-circuit tracing, circuit breaker replacement, DB wiring, ceiling fans, UPS, and inverter setups.
-                    </p>
-                    <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                        <div>✓ Short circuit detection & breaker trip repair</div>
-                        <div>✓ UPS/Inverter wiring & battery maintenance</div>
-                        <div>✓ SMD light & modern chandelier installations</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: #64748B;">Starting from</span>
-                        <strong style="font-size: 16px; color: #0F172A;">Rs. 700 <span style="font-size: 11px; font-weight: normal; color: #64748B;">base</span></strong>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{{ url('/services/electrical') }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
-                        <a href="{{ url('/register/role') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
-                    </div>
-                </div>
-
-                <!-- 3. AC & HVAC Cooling -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#A5F3FC'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #E0F7FA; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                            ❄️
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <span style="font-size: 12px; color: #64748B;">Starting from</span>
+                                <strong style="font-size: 16px; color: #0F172A;">{{ $cfg['price'] }} <span style="font-size: 11px; font-weight: normal; color: #64748B;">{{ $cfg['type'] }}</span></strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <a href="{{ url('/services/' . $prof->slug) }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
+                                <a href="{{ url('/customer/diagnose') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
+                            </div>
                         </div>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #0E7490; background: #E0F7FA; padding: 3px 10px; border-radius: 12px;">76+ Technicians</span>
                     </div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">AC & HVAC Cooling</h3>
-                    <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
-                        Inverter AC servicing, chemical master jet wash, refrigerant gas refill, compressor troubleshooting, and mounting.
-                    </p>
-                    <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                        <div>✓ High-pressure foam deep wash indoor & outdoor</div>
-                        <div>✓ Genuine DuPont / Honeywell R410a / R32 gas refill</div>
-                        <div>✓ Inverter PCB board sensor diagnosis & repair</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: #64748B;">Starting from</span>
-                        <strong style="font-size: 16px; color: #0F172A;">Rs. 1,499 <span style="font-size: 11px; font-weight: normal; color: #64748B;">service</span></strong>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{{ url('/services/ac-cooling') }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
-                        <a href="{{ url('/register/role') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
-                    </div>
-                </div>
-
-                <!-- 4. Deep Home Cleaning -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#86EFAC'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #DCFCE7; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                            🧹
-                        </div>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 3px 10px; border-radius: 12px;">64+ Teams</span>
-                    </div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Deep Cleaning & Fumigation</h3>
-                    <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
-                        Full home pre-move in scrubbing, sofa & carpet extraction, tile descaling, kitchen grease removal, and pest control.
-                    </p>
-                    <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                        <div>✓ Hospital-grade eco-friendly disinfectant wash</div>
-                        <div>✓ Industrial vacuum upholstery steam cleaning</div>
-                        <div>✓ Post-construction deep residue stripping</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: #64748B;">Starting from</span>
-                        <strong style="font-size: 16px; color: #0F172A;">Rs. 2,499 <span style="font-size: 11px; font-weight: normal; color: #64748B;">package</span></strong>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{{ url('/services/cleaning') }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
-                        <a href="{{ url('/register/role') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
-                    </div>
-                </div>
-
-                <!-- 5. Painting & Waterproofing -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#FDBA74'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #FFEDD5; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                            🖌️
-                        </div>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #C2410C; background: #FFEDD5; padding: 3px 10px; border-radius: 12px;">52+ Painters</span>
-                    </div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Painting & Waterproofing</h3>
-                    <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
-                        Interior wall repainting, exterior weather-sheeting, ceiling seepage treatment, primer coating, and polish.
-                    </p>
-                    <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                        <div>✓ Roof chemical elastomeric waterproofing</div>
-                        <div>✓ Wall putty smooth finish & anti-fungal paint</div>
-                        <div>✓ Wood door lacquer & deco paint finish</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: #64748B;">Starting from</span>
-                        <strong style="font-size: 16px; color: #0F172A;">Rs. 25 <span style="font-size: 11px; font-weight: normal; color: #64748B;">/ sq.ft</span></strong>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{{ url('/services/painting') }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
-                        <a href="{{ url('/register/role') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
-                    </div>
-                </div>
-
-                <!-- 6. Carpentry & Furniture Repair -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s;" onmouseover="this.style.borderColor='#D8B4FE'; this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #F3E8FF; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                            🔨
-                        </div>
-                        <span style="font-size: 11.5px; font-weight: 700; color: #7E22CE; background: #F3E8FF; padding: 3px 10px; border-radius: 12px;">48+ Carpenters</span>
-                    </div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Carpentry & Woodwork</h3>
-                    <p style="font-size: 13.5px; color: #64748B; margin: 0 0 16px 0; line-height: 1.5;">
-                        Door lock replacement, hinge tightening, wardrobe channel repair, custom shelving, and wooden furniture repairs.
-                    </p>
-                    <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                        <div>✓ Main door smart lock & deadbolt fittings</div>
-                        <div>✓ Kitchen cabinet hydraulic hinges & runners</div>
-                        <div>✓ Wooden bed frame & sofa structure repair</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: #64748B;">Starting from</span>
-                        <strong style="font-size: 16px; color: #0F172A;">Rs. 800 <span style="font-size: 11px; font-weight: normal; color: #64748B;">base</span></strong>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <a href="{{ url('/services/carpentry') }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Details</a>
-                        <a href="{{ url('/register/role') }}" style="text-align: center; background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">Book with AI</a>
-                    </div>
-                </div>
-
+                @endforeach
             </div>
 
         </div>
