@@ -9,7 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureUserHasRole
 {
     /**
-     * Ensure the authenticated user matches the required role.
+     * Ensure the authenticated user matches the required role or user_type.
+     * 1 = Admin, 2 = Customer, 3 = Technician.
      * Guest users are sent to the login page; wrong-role users are
      * redirected to their own portal home.
      */
@@ -21,7 +22,18 @@ class EnsureUserHasRole
             return redirect()->route('login');
         }
 
-        if ((string) $user->role !== $role) {
+        $typeMap = [
+            '1' => 1,
+            'admin' => 1,
+            '2' => 2,
+            'customer' => 2,
+            '3' => 3,
+            'technician' => 3,
+        ];
+
+        $expectedType = $typeMap[$role] ?? (int) $role;
+
+        if ((int) $user->user_type !== $expectedType) {
             return redirect($user->dashboardRoute());
         }
 

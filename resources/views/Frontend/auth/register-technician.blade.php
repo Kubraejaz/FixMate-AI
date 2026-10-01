@@ -116,9 +116,9 @@
                 </div>
             </div>
 
-            <!-- Primary Trade -->
+            <!-- Primary Profession -->
             <div style="margin: 15px 0;">
-                <label class="app-label" for="techTrade">Primary Trade / Specialization <span class="req">*</span></label>
+                <label class="app-label" for="techTrade">Primary Profession / Trade <span class="req">*</span></label>
                 <div class="app-field">
                     <span class="app-field-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -127,17 +127,15 @@
                         </svg>
                     </span>
                     <select id="techTrade" name="trade" class="app-select has-icon is-placeholder" required>
-                        <option value="" selected>Select your primary trade</option>
-                        <option>Plumbing — Pipes, Sanitary, Sinks, Motors</option>
-                        <option>Electrical — Wiring, Breakers, DB Boxes</option>
-                        <option>AC &amp; Refrigeration — Inverter, Gas Refill</option>
-                        <option>Carpentry &amp; Locksmith</option>
-                        <option>Painting &amp; Waterproofing</option>
-                        <option>Deep Cleaning &amp; Sanitation</option>
-                        <option>Home Appliances — Washing Machine, Microwave</option>
+                        <option value="" selected>Select your primary profession</option>
+                        @foreach(\App\Models\Profession::where('is_active', true)->get() as $prof)
+                            <option value="{{ $prof->id }}" {{ old('trade') == $prof->id ? 'selected' : '' }}>
+                                {{ $prof->name }} {{ $prof->description ? '— ' . $prof->description : '' }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
-                <p class="app-hint">You will receive dispatches matching this trade first.</p>
+                <p class="app-hint">You will receive dispatches matching this profession first.</p>
             </div>
 
             <!-- Password + Confirm -->

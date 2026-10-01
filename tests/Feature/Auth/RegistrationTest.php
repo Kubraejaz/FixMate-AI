@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\Technician;
 use App\Models\User;
 use App\Notifications\OtpNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +29,7 @@ class RegistrationTest extends TestCase
         $this->assertDatabaseHas('users', [
             'email' => 'fatima@example.com',
             'phone' => null,
-            'role' => User::ROLE_CUSTOMER,
+            'user_type' => User::TYPE_CUSTOMER,
             'is_active' => true,
         ]);
 
@@ -55,7 +54,7 @@ class RegistrationTest extends TestCase
         $this->assertDatabaseHas('users', [
             'phone' => '+923217654321',
             'email' => null,
-            'role' => User::ROLE_CUSTOMER,
+            'user_type' => User::TYPE_CUSTOMER,
         ]);
     }
 
@@ -69,12 +68,12 @@ class RegistrationTest extends TestCase
             'city' => 'Karachi',
             'password' => 'secretpass123',
             'password_confirmation' => 'secretpass123',
-            'role' => User::ROLE_ADMIN,
+            'role' => User::TYPE_ADMIN,
         ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'ali-sub@example.com',
-            'role' => User::ROLE_CUSTOMER,
+            'user_type' => User::TYPE_CUSTOMER,
         ]);
     }
 
@@ -99,16 +98,14 @@ class RegistrationTest extends TestCase
         $this->assertTrue($user->isTechnician());
         $this->assertSame('rida@example.com', $user->email);
 
-        $this->assertDatabaseHas('technicians', [
-            'user_id' => $user->id,
-            'trade' => 'Electrical — Wiring, Breakers, DB Boxes',
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'user_type' => User::TYPE_TECHNICIAN,
             'is_verified' => false,
         ]);
 
-        $profile = Technician::where('user_id', $user->id)->firstOrFail();
-
-        $this->assertNotSame('42201-1234567-1', $profile->getRawOriginal('cnic_number'));
-        $this->assertSame('42201-1234567-1', $profile->cnic_number);
+        $this->assertNotSame('42201-1234567-1', $user->getRawOriginal('cnic_number'));
+        $this->assertSame('42201-1234567-1', $user->cnic_number);
     }
 
     public function test_duplicate_phone_is_rejected(): void

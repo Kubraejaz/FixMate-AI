@@ -27,7 +27,7 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'FixMate Administrator',
                 'password' => $password,
-                'role' => User::ROLE_ADMIN,
+                'user_type' => User::TYPE_ADMIN,
                 'is_active' => true,
                 'contact_verified_at' => now(),
             ]

@@ -24,7 +24,7 @@ class OtpVerificationController extends Controller
 
         $targetText = $purpose === OtpService::PURPOSE_RESET
             ? 'set your new password'
-            : ((int) session('otp.role') === User::ROLE_TECHNICIAN ? 'complete technician verification' : 'go to your customer dashboard');
+            : (in_array(session('otp.role') ?? session('otp.user_type'), [User::TYPE_TECHNICIAN, 2], true) ? 'complete technician verification' : 'go to your customer dashboard');
 
         return view('Frontend.auth.verify-otp', [
             'identifier' => $identifier,

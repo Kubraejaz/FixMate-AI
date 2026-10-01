@@ -40,7 +40,7 @@ class RegisteredCustomerController extends Controller
             'phone' => $phone,
             'city' => $data['city'],
             'password' => $data['password'],
-            'role' => User::ROLE_CUSTOMER,
+            'user_type' => User::TYPE_CUSTOMER,
             'is_active' => true,
         ]);
 

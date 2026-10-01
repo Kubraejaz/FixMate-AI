@@ -5,17 +5,21 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public const TYPE_ADMIN = 1;
+    public const TYPE_CUSTOMER = 2;
+    public const TYPE_TECHNICIAN = 3;
+
+    // Aliases for backward compatibility
     public const ROLE_ADMIN = 1;
-
-    public const ROLE_TECHNICIAN = 2;
-
-    public const ROLE_CUSTOMER = 3;
+    public const ROLE_CUSTOMER = 2;
+    public const ROLE_TECHNICIAN = 3;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -30,7 +34,11 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
-        'role',
+        'user_type',
+        'profession_id',
+        'experience',
+        'cnic_number',
+        'is_verified',
         'is_active',
         'city',
         'area',
@@ -57,8 +65,10 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'role' => 'integer',
+            'user_type' => 'integer',
+            'is_verified' => 'boolean',
             'is_active' => 'boolean',
+            'cnic_number' => 'encrypted',
             'email_verified_at' => 'datetime',
             'contact_verified_at' => 'datetime',
             'otp_expires_at' => 'datetime',
@@ -67,32 +77,58 @@ class User extends Authenticatable
         ];
     }
 
-    public function isAdmin(): bool
+    /**
+     * Legacy role attribute accessor/mutator for seamless backward compatibility.
+     */
+    public function getRoleAttribute(): int
     {
-        return $this->role === self::ROLE_ADMIN;
+        return (int) ($this->user_type ?? self::TYPE_CUSTOMER);
     }
 
-    public function isTechnician(): bool
+    public function setRoleAttribute(mixed $value): void
     {
-        return $this->role === self::ROLE_TECHNICIAN;
+        if ($value === 'admin' || $value === 1 || $value === '1') {
+            $value = self::TYPE_ADMIN;
+        } elseif ($value === 'customer' || $value === 2 || $value === '2') {
+            $value = self::TYPE_CUSTOMER;
+        } elseif ($value === 'technician' || $value === 3 || $value === '3') {
+            $value = self::TYPE_TECHNICIAN;
+        }
+
+        $this->attributes['user_type'] = (int) $value;
+    }
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->user_type === self::TYPE_ADMIN;
     }
 
     public function isCustomer(): bool
     {
-        return $this->role === self::ROLE_CUSTOMER;
+        return (int) $this->user_type === self::TYPE_CUSTOMER;
+    }
+
+    public function isTechnician(): bool
+    {
+        return (int) $this->user_type === self::TYPE_TECHNICIAN;
     }
 
     public function dashboardRoute(): string
     {
-        return match ($this->role) {
-            self::ROLE_ADMIN => '/admin/dashboard',
-            self::ROLE_TECHNICIAN => '/technician/dashboard',
+        return match ((int) $this->user_type) {
+            self::TYPE_ADMIN => '/admin/dashboard',
+            self::TYPE_TECHNICIAN => '/technician/dashboard',
             default => '/customer/dashboard',
         };
     }
 
-    public function technicianProfile(): HasOne
+    public function profession(): BelongsTo
     {
-        return $this->hasOne(Technician::class);
+        return $this->belongsTo(Profession::class);
+    }
+
+    public function professional(): HasOne
+    {
+        return $this->hasOne(Professional::class);
     }
 }

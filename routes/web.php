@@ -150,7 +150,7 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('r
 // ==========================================
 // 3. CUSTOMER PORTAL — LOGIN REQUIRED
 // ==========================================
-Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:3'])->group(function () {
+Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer'])->group(function () {
     
     // Customer Dashboard
     Route::get('/dashboard', function () {
@@ -259,7 +259,7 @@ Route::get('/chat', function () {
 // ==========================================
 // 4. TECHNICIAN PORTAL — TECHNICIAN ONLY
 // ==========================================
-Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:2'])->group(function () {
+Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:technician'])->group(function () {
     
     // Technician Dashboard
     Route::get('/dashboard', function () {
@@ -342,7 +342,7 @@ Route::get('/provider-dashboard', function () {
 // ==========================================
 // 5. ADMIN PORTAL — ADMIN ONLY
 // ==========================================
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:1'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     
     // Admin Dashboard
     Route::get('/', function () {
