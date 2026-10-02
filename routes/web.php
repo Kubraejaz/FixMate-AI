@@ -37,9 +37,7 @@ use Illuminate\Support\Facades\Route;
 // ==========================================
 Route::get('/', [PublicPageController::class, 'home'])->name('home');
 
-Route::get('/about', function () {
-    return view('Frontend.public.about');
-})->name('about');
+Route::get('/about', [PublicPageController::class, 'about'])->name('about');
 
 Route::get('/services', [PublicPageController::class, 'services'])->name('services');
 
