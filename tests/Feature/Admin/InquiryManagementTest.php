@@ -156,4 +156,62 @@ class InquiryManagementTest extends TestCase
         $responseTech = $this->actingAs($technician)->get(route('admin.inquiries'));
         $responseTech->assertRedirect(route('technician.dashboard'));
     }
+
+    public function test_public_user_can_track_inquiry_by_reference_code(): void
+    {
+        $inquiry = ContactInquiry::create([
+            'reference_no' => 'FM-INQ-TRK001',
+            'department' => 'emergency',
+            'name' => 'Khurram Shahzad',
+            'phone' => '0300-8877665',
+            'email' => 'khurram@example.com',
+            'city' => 'Islamabad',
+            'message' => 'Short circuit in dining room.',
+            'status' => 'in_progress',
+            'admin_notes' => 'Technician Ali Khan dispatched at 4:30 PM.',
+        ]);
+
+        $response = $this->get(route('contact', ['track_ref' => 'FM-INQ-TRK001']));
+
+        $response->assertOk();
+        $response->assertSee('FM-INQ-TRK001');
+        $response->assertSee('Khurram Shahzad');
+        $response->assertSee('In Progress');
+        $response->assertSee('Technician Ali Khan dispatched at 4:30 PM.');
+    }
+
+    public function test_tracking_invalid_reference_displays_error(): void
+    {
+        $response = $this->get(route('contact', ['track_ref' => 'INVALID-REF-999']));
+
+        $response->assertOk();
+        $response->assertSee('No support inquiry was found for');
+    }
+
+    public function test_logged_in_user_sees_their_inquiries_on_contact_page(): void
+    {
+        $user = User::factory()->customer()->create([
+            'email' => 'client@example.com',
+            'phone' => '0322-1112233',
+        ]);
+
+        ContactInquiry::create([
+            'reference_no' => 'FM-INQ-USR777',
+            'department' => 'booking',
+            'name' => $user->name,
+            'email' => 'client@example.com',
+            'phone' => '0322-1112233',
+            'city' => 'Lahore',
+            'message' => 'Plumber booking inquiry.',
+            'status' => 'resolved',
+            'admin_notes' => 'Booking confirmed for Friday.',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('contact'));
+
+        $response->assertOk();
+        $response->assertSee('Your Recent Support Inquiries');
+        $response->assertSee('FM-INQ-USR777');
+        $response->assertSee('Resolved');
+    }
 }

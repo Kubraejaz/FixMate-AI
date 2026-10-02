@@ -7,9 +7,11 @@ use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Auth\RegisteredTechnicianController;
+use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,13 +57,9 @@ Route::get('/community', function () {
     return view('Frontend.public.community');
 })->name('community');
 
-Route::get('/faqs', function () {
-    return view('Frontend.public.faqs');
-})->name('faqs');
+Route::get('/faqs', [FaqController::class, 'index'])->name('faqs');
 
-Route::get('/contact', function () {
-    return view('Frontend.public.contact');
-})->name('contact');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
@@ -402,6 +400,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
 
     Route::get('/complaints', [InquiryController::class, 'index'])->name('complaints');
+
+    // FAQ & Help Center Knowledgebase (Full CRUD)
+    Route::get('/faqs', [AdminFaqController::class, 'index'])->name('faqs');
+    Route::post('/faqs', [AdminFaqController::class, 'store'])->name('faqs.store');
+    Route::put('/faqs/{faq}', [AdminFaqController::class, 'update'])->name('faqs.update');
+    Route::delete('/faqs/{faq}', [AdminFaqController::class, 'destroy'])->name('faqs.destroy');
+    Route::patch('/faqs/{faq}/toggle', [AdminFaqController::class, 'toggle'])->name('faqs.toggle');
 
 });
 
