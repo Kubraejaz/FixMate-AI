@@ -7,9 +7,11 @@ use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Auth\RegisteredTechnicianController;
+use App\Http\Controllers\Admin\CommunityIssueController as AdminCommunityController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PublicPageController;
@@ -53,9 +55,9 @@ Route::get('/technicians/{id}', [PublicPageController::class, 'technicianProfile
 
 Route::get('/technician-profile/{id?}', [PublicPageController::class, 'technicianProfile']);
 
-Route::get('/community', function () {
-    return view('Frontend.public.community');
-})->name('community');
+Route::get('/community', [CommunityController::class, 'index'])->name('community');
+Route::post('/community/report', [CommunityController::class, 'store'])->name('community.report');
+Route::post('/community/{issue}/upvote', [CommunityController::class, 'upvote'])->name('community.upvote');
 
 Route::get('/faqs', [FaqController::class, 'index'])->name('faqs');
 
@@ -407,6 +409,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/faqs/{faq}', [AdminFaqController::class, 'update'])->name('faqs.update');
     Route::delete('/faqs/{faq}', [AdminFaqController::class, 'destroy'])->name('faqs.destroy');
     Route::patch('/faqs/{faq}/toggle', [AdminFaqController::class, 'toggle'])->name('faqs.toggle');
+
+    // Community & Civic Hazards Dispatch Management
+    Route::get('/community', [AdminCommunityController::class, 'index'])->name('community');
+    Route::put('/community/{issue}', [AdminCommunityController::class, 'update'])->name('community.update');
+    Route::patch('/community/{issue}/toggle', [AdminCommunityController::class, 'toggle'])->name('community.toggle');
+    Route::delete('/community/{issue}', [AdminCommunityController::class, 'destroy'])->name('community.destroy');
 
 });
 

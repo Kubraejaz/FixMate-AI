@@ -1055,6 +1055,22 @@
                     <span>FAQs &amp; Help Center</span>
                 </a>
 
+                <a href="{{ route('admin.community') }}" class="adm-nav-link {{ Request::is('admin/community*') ? 'active' : '' }}">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Civic Hazards &amp; Squads</span>
+                    @php
+                        $alertCount = \App\Models\CommunityIssue::where('status', 'alert_active')->count();
+                    @endphp
+                    @if($alertCount > 0)
+                        <span class="count" style="background: #FEE2E2; color: #991B1B;">{{ $alertCount }}</span>
+                    @endif
+                </a>
+
                 <span class="adm-nav-group">System</span>
 
                 <a href="{{ url('/admin/settings') }}" class="adm-nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}">
