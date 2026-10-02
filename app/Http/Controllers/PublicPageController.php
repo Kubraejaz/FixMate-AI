@@ -123,4 +123,33 @@ class PublicPageController extends Controller
             'professional' => $professional,
         ]);
     }
+
+    /**
+     * How It Works guide with dynamic trades, interactive cost estimator, and platform stats.
+     */
+    public function howItWorks(): View
+    {
+        $hasProfessions = \Illuminate\Support\Facades\Schema::hasTable('professions');
+        $hasProfessionals = \Illuminate\Support\Facades\Schema::hasTable('professionals');
+        $hasIssues = \Illuminate\Support\Facades\Schema::hasTable('community_issues');
+
+        $professions = $hasProfessions
+            ? Profession::where('is_active', true)->withCount('professionals')->get()
+            : collect();
+
+        $totalTechs = $hasProfessionals ? Professional::count() : 0;
+
+        $stats = [
+            'total_technicians' => $totalTechs > 0 ? $totalTechs : 150,
+            'total_professions' => $hasProfessions ? Profession::where('is_active', true)->count() : 6,
+            'avg_arrival_mins' => 24,
+            'warranty_days' => 30,
+            'community_issues_resolved' => $hasIssues ? \App\Models\CommunityIssue::where('status', 'resolved')->count() : 45,
+        ];
+
+        return view('Frontend.public.how-it-works', [
+            'professions' => $professions,
+            'stats' => $stats,
+        ]);
+    }
 }

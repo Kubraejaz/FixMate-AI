@@ -45,9 +45,7 @@ Route::get('/services', [PublicPageController::class, 'services'])->name('servic
 
 Route::get('/services/{slug}', [PublicPageController::class, 'serviceDetails'])->name('service-details');
 
-Route::get('/how-it-works', function () {
-    return view('Frontend.public.how-it-works');
-})->name('how-it-works');
+Route::get('/how-it-works', [PublicPageController::class, 'howItWorks'])->name('how-it-works');
 
 Route::get('/technicians', [PublicPageController::class, 'technicians'])->name('technicians');
 
