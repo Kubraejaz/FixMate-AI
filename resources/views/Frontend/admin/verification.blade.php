@@ -4,97 +4,384 @@
 
 @section('content')
 
+<!-- Page Heading & Actions -->
 <div class="adm-page-head">
     <div>
         <h1>KYC Verification Pipeline</h1>
-        <p>Review CNIC documents, trade licenses, and background police verification certificates.</p>
+        <p>Review technician CNIC identity documents, trade diplomas, tool inventories, and background police clearances.</p>
     </div>
     <div class="adm-page-actions">
-        <span class="adm-badge dark">3 applications pending review</span>
+        <span class="adm-badge dark" style="padding: 7px 14px; font-size: 13px;">
+            {{ $stats['pending'] }} applications pending review
+        </span>
     </div>
+</div>
+
+<!-- Flash Notifications -->
+@if(session('success'))
+    <div style="background: #F0FDF4; border: 1.5px solid #86EFAC; color: #166534; padding: 14px 18px; border-radius: 12px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; font-weight: 600;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">✓</span>
+            <span>{{ session('success') }}</span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #166534;">&times;</button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div style="background: #FEF2F2; border: 1.5px solid #FECACA; color: #991B1B; padding: 14px 18px; border-radius: 12px; margin-bottom: 22px; font-size: 13px;">
+        <strong style="display: block; margin-bottom: 6px;">Please fix the following:</strong>
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<!-- Summary KPIs -->
+<div class="adm-kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+    
+    <div class="adm-kpi">
+        <div class="kpi-head">
+            <span class="kpi-label">Pending Review</span>
+            <span class="kpi-icon" style="background: #FEF3C7; color: #D97706;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </span>
+        </div>
+        <div class="kpi-val" style="color: #D97706;">{{ $stats['pending'] }}</div>
+        <div class="kpi-foot up">Requires trade assessment</div>
+    </div>
+
+    <div class="adm-kpi">
+        <div class="kpi-head">
+            <span class="kpi-label">Under Inspection</span>
+            <span class="kpi-icon" style="background: #EFF6FF; color: var(--adm-info);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+            </span>
+        </div>
+        <div class="kpi-val" style="color: var(--adm-info);">{{ $stats['under_review'] }}</div>
+        <div class="kpi-foot">NADRA / Tool verification</div>
+    </div>
+
+    <div class="adm-kpi">
+        <div class="kpi-head">
+            <span class="kpi-label">Verified Partners</span>
+            <span class="kpi-icon" style="background: var(--adm-success-soft); color: var(--adm-success);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </span>
+        </div>
+        <div class="kpi-val" style="color: var(--adm-success);">{{ $stats['approved'] }}</div>
+        <div class="kpi-foot up">Active on dispatch radar</div>
+    </div>
+
+    <div class="adm-kpi">
+        <div class="kpi-head">
+            <span class="kpi-label">Total Applications</span>
+            <span class="kpi-icon" style="background: var(--adm-accent-soft); color: #B45309;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+            </span>
+        </div>
+        <div class="kpi-val">{{ $stats['total'] }}</div>
+        <div class="kpi-foot">Lifetime partner leads</div>
+    </div>
+
+</div>
+
+<!-- Filter Bar -->
+<div class="adm-card" style="padding: 16px 20px; margin-bottom: 24px;">
+    <form method="GET" action="{{ route('admin.technicians.verification') }}" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        
+        <div style="flex: 1; min-width: 220px; position: relative;">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search candidate name, CNIC, phone, or ref #..." class="adm-input" style="padding-left: 38px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="position: absolute; left: 13px; top: 13px; color: var(--adm-faint);">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </div>
+
+        <div style="width: 200px;">
+            <select name="profession_id" class="adm-select" onchange="this.form.submit()">
+                <option value="">All Trade Specialties</option>
+                @foreach($professions as $prof)
+                    <option value="{{ $prof->id }}" {{ request('profession_id') == $prof->id ? 'selected' : '' }}>
+                        {{ $prof->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div style="width: 170px;">
+            <select name="status" class="adm-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending Review</option>
+                <option value="under_review" {{ request('status') === 'under_review' ? 'selected' : '' }}>Under Review</option>
+                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+            </select>
+        </div>
+
+        <button type="submit" class="adm-btn adm-btn-primary" style="height: 42px;">Filter</button>
+
+        @if(request()->hasAny(['search', 'profession_id', 'status']))
+            <a href="{{ route('admin.technicians.verification') }}" class="adm-btn" style="height: 42px; text-decoration: none; color: var(--adm-muted); background: #F1F5F9;">
+                Reset
+            </a>
+        @endif
+
+    </form>
 </div>
 
 <!-- Table -->
-<div class="adm-card" style="padding-top: 8px;">
-    <div class="adm-table-wrap">
-        <table class="adm-table">
+<div class="adm-card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+    
+    <div style="padding: 18px 24px; border-bottom: 1px solid var(--adm-border); display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <strong style="font-size: 15px; color: var(--adm-ink);">Technician Applicant Roster</strong>
+            <span style="font-size: 12px; font-weight: 600; color: var(--adm-muted);">({{ $applications->total() }} total)</span>
+        </div>
+        <span style="font-size: 12px; color: var(--adm-muted);">100% of technicians undergo NADRA biometric validation before active deployment</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="adm-table" style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
-                <tr>
-                    <th>Technician</th>
-                    <th>Trade / Skill</th>
-                    <th>CNIC Number</th>
-                    <th>Documents Attached</th>
-                    <th>Status</th>
-                    <th style="text-align: right;">Action</th>
+                <tr style="background: #F8FAFC; border-bottom: 1px solid var(--adm-border); font-size: 12px; color: var(--adm-muted); text-transform: uppercase; letter-spacing: 0.04em;">
+                    <th style="padding: 12px 20px;">Technician Candidate</th>
+                    <th style="padding: 12px 20px;">Trade / Skill</th>
+                    <th style="padding: 12px 20px;">CNIC Number</th>
+                    <th style="padding: 12px 20px;">Credentials</th>
+                    <th style="padding: 12px 20px;">Status</th>
+                    <th style="padding: 12px 20px; text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <div class="adm-person">
-                            <img src="{{ asset('assets/images/image_1.png') }}" alt="Ali Khan" style="border-color: var(--adm-accent);">
-                            <div>
-                                <div class="pname">Ali Khan</div>
-                                <div class="pmeta">Karachi (DHA) &middot; 0300-1234567</div>
+                @forelse($applications as $app)
+                    @php
+                        $badge = $app->status_badge;
+                        $docs = array_filter(array_map('trim', explode(',', $app->documents_list)));
+                    @endphp
+                    <tr style="border-bottom: 1px solid var(--adm-border-soft); transition: background 0.15s ease;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='transparent'">
+                        
+                        <!-- Technician Info -->
+                        <td style="padding: 16px 20px;">
+                            <div class="adm-person">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #0F172A; color: #FFB800; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; border: 2px solid var(--adm-accent);">
+                                    {{ strtoupper(substr($app->name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <div class="pname" style="font-weight: 700; font-size: 14px; color: var(--adm-ink);">{{ $app->name }}</div>
+                                    <div class="pmeta" style="font-size: 12px; color: var(--adm-muted);">
+                                        {{ $app->city }} &middot; {{ $app->phone }} &middot; <span style="font-family: monospace;">#{{ $app->reference_no }}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>Plumbing (8 yrs)</td>
-                    <td><strong style="font-family: ui-monospace, monospace;">42201-1234567-1</strong></td>
-                    <td>
-                        <span class="adm-badge grey">CNIC</span>
-                        <span class="adm-badge grey">Diploma</span>
-                        <span class="adm-badge grey">Police Cert</span>
-                    </td>
-                    <td><span class="adm-badge yellow">Pending Review</span></td>
-                    <td style="text-align: right;">
-                        <div style="display: inline-flex; gap: 6px;">
-                            <button type="button" class="adm-btn adm-btn-primary adm-btn-sm" onclick="showToast('Ali Khan approved as verified partner')">Approve</button>
-                            <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm" style="color: var(--adm-danger); border-color: #FECDD3;" onclick="showToast('Rejection reason requested', false)">Reject</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="adm-person">
-                            <img src="{{ asset('assets/images/image_2.png') }}" alt="Riaz Ahmed" style="border-color: var(--adm-accent);">
-                            <div>
-                                <div class="pname">Riaz Ahmed</div>
-                                <div class="pmeta">Karachi (Clifton) &middot; 0321-9876543</div>
+                        </td>
+
+                        <!-- Trade / Skill -->
+                        <td style="padding: 16px 20px;">
+                            <div style="font-weight: 700; font-size: 13.5px; color: var(--adm-ink);">
+                                {{ $app->profession?->name ?? 'General Specialist' }}
                             </div>
-                        </div>
-                    </td>
-                    <td>Electrical (6 yrs)</td>
-                    <td><strong style="font-family: ui-monospace, monospace;">42301-7654321-3</strong></td>
-                    <td>
-                        <span class="adm-badge grey">CNIC</span>
-                        <span class="adm-badge grey">License</span>
-                    </td>
-                    <td><span class="adm-badge green">Approved</span></td>
-                    <td style="text-align: right;"><button type="button" class="adm-btn adm-btn-ghost adm-btn-sm">View Dossier</button></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="adm-person">
-                            <img src="{{ asset('assets/images/image_3.png') }}" alt="Imran Shah" style="border-color: var(--adm-accent);">
-                            <div>
-                                <div class="pname">Imran Shah</div>
-                                <div class="pmeta">Karachi (Gulshan) &middot; 0333-5551234</div>
+                            <div style="font-size: 12px; color: var(--adm-muted);">
+                                {{ $app->experience_years }} years exp &middot; {{ ucwords(str_replace('_', ' ', $app->workshop_type)) }}
                             </div>
-                        </div>
-                    </td>
-                    <td>HVAC &amp; AC (7 yrs)</td>
-                    <td><strong style="font-family: ui-monospace, monospace;">42101-9988776-5</strong></td>
-                    <td>
-                        <span class="adm-badge grey">CNIC</span>
-                        <span class="adm-badge grey">HVAC Cert</span>
-                    </td>
-                    <td><span class="adm-badge green">Approved</span></td>
-                    <td style="text-align: right;"><button type="button" class="adm-btn adm-btn-ghost adm-btn-sm">View Dossier</button></td>
-                </tr>
+                        </td>
+
+                        <!-- CNIC Number -->
+                        <td style="padding: 16px 20px;">
+                            <strong style="font-family: ui-monospace, monospace; font-size: 13px; color: #0F172A; background: #F1F5F9; padding: 4px 8px; border-radius: 6px; letter-spacing: 0.04em;">
+                                {{ $app->cnic_number }}
+                            </strong>
+                        </td>
+
+                        <!-- Documents Attached -->
+                        <td style="padding: 16px 20px;">
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                @forelse($docs as $doc)
+                                    <span class="adm-badge grey" style="font-size: 11px; padding: 2px 7px; background: #F1F5F9; border-radius: 4px; color: #475569;">{{ $doc }}</span>
+                                @empty
+                                    <span style="font-size: 12px; color: #94A3B8;">None specified</span>
+                                @endforelse
+                            </div>
+                        </td>
+
+                        <!-- Status -->
+                        <td style="padding: 16px 20px;">
+                            <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px; white-space: nowrap; display: inline-block;">
+                                {{ $badge['label'] }}
+                            </span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td style="padding: 16px 20px; text-align: right;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                @if($app->status === 'approved')
+                                    <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm" style="font-size: 12px; height: 32px;" onclick='openDossierModal(@json($app), @json($app->profession?->name))'>
+                                        View Dossier
+                                    </button>
+                                @elseif($app->status === 'rejected')
+                                    <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm" style="font-size: 12px; height: 32px; color: var(--adm-muted);" onclick='openDossierModal(@json($app), @json($app->profession?->name))'>
+                                        Reason
+                                    </button>
+                                @else
+                                    <button type="button" class="adm-btn adm-btn-primary adm-btn-sm" style="font-size: 12px; height: 32px; padding: 0 12px;" onclick="openApproveModal({{ $app->id }}, '{{ addslashes($app->name) }}')">
+                                        Approve
+                                    </button>
+                                    <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm" style="font-size: 12px; height: 32px; color: var(--adm-danger); border-color: #FECDD3;" onclick="openRejectModal({{ $app->id }}, '{{ addslashes($app->name) }}')">
+                                        Reject
+                                    </button>
+                                @endif
+                            </div>
+                        </td>
+
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" style="padding: 50px 20px; text-align: center; color: var(--adm-muted);">
+                            No technician applications found matching current criteria.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
+
+    @if($applications->hasPages())
+        <div style="padding: 16px 24px; border-top: 1px solid var(--adm-border); display: flex; justify-content: flex-end;">
+            {{ $applications->links() }}
+        </div>
+    @endif
+
 </div>
 
+<!-- Modal: Approve Partner -->
+<div id="approveModal" style="display: none; position: fixed; inset: 0; z-index: 999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #FFFFFF; border-radius: 18px; width: 100%; max-width: 480px; padding: 24px; text-align: center;">
+        <div style="width: 50px; height: 50px; background: #ECFDF5; border-radius: 50%; color: #047857; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 24px;">✓</div>
+        <strong style="font-size: 18px; color: var(--adm-ink); display: block; margin-bottom: 6px;">Approve Technician Partner?</strong>
+        <p id="approveApplicantName" style="font-size: 13.5px; color: var(--adm-muted); margin: 0 0 16px 0;"></p>
+        
+        <form id="approveForm" method="POST">
+            @csrf
+            @method('PATCH')
+            <div style="text-align: left; margin-bottom: 18px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--adm-ink); margin-bottom: 4px;">Inspector Verification Note</label>
+                <input type="text" name="admin_notes" value="NADRA biometric & practical assessment verified." class="adm-input" required>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button type="button" class="adm-btn" style="background: #FFFFFF; border: 1px solid var(--adm-border);" onclick="closeApproveModal()">Cancel</button>
+                <button type="submit" class="adm-btn adm-btn-primary">Confirm &amp; Activate Partner</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Reject Application -->
+<div id="rejectModal" style="display: none; position: fixed; inset: 0; z-index: 999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #FFFFFF; border-radius: 18px; width: 100%; max-width: 480px; padding: 24px; text-align: center;">
+        <div style="width: 50px; height: 50px; background: #FFF1F2; border-radius: 50%; color: var(--adm-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 22px;">✕</div>
+        <strong style="font-size: 18px; color: var(--adm-ink); display: block; margin-bottom: 6px;">Reject Partner Application</strong>
+        <p id="rejectApplicantName" style="font-size: 13px; color: var(--adm-muted); margin: 0 0 16px 0;"></p>
+        
+        <form id="rejectForm" method="POST">
+            @csrf
+            @method('PATCH')
+            <div style="text-align: left; margin-bottom: 18px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--adm-ink); margin-bottom: 4px;">Rejection Justification <span style="color: var(--adm-danger);">*</span></label>
+                <textarea name="reason" rows="3" class="adm-input" placeholder="e.g. Could not provide valid NADRA CNIC or failed practical wiring assessment..." required style="height: auto; resize: vertical; padding: 10px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button type="button" class="adm-btn" style="background: #FFFFFF; border: 1px solid var(--adm-border);" onclick="closeRejectModal()">Cancel</button>
+                <button type="submit" class="adm-btn" style="background: var(--adm-danger); color: #FFF; border: none;">Record Rejection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: View Dossier -->
+<div id="dossierModal" style="display: none; position: fixed; inset: 0; z-index: 999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #FFFFFF; border-radius: 18px; width: 100%; max-width: 520px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--adm-border); display: flex; align-items: center; justify-content: space-between; background: #F8FAFC;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">📋</span>
+                <strong style="font-size: 16px; color: var(--adm-ink);" id="dossierRef">Technician Dossier</strong>
+            </div>
+            <button type="button" onclick="closeDossierModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--adm-muted);">&times;</button>
+        </div>
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 14px; font-size: 13.5px;" id="dossierContent">
+            <!-- Populated via JS -->
+        </div>
+        <div style="padding: 14px 24px; background: #F8FAFC; border-top: 1px solid var(--adm-border); display: flex; justify-content: flex-end;">
+            <button type="button" class="adm-btn adm-btn-primary" onclick="closeDossierModal()">Close Dossier</button>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('extra_js')
+<script>
+    function openApproveModal(id, name) {
+        document.getElementById('approveForm').action = "{{ url('/admin/technicians/verification') }}/" + id + "/approve";
+        document.getElementById('approveApplicantName').textContent = "Confirm verification for candidate: " + name;
+        document.getElementById('approveModal').style.display = 'flex';
+    }
+
+    function closeApproveModal() {
+        document.getElementById('approveModal').style.display = 'none';
+    }
+
+    function openRejectModal(id, name) {
+        document.getElementById('rejectForm').action = "{{ url('/admin/technicians/verification') }}/" + id + "/reject";
+        document.getElementById('rejectApplicantName').textContent = "Recording rejection for candidate: " + name;
+        document.getElementById('rejectModal').style.display = 'flex';
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+    }
+
+    function openDossierModal(app, tradeName) {
+        document.getElementById('dossierRef').textContent = "Dossier: #" + app.reference_no;
+        var html = `
+            <div><strong>Candidate Name:</strong> ${app.name}</div>
+            <div><strong>CNIC:</strong> <span style="font-family: monospace;">${app.cnic_number}</span></div>
+            <div><strong>Phone / Contact:</strong> ${app.phone} &middot; ${app.email}</div>
+            <div><strong>City:</strong> ${app.city}</div>
+            <div><strong>Trade Specialty:</strong> ${tradeName || 'General Specialist'} (${app.experience_years} years experience)</div>
+            <div><strong>Workshop Setup:</strong> ${app.workshop_type}</div>
+            <div><strong>Tool Inventory:</strong> ${app.tools_available}</div>
+            <div><strong>Credentials List:</strong> ${app.documents_list}</div>
+            <div><strong>Current Status:</strong> <span style="font-weight: 700;">${app.status.toUpperCase()}</span></div>
+            ${app.admin_notes ? `<div style="background: #F8FAFC; padding: 10px; border-radius: 8px; border: 1px solid #E2E8F0;"><strong>Verification / Rejection Notes:</strong><br>${app.admin_notes}</div>` : ''}
+        `;
+        document.getElementById('dossierContent').innerHTML = html;
+        document.getElementById('dossierModal').style.display = 'flex';
+    }
+
+    function closeDossierModal() {
+        document.getElementById('dossierModal').style.display = 'none';
+    }
+
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeApproveModal();
+            closeRejectModal();
+            closeDossierModal();
+        }
+    });
+</script>
 @endsection

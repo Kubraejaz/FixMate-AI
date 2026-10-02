@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\CommunityIssueController as AdminCommunityControl
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\TechnicianVerificationController;
+use App\Http\Controllers\BecomeTechnicianController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FaqController;
@@ -65,9 +67,8 @@ Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
-Route::get('/become-technician', function () {
-    return view('Frontend.public.become-technician');
-})->name('become-technician');
+Route::get('/become-technician', [BecomeTechnicianController::class, 'index'])->name('become-technician');
+Route::post('/become-technician', [BecomeTechnicianController::class, 'store'])->name('become-technician.store');
 
 Route::get('/privacy-policy', function () {
     return view('Frontend.public.privacy-policy');
@@ -364,9 +365,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     })->name('ai-diagnostics');
 
     // KYC Verification Pipeline
-    Route::get('/technicians/verification', function () {
-        return view('Frontend.admin.verification');
-    })->name('technicians.verification');
+    Route::get('/technicians/verification', [TechnicianVerificationController::class, 'index'])->name('technicians.verification');
+    Route::patch('/technicians/verification/{application}/approve', [TechnicianVerificationController::class, 'approve'])->name('technicians.verification.approve');
+    Route::patch('/technicians/verification/{application}/reject', [TechnicianVerificationController::class, 'reject'])->name('technicians.verification.reject');
+    Route::patch('/technicians/verification/{application}/review', [TechnicianVerificationController::class, 'review'])->name('technicians.verification.review');
 
     // Bookings & Transactions
     Route::get('/bookings', function () {
