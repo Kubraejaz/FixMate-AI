@@ -250,6 +250,44 @@
                 </div>
             </div>
 
+            <!-- Dynamic Section: People's Views & Verified Homeowner Stories -->
+            @if(isset($peopleReviews) && $peopleReviews->isNotEmpty())
+            <div style="margin-bottom: 70px;">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto 36px auto;">
+                    <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Community Voices</span>
+                    <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">What People Say About FixMate AI</h3>
+                    <p style="font-size: 14.5px; color: #64748B; margin: 0;">Real feedback from verified homeowners across Karachi, Lahore, and Islamabad.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                    @foreach($peopleReviews as $rev)
+                        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03); display: flex; flex-direction: column; justify-content: space-between; gap: 18px; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFB800'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)';">
+                            <div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                                    <div style="display: flex; gap: 3px; color: #F59E0B; font-size: 15px;">
+                                        ★★★★★
+                                    </div>
+                                    <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0;">
+                                        ✓ Verified Order
+                                    </span>
+                                </div>
+                                <p style="font-size: 14px; color: #334155; line-height: 1.7; font-style: italic; margin: 0 0 14px 0;">
+                                    "{{ $rev['comment'] }}"
+                                </p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; border-top: 1px solid #F1F5F9; padding-top: 14px;">
+                                <img src="{{ $rev['avatar'] }}" alt="{{ $rev['name'] }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid #FFB800;">
+                                <div>
+                                    <strong style="font-size: 14px; color: #0F172A; display: block;">{{ $rev['name'] }}</strong>
+                                    <span style="font-size: 12px; color: #64748B;">{{ $rev['location'] }} &middot; {{ $rev['trade'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <!-- Call to Action Banner -->
             <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 24px; padding: 48px; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between; gap: 30px; flex-wrap: wrap;">
                 <div>

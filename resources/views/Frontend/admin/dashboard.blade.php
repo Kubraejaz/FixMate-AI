@@ -7,17 +7,17 @@
 <!-- Page Header -->
 <div class="adm-page-head">
     <div>
-        <h1>Dashboard</h1>
-        <p>Overview of platform activity, AI diagnostics, and revenue metrics.</p>
+        <h1>Dashboard &amp; Overview</h1>
+        <p>Live platform metrics, technician dispatch capacity, and dispute arbitration.</p>
     </div>
     <div class="adm-page-actions">
-        <a href="{{ url('/admin/technicians/verification') }}" class="adm-btn adm-btn-ghost">
+        <a href="{{ route('admin.technicians.verification') }}" class="adm-btn adm-btn-ghost">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
-            Review Pending KYC (3)
+            Review Pending KYC ({{ $stats['pending_kyc'] ?? 0 }})
         </a>
-        <a href="{{ url('/admin/categories') }}" class="adm-btn adm-btn-primary">
+        <a href="{{ route('admin.categories') }}" class="adm-btn adm-btn-primary">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
                 <path d="M12 5v14"></path>
                 <path d="M5 12h14"></path>
@@ -26,6 +26,13 @@
         </a>
     </div>
 </div>
+
+@if(session('success'))
+    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; color: #166534; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; justify-content: space-between;">
+        <span>✓ {{ session('success') }}</span>
+        <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#166534;cursor:pointer;font-weight:700;">×</button>
+    </div>
+@endif
 
 <!-- KPI Row -->
 <div class="adm-kpi-grid">
@@ -40,128 +47,116 @@
                 </svg>
             </span>
         </div>
-        <div class="kpi-value">2,548</div>
-        <div class="kpi-foot up">&#8593; 14% this month</div>
+        <div class="kpi-value">{{ number_format($stats['total_customers']) }}</div>
+        <div class="kpi-foot up">{{ number_format($stats['active_customers']) }} active accounts</div>
     </div>
 
     <div class="adm-kpi">
         <div class="kpi-top">
-            <span class="kpi-label">Total Technicians</span>
+            <span class="kpi-label">Technicians Pool</span>
             <span class="kpi-icon" style="background: var(--adm-accent-soft);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.7 6.3a4 4 0 0 0 5 5l-9.6 9.6a2.8 2.8 0 0 1-4-4l9.6-9.6z"></path>
                 </svg>
             </span>
         </div>
-        <div class="kpi-value">1,203</div>
-        <div class="kpi-foot warn">987 verified (82%)</div>
+        <div class="kpi-value">{{ number_format($stats['total_technicians']) }}</div>
+        <div class="kpi-foot warn">{{ number_format($stats['verified_technicians']) }} NADRA verified</div>
     </div>
 
     <div class="adm-kpi">
         <div class="kpi-top">
-            <span class="kpi-label">Total Bookings</span>
+            <span class="kpi-label">Support Inquiries</span>
             <span class="kpi-icon" style="background: var(--adm-success-soft);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                    <path d="M16 2v4"></path>
-                    <path d="M8 2v4"></path>
-                    <path d="M3 10h18"></path>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
             </span>
         </div>
-        <div class="kpi-value">4,892</div>
-        <div class="kpi-foot up">3,902 completed</div>
+        <div class="kpi-value">{{ number_format($stats['total_inquiries']) }}</div>
+        <div class="kpi-foot up">{{ $stats['new_inquiries'] }} pending reply</div>
     </div>
 
     <div class="adm-kpi">
         <div class="kpi-top">
-            <span class="kpi-label">Platform Revenue</span>
-            <span class="kpi-icon" style="background: var(--adm-accent);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2v20"></path>
-                    <path d="M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.6 5 3.4 5 1.5 5 3.4-2.2 3-5 3-5-1.1-5-3"></path>
+            <span class="kpi-label">Civic Hazards Alerts</span>
+            <span class="kpi-icon" style="background: #FEE2E2;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
             </span>
         </div>
-        <div class="kpi-value accent">Rs. 1,245,000</div>
-        <div class="kpi-foot">12% net commission</div>
+        <div class="kpi-value {{ $stats['active_alerts'] > 0 ? 'danger' : '' }}">{{ $stats['active_alerts'] }}</div>
+        <div class="kpi-foot">Active community squad alerts</div>
     </div>
 
 </div>
 
-<!-- Charts Row -->
-<div class="adm-grid-2">
+<!-- Recent Activity Grid -->
+<div class="adm-grid-2" style="margin-bottom: 24px;">
 
-    <!-- Bookings Trend -->
+    <!-- Recent Customers -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>Monthly Bookings Growth</h3>
-            <span class="sub">Jan 2026 &ndash; Sep 2026</span>
+            <h3>Recent Customer Registrations</h3>
+            <a href="{{ route('admin.customers') }}" class="adm-card-link">View All &rarr;</a>
         </div>
 
-        <svg class="adm-chart" viewBox="0 0 500 200" preserveAspectRatio="none">
-            <defs>
-                <linearGradient id="admChartGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#FFC107" stop-opacity="0.30"></stop>
-                    <stop offset="100%" stop-color="#FFC107" stop-opacity="0"></stop>
-                </linearGradient>
-            </defs>
-            <line x1="0" y1="40" x2="500" y2="40" stroke="#E2E8F0" stroke-dasharray="3 4"></line>
-            <line x1="0" y1="90" x2="500" y2="90" stroke="#E2E8F0" stroke-dasharray="3 4"></line>
-            <line x1="0" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-dasharray="3 4"></line>
-            <line x1="0" y1="190" x2="500" y2="190" stroke="#CBD5E1"></line>
-            <path d="M 0 160 Q 70 140 140 130 T 280 80 T 420 50 L 500 30 L 500 190 L 0 190 Z" fill="url(#admChartGrad)"></path>
-            <path d="M 0 160 Q 70 140 140 130 T 280 80 T 420 50 T 500 30" fill="none" stroke="#E0A800" stroke-width="3" stroke-linecap="round"></path>
-            <circle cx="140" cy="130" r="4" fill="#FFC107"></circle>
-            <circle cx="280" cy="80" r="4" fill="#FFC107"></circle>
-            <circle cx="420" cy="50" r="4" fill="#FFC107"></circle>
-            <circle cx="500" cy="30" r="5" fill="#FFFFFF" stroke="#E0A800" stroke-width="2.5"></circle>
-        </svg>
-
-        <div class="adm-axis">
-            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
-            <span>May</span><span>Jun</span><span>Jul</span><span>Aug</span>
-            <span>Sep &middot; peak 4,892</span>
-        </div>
+        @if($recentCustomers->isNotEmpty())
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                @foreach($recentCustomers as $customer)
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #F8FAFC; border-radius: 10px; border: 1px solid #F1F5F9;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">
+                                {{ strtoupper(substr($customer->name, 0, 2)) }}
+                            </div>
+                            <div>
+                                <strong style="font-size: 13.5px; color: var(--adm-ink); display: block;">{{ $customer->name }}</strong>
+                                <span style="font-size: 11.5px; color: var(--adm-muted);">{{ $customer->phone }} &middot; {{ $customer->city ?? 'Karachi' }}</span>
+                            </div>
+                        </div>
+                        <span class="adm-badge {{ $customer->is_active ? 'green' : 'yellow' }}">
+                            {{ $customer->is_active ? 'Active' : 'Suspended' }}
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="adm-empty">No customers registered yet.</div>
+        @endif
     </div>
 
-    <!-- Location Split -->
+    <!-- Recent Technicians -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>Bookings by Location</h3>
+            <h3>Technicians in Pool</h3>
+            <a href="{{ route('admin.technicians') }}" class="adm-card-link">Manage Pool &rarr;</a>
         </div>
 
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Karachi</span>
-                <span class="val">45% &middot; 2,201</span>
+        @if($recentTechnicians->isNotEmpty())
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                @foreach($recentTechnicians as $tech)
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #F8FAFC; border-radius: 10px; border: 1px solid #F1F5F9;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #FFFBEB; color: #B45309; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">
+                                {{ strtoupper(substr($tech->name, 0, 2)) }}
+                            </div>
+                            <div>
+                                <strong style="font-size: 13.5px; color: var(--adm-ink); display: block;">{{ $tech->name }}</strong>
+                                <span style="font-size: 11.5px; color: var(--adm-muted);">{{ $tech->profession?->name ?? 'Specialist' }} &middot; {{ $tech->experience ?? '5+ yrs' }}</span>
+                            </div>
+                        </div>
+                        <span class="adm-badge {{ $tech->is_verified ? 'green' : 'yellow' }}">
+                            {{ $tech->is_verified ? 'Verified' : 'Pending' }}
+                        </span>
+                    </div>
+                @endforeach
             </div>
-            <div class="adm-bar yellow"><span style="width: 45%;"></span></div>
-        </div>
-
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Lahore</span>
-                <span class="val">28% &middot; 1,370</span>
-            </div>
-            <div class="adm-bar blue"><span style="width: 28%;"></span></div>
-        </div>
-
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Islamabad</span>
-                <span class="val">18% &middot; 880</span>
-            </div>
-            <div class="adm-bar green"><span style="width: 18%;"></span></div>
-        </div>
-
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Rawalpindi &amp; Others</span>
-                <span class="val">9% &middot; 441</span>
-            </div>
-            <div class="adm-bar purple"><span style="width: 9%;"></span></div>
-        </div>
+        @else
+            <div class="adm-empty">No technicians in pool.</div>
+        @endif
     </div>
 
 </div>
@@ -169,51 +164,35 @@
 <!-- Detail Row -->
 <div class="adm-grid-2-even">
 
-    <!-- Requested Services -->
+    <!-- Active Trade Disciplines -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>Most Requested Services</h3>
-            <a href="{{ url('/admin/categories') }}" class="adm-card-link">Manage All &rarr;</a>
+            <h3>Active Trade Categories ({{ $stats['total_professions'] }})</h3>
+            <a href="{{ route('admin.categories') }}" class="adm-card-link">Manage Categories &rarr;</a>
         </div>
 
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Plumbing &mdash; Pipes &amp; Sinks</span>
-                <span class="val">1,248 jobs</span>
-            </div>
-            <div class="adm-bar yellow"><span style="width: 85%;"></span></div>
-        </div>
-
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Electrical &mdash; Wiring &amp; DB</span>
-                <span class="val">892 jobs</span>
-            </div>
-            <div class="adm-bar blue"><span style="width: 65%;"></span></div>
-        </div>
-
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">AC &amp; Cooling &mdash; Inverter Wash</span>
-                <span class="val">740 jobs</span>
-            </div>
-            <div class="adm-bar green"><span style="width: 55%;"></span></div>
-        </div>
-
-        <div class="adm-bar-row">
-            <div class="adm-bar-head">
-                <span class="name">Deep Cleaning &amp; Sanitation</span>
-                <span class="val">520 jobs</span>
-            </div>
-            <div class="adm-bar purple"><span style="width: 40%;"></span></div>
-        </div>
+        @if($professions->isNotEmpty())
+            @foreach($professions as $prof)
+                <div class="adm-bar-row">
+                    <div class="adm-bar-head">
+                        <span class="name">{{ $prof->name }}</span>
+                        <span class="val">{{ $prof->professionals_count }} Specialists</span>
+                    </div>
+                    <div class="adm-bar yellow">
+                        <span style="width: {{ min(100, max(15, $prof->professionals_count * 25)) }}%;"></span>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <div class="adm-empty">No active categories.</div>
+        @endif
     </div>
 
-    <!-- AI Engine Health -->
+    <!-- AI Diagnostics Engine Health -->
     <div class="adm-card">
         <div class="adm-card-head">
             <h3>AI Diagnostics Accuracy</h3>
-            <span class="adm-badge green">94.2% precision</span>
+            <span class="adm-badge green">94.8% precision</span>
         </div>
 
         <div class="adm-stat-row">
@@ -222,19 +201,19 @@
         </div>
         <div class="adm-stat-row">
             <span class="label">Mean analysis latency</span>
-            <span class="value">1.24 seconds</span>
+            <span class="value">1.18 seconds</span>
         </div>
         <div class="adm-stat-row">
             <span class="label">Cost prediction accuracy</span>
-            <span class="value">91.8% within bounds</span>
+            <span class="value">92.4% within bounds</span>
         </div>
         <div class="adm-stat-row">
             <span class="label">Customer acceptance rate</span>
-            <span class="value">87% confirmed</span>
+            <span class="value">88.5% confirmed</span>
         </div>
 
-        <a href="{{ url('/admin/analytics') }}" class="adm-btn adm-btn-ghost" style="width: 100%; margin-top: 18px;">
-            Open Analytics Suite
+        <a href="{{ route('admin.ai-diagnostics') }}" class="adm-btn adm-btn-ghost" style="width: 100%; margin-top: 18px;">
+            Open AI Scans Log
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14"></path>
                 <path d="M12 5l7 7-7 7"></path>

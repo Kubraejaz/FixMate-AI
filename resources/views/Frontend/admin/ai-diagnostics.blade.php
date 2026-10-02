@@ -6,11 +6,11 @@
 
 <div class="adm-page-head">
     <div>
-        <h1>AI Diagnostic Logs</h1>
-        <p>Inspect model classifications, confidence probabilities, and cost estimation logic.</p>
+        <h1>AI Diagnostic Logs &amp; Neural Computer Vision</h1>
+        <p>Inspect model classifications, defect bounding boxes, and real-time labor cost predictions.</p>
     </div>
     <div class="adm-page-actions">
-        <span class="adm-badge green">Model online &middot; Vision v2.4</span>
+        <span class="adm-badge green">Model online &middot; Vision v2.4 Multi-Head</span>
     </div>
 </div>
 
@@ -21,63 +21,39 @@
             <thead>
                 <tr>
                     <th>Scanned Image</th>
-                    <th>Customer Problem</th>
+                    <th>Customer Defect Description</th>
                     <th>Detected Trade</th>
                     <th>Confidence</th>
-                    <th>Predicted Cost</th>
+                    <th>Predicted Cost Range</th>
                     <th>Matched Technician</th>
-                    <th style="text-align: right;">Accuracy Flag</th>
+                    <th style="text-align: right;">Accuracy Validation</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <div class="adm-media">
-                            <img src="{{ asset('assets/images/image_6.png') }}" alt="Kitchen sink" style="border-color: var(--adm-accent);">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="pname" style="font-weight: 700; color: var(--adm-ink);">Kitchen Sink Leakage</div>
-                        <div class="pmeta" style="font-size: 11.5px; color: var(--adm-faint);">Ahmed Khan &middot; 10:00 AM</div>
-                    </td>
-                    <td>Plumbing (P-trap)</td>
-                    <td><span class="adm-badge green">92% match</span></td>
-                    <td><strong>Rs. 500 &ndash; 800</strong></td>
-                    <td>Ali Khan</td>
-                    <td style="text-align: right;"><span class="adm-badge green">Verified Accurate</span></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="adm-media">
-                            <img src="{{ asset('assets/images/image_5.png') }}" alt="Breaker panel">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="pname" style="font-weight: 700; color: var(--adm-ink);">Breaker Tripping Issue</div>
-                        <div class="pmeta" style="font-size: 11.5px; color: var(--adm-faint);">Sara Ahmed &middot; Yesterday</div>
-                    </td>
-                    <td>Electrical (Wiring)</td>
-                    <td><span class="adm-badge green">96% match</span></td>
-                    <td><strong>Rs. 1,000 &ndash; 1,500</strong></td>
-                    <td>Riaz Ahmed</td>
-                    <td style="text-align: right;"><span class="adm-badge green">Verified Accurate</span></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="adm-media">
-                            <img src="{{ asset('assets/images/image_7.png') }}" alt="AC coil">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="pname" style="font-weight: 700; color: var(--adm-ink);">AC Gas Leak &amp; Low Cooling</div>
-                        <div class="pmeta" style="font-size: 11.5px; color: var(--adm-faint);">Bilal Tariq &middot; Yesterday</div>
-                    </td>
-                    <td>AC &amp; Cooling</td>
-                    <td><span class="adm-badge yellow">89% match</span></td>
-                    <td><strong>Rs. 1,800 &ndash; 2,500</strong></td>
-                    <td>Imran Shah</td>
-                    <td style="text-align: right;"><span class="adm-badge red">Needs Review</span></td>
-                </tr>
+                @foreach($scans as $scan)
+                    <tr>
+                        <td>
+                            <div class="adm-media">
+                                <img src="{{ $scan['image'] }}" alt="{{ $scan['problem'] }}" style="border-color: var(--adm-accent); width: 56px; height: 44px; object-fit: cover; border-radius: 8px;">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="pname" style="font-weight: 700; color: var(--adm-ink);">{{ $scan['problem'] }}</div>
+                            <div class="pmeta" style="font-size: 11.5px; color: var(--adm-faint);">{{ $scan['customer_name'] }} &middot; {{ $scan['time_ago'] }}</div>
+                        </td>
+                        <td>
+                            <strong style="color: var(--adm-ink);">{{ $scan['detected_trade'] }}</strong>
+                        </td>
+                        <td>
+                            <span class="adm-badge {{ $scan['confidence_class'] }}">{{ $scan['confidence'] }} match</span>
+                        </td>
+                        <td><strong>{{ $scan['predicted_cost'] }}</strong></td>
+                        <td>{{ $scan['matched_technician'] }}</td>
+                        <td style="text-align: right;">
+                            <span class="adm-badge {{ $scan['status_class'] }}">{{ $scan['status'] }}</span>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'Growth Analytics — FixMate AI Admin')
+@section('title', 'Growth & Recommendation Analytics — FixMate AI Admin')
 
 @section('content')
 
@@ -10,54 +10,64 @@
         <p>Performance of computer vision diagnostics, technician matching, and conversion.</p>
     </div>
     <div class="adm-page-actions">
-        <span class="adm-badge yellow">Average matching score 87%</span>
+        <span class="adm-badge yellow">Average matching score 91.4%</span>
     </div>
 </div>
 
 <!-- Funnel KPIs -->
-<div class="adm-kpi-grid" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+<div class="adm-kpi-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
 
     <div class="adm-kpi">
         <div class="kpi-top">
-            <span class="kpi-label">Total Inquiries (AI Scans)</span>
+            <span class="kpi-label">Registered Customers</span>
             <span class="kpi-icon" style="background: var(--adm-info-soft);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M12 2v3"></path><path d="M12 19v3"></path>
-                    <path d="M2 12h3"></path><path d="M19 12h3"></path>
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
                 </svg>
             </span>
         </div>
-        <div class="kpi-value">1,248</div>
-        <div class="kpi-foot up">Processed by computer vision</div>
+        <div class="kpi-value">{{ number_format($totalCustomers) }}</div>
+        <div class="kpi-foot up">Platform consumer base</div>
     </div>
 
     <div class="adm-kpi">
         <div class="kpi-top">
-            <span class="kpi-label">Successful Matches</span>
+            <span class="kpi-label">Technicians Pool</span>
+            <span class="kpi-icon" style="background: var(--adm-accent-soft);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a4 4 0 0 0 5 5l-9.6 9.6a2.8 2.8 0 0 1-4-4l9.6-9.6z"></path>
+                </svg>
+            </span>
+        </div>
+        <div class="kpi-value">{{ number_format($totalTechnicians) }}</div>
+        <div class="kpi-foot">{{ $verifiedTechnicians }} NADRA verified</div>
+    </div>
+
+    <div class="adm-kpi">
+        <div class="kpi-top">
+            <span class="kpi-label">Support Inquiries</span>
             <span class="kpi-icon" style="background: var(--adm-success-soft);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 6L9 17l-5-5"></path>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
             </span>
         </div>
-        <div class="kpi-value">892</div>
-        <div class="kpi-foot">71.4% match confidence</div>
+        <div class="kpi-value">{{ number_format($totalInquiries) }}</div>
+        <div class="kpi-foot up">Tickets managed</div>
     </div>
 
     <div class="adm-kpi">
         <div class="kpi-top">
-            <span class="kpi-label">Confirmed Bookings</span>
-            <span class="kpi-icon" style="background: var(--adm-accent);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                    <path d="M16 2v4"></path><path d="M8 2v4"></path>
-                    <path d="M3 10h18"></path>
+            <span class="kpi-label">Civic Hazards Resolved</span>
+            <span class="kpi-icon" style="background: #FEE2E2;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
             </span>
         </div>
-        <div class="kpi-value accent">356</div>
-        <div class="kpi-foot up">39.9% booking conversion</div>
+        <div class="kpi-value accent">{{ number_format($resolvedIssues) }}</div>
+        <div class="kpi-foot up">Resolved community dispatches</div>
     </div>
 
 </div>
@@ -65,94 +75,55 @@
 <!-- Two Columns -->
 <div class="adm-grid-2">
 
-    <!-- Most Recommended Technicians -->
+    <!-- Active Trade Disciplines Capacity -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>Most Recommended Technicians</h3>
-            <a href="{{ url('/admin/technicians') }}" class="adm-card-link">View Pool &rarr;</a>
+            <h3>Specialist Capacity by Trade Discipline</h3>
+            <a href="{{ route('admin.categories') }}" class="adm-card-link">Categories &rarr;</a>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
-            <div class="adm-person">
-                <img src="{{ asset('assets/images/image_1.png') }}" alt="Ali Khan" style="width: 42px; height: 42px; border-color: var(--adm-accent);">
-                <div>
-                    <div class="pname">1. Ali Khan</div>
-                    <div class="pmeta">Plumber &middot; &#9733; 4.9</div>
+        @foreach($professions as $prof)
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
+                <div class="adm-person">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        🛠️
+                    </div>
+                    <div>
+                        <div class="pname">{{ $prof->name }}</div>
+                        <div class="pmeta">{{ $prof->professionals_count }} active specialists</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <span class="adm-badge green">Capacity Normal</span>
                 </div>
             </div>
-            <div style="text-align: right;">
-                <div class="pname">124 inquiries</div>
-                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">98% match rate</div>
-            </div>
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
-            <div class="adm-person">
-                <img src="{{ asset('assets/images/image_2.png') }}" alt="Riaz Ahmed" style="width: 42px; height: 42px; border-color: var(--adm-accent);">
-                <div>
-                    <div class="pname">2. Riaz Ahmed</div>
-                    <div class="pmeta">Electrician &middot; &#9733; 4.8</div>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div class="pname">98 inquiries</div>
-                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">94% match rate</div>
-            </div>
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--adm-border-soft);">
-            <div class="adm-person">
-                <img src="{{ asset('assets/images/image_3.png') }}" alt="Imran Shah" style="width: 42px; height: 42px; border-color: var(--adm-accent);">
-                <div>
-                    <div class="pname">3. Imran Shah</div>
-                    <div class="pmeta">AC Specialist &middot; &#9733; 4.9</div>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div class="pname">82 inquiries</div>
-                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">96% match rate</div>
-            </div>
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0;">
-            <div class="adm-person">
-                <img src="{{ asset('assets/images/image_4.png') }}" alt="Umar Tariq" style="width: 42px; height: 42px;">
-                <div>
-                    <div class="pname">4. Umar Tariq</div>
-                    <div class="pmeta">Cleaner &middot; &#9733; 4.8</div>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div class="pname">65 inquiries</div>
-                <div class="pmeta" style="color: var(--adm-success); font-weight: 700;">91% match rate</div>
-            </div>
-        </div>
+        @endforeach
     </div>
 
-    <!-- Common Problems -->
+    <!-- Common Problems Classification -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>Common Detected Problems</h3>
+            <h3>Most Common Detected Defect Types</h3>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
-            <div class="pname" style="font-size: 13.5px;">Kitchen Sink Leakage</div>
-            <div class="pmeta" style="margin-top: 3px;">382 scans &middot; 92% precision</div>
+            <div class="pname" style="font-size: 13.5px;">Kitchen Sink &amp; P-trap Pipe Leakage</div>
+            <div class="pmeta" style="margin-top: 3px;">382 scans &middot; 94.6% precision</div>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
-            <div class="pname" style="font-size: 13.5px;">AC Not Cooling (Gas / Filter)</div>
-            <div class="pmeta" style="margin-top: 3px;">294 scans &middot; 89% precision</div>
+            <div class="pname" style="font-size: 13.5px;">AC Inverter Condenser &amp; Gas Leaks</div>
+            <div class="pmeta" style="margin-top: 3px;">294 scans &middot; 91.0% precision</div>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
-            <div class="pname" style="font-size: 13.5px;">Circuit Breaker Tripping</div>
-            <div class="pmeta" style="margin-top: 3px;">188 scans &middot; 94% precision</div>
+            <div class="pname" style="font-size: 13.5px;">Circuit Breaker DB Tripping &amp; Neutral Short</div>
+            <div class="pmeta" style="margin-top: 3px;">188 scans &middot; 97.2% precision</div>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px;">
-            <div class="pname" style="font-size: 13.5px;">Sofa &amp; Carpet Stain Wash</div>
-            <div class="pmeta" style="margin-top: 3px;">142 scans &middot; 88% precision</div>
+            <div class="pname" style="font-size: 13.5px;">Door Lock Realignment &amp; Woodwork</div>
+            <div class="pmeta" style="margin-top: 3px;">142 scans &middot; 88.5% precision</div>
         </div>
     </div>
 

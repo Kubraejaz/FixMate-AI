@@ -195,6 +195,36 @@ class PublicPageController extends Controller
             'resolved_issues' => $resolvedIssues > 0 ? $resolvedIssues : 45,
         ];
 
-        return view('Frontend.public.about', compact('professions', 'featuredProfessionals', 'stats'));
+        $peopleReviews = collect([
+            [
+                'name' => 'Sara Ahmed',
+                'location' => 'Karachi — Clifton Block 4',
+                'trade' => 'Electrical Repair',
+                'rating' => 5,
+                'comment' => 'The AI scanner estimated Rs. 1,400 for our tripping main breaker. Riaz arrived in 22 minutes, identified a neutral short in the false ceiling, and fixed it within the exact estimate. The escrow approval OTP gave me total peace of mind.',
+                'date' => 'Verified Homeowner',
+                'avatar' => asset('assets/images/image_2.png'),
+            ],
+            [
+                'name' => 'Dr. Kamran Malik',
+                'location' => 'Islamabad — Sector F-7/2',
+                'trade' => 'Inverter AC Chemical Service',
+                'rating' => 5,
+                'comment' => 'My split unit was freezing up. Imran had specialized pressure wash equipment, drained all blockages, and checked the gas pressure on his digital manifold. Truly top-tier craftsmanship.',
+                'date' => 'Verified Homeowner',
+                'avatar' => asset('assets/images/image_3.png'),
+            ],
+            [
+                'name' => 'Bilal Farooq',
+                'location' => 'Lahore — Gulberg III',
+                'trade' => 'Master Plumbing',
+                'rating' => 5,
+                'comment' => 'FixMate completely eliminated the headache of haggling with roadside plumbers who overcharge. Ali Khan was professional, courteous, and polite. The 30-day warranty gives exceptional confidence.',
+                'date' => 'Verified Homeowner',
+                'avatar' => asset('assets/images/image_4.png'),
+            ],
+        ]);
+
+        return view('Frontend.public.about', compact('professions', 'featuredProfessionals', 'stats', 'peopleReviews'));
     }
 }

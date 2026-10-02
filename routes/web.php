@@ -7,10 +7,16 @@ use App\Http\Controllers\Auth\OtpVerificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Auth\RegisteredTechnicianController;
+use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\Admin\BookingManagementController;
 use App\Http\Controllers\Admin\CommunityIssueController as AdminCommunityController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
+use App\Http\Controllers\Admin\TechnicianManagementController;
 use App\Http\Controllers\Admin\TechnicianVerificationController;
 use App\Http\Controllers\BecomeTechnicianController;
 use App\Http\Controllers\CommunityController;
@@ -334,13 +340,8 @@ Route::get('/provider-dashboard', function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     
     // Admin Dashboard
-    Route::get('/', function () {
-        return view('Frontend.admin.dashboard');
-    });
-
-    Route::get('/dashboard', function () {
-        return view('Frontend.admin.dashboard');
-    })->name('dashboard');
+    Route::get('/', [AdminDashboardController::class, 'index']);
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Catalog & Category / Services Management (Full CRUD)
     Route::get('/categories', [ServiceController::class, 'index'])->name('categories');
@@ -351,14 +352,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('/services', [ServiceController::class, 'index'])->name('services');
 
-    // AI Diagnostics Analytics
-    Route::get('/analytics', function () {
-        return view('Frontend.admin.analytics');
-    })->name('analytics');
-
-    Route::get('/ai-diagnostics', function () {
-        return view('Frontend.admin.ai-diagnostics');
-    })->name('ai-diagnostics');
+    // AI Diagnostics & Growth Analytics
+    Route::get('/analytics', [AnalyticsController::class, 'analytics'])->name('analytics');
+    Route::get('/ai-diagnostics', [AnalyticsController::class, 'aiDiagnostics'])->name('ai-diagnostics');
 
     // KYC Verification Pipeline
     Route::get('/technicians/verification', [TechnicianVerificationController::class, 'index'])->name('technicians.verification');
@@ -366,32 +362,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::patch('/technicians/verification/{application}/reject', [TechnicianVerificationController::class, 'reject'])->name('technicians.verification.reject');
     Route::patch('/technicians/verification/{application}/review', [TechnicianVerificationController::class, 'review'])->name('technicians.verification.review');
 
-    // Bookings & Transactions
-    Route::get('/bookings', function () {
-        return view('Frontend.admin.bookings');
-    })->name('bookings');
+    // Bookings & Dispatches Board
+    Route::get('/bookings', [BookingManagementController::class, 'index'])->name('bookings');
 
-    // Users Directory
-    Route::get('/customers', function () {
-        return view('Frontend.admin.customers');
-    })->name('customers');
+    // People: Customer Accounts Management
+    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers');
+    Route::get('/users', [AdminCustomerController::class, 'index'])->name('users');
+    Route::patch('/customers/{customer}/toggle', [AdminCustomerController::class, 'toggle'])->name('customers.toggle');
+    Route::delete('/customers/{customer}', [AdminCustomerController::class, 'destroy'])->name('customers.destroy');
 
-    Route::get('/users', function () {
-        return view('Frontend.admin.customers');
-    })->name('users');
+    // People: Technicians Pool Management
+    Route::get('/technicians', [TechnicianManagementController::class, 'index'])->name('technicians');
+    Route::patch('/technicians/{professional}/verify', [TechnicianManagementController::class, 'toggleVerify'])->name('technicians.verify');
+    Route::delete('/technicians/{professional}', [TechnicianManagementController::class, 'destroy'])->name('technicians.destroy');
 
-    Route::get('/technicians', function () {
-        return view('Frontend.admin.technicians');
-    })->name('technicians');
-
-    // Settings & Others
-    Route::get('/settings', function () {
-        return view('Frontend.admin.dashboard');
-    })->name('settings');
-
-    Route::get('/payments', function () {
-        return view('Frontend.admin.dashboard');
-    })->name('payments');
+    // Financial Escrow & Platform Settings
+    Route::get('/payments', [AdminSettingsController::class, 'payments'])->name('payments');
+    Route::get('/settings', [AdminSettingsController::class, 'settings'])->name('settings');
+    Route::post('/settings', [AdminSettingsController::class, 'updateSettings'])->name('settings.update');
 
     // Contact Inquiries & Dispute Arbitration (Full CRUD)
     Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries');

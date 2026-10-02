@@ -1,42 +1,50 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'All Bookings — FixMate AI Admin')
+@section('title', 'All Bookings & Dispatches — FixMate AI Admin')
 
 @section('content')
 
 <div class="adm-page-head">
     <div>
         <h1>All Platform Bookings</h1>
-        <p>Monitor live job dispatches, OTP handshakes, escrow releases, and disputes.</p>
+        <p>{{ $totalBookingsCount }} live dispatches &middot; Rs. {{ number_format($escrowHeldAmount) }} currently held in Escrow Protection.</p>
     </div>
     <div class="adm-page-actions">
-        <button type="button" class="adm-btn adm-btn-ghost" onclick="showToast('CSV export started')">
+        <a href="{{ route('admin.payments') }}" class="adm-btn adm-btn-ghost">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <path d="M7 10l5 5 5-5"></path>
-                <path d="M12 15V3"></path>
+                <rect x="2" y="5" width="20" height="14" rx="2.5"></rect>
+                <path d="M2 10h20"></path>
             </svg>
-            Export CSV
-        </button>
+            Escrow Console (Rs. {{ number_format($escrowHeldAmount) }})
+        </a>
     </div>
 </div>
 
 <!-- Filter Bar -->
-<div class="adm-card" style="padding: 14px 18px; margin-bottom: 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-    <input type="text" class="adm-input" style="flex: 1; min-width: 220px;" placeholder="Filter by Booking ID, customer or technician...">
-    <select class="adm-select" style="width: 180px;">
-        <option>All Statuses</option>
-        <option>En Route</option>
-        <option>Scheduled</option>
-        <option>Completed</option>
-    </select>
-    <select class="adm-select" style="width: 160px;">
-        <option>All Cities</option>
-        <option>Karachi</option>
-        <option>Lahore</option>
-        <option>Islamabad</option>
-    </select>
-    <button type="button" class="adm-btn adm-btn-primary" onclick="showToast('Filters applied')">Apply</button>
+<div class="adm-card" style="padding: 14px 18px; margin-bottom: 18px;">
+    <form method="GET" action="{{ route('admin.bookings') }}" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <input type="text" name="q" value="{{ request('q') }}" class="adm-input" style="flex: 1; min-width: 220px;" placeholder="Filter by Booking #FM, customer, technician, or trade...">
+        
+        <select name="status" class="adm-select" style="width: 180px;" onchange="this.form.submit()">
+            <option value="all">All Statuses</option>
+            <option value="en_route" {{ request('status') === 'en_route' ? 'selected' : '' }}>En Route</option>
+            <option value="scheduled" {{ request('status') === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+            <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
+            <option value="disputed" {{ request('status') === 'disputed' ? 'selected' : '' }}>Disputed</option>
+        </select>
+
+        <select name="city" class="adm-select" style="width: 160px;" onchange="this.form.submit()">
+            <option value="all">All Cities</option>
+            <option value="Karachi" {{ request('city') === 'Karachi' ? 'selected' : '' }}>Karachi</option>
+            <option value="Lahore" {{ request('city') === 'Lahore' ? 'selected' : '' }}>Lahore</option>
+            <option value="Islamabad" {{ request('city') === 'Islamabad' ? 'selected' : '' }}>Islamabad</option>
+        </select>
+
+        <button type="submit" class="adm-btn adm-btn-primary">Apply</button>
+        @if(request()->hasAny(['q', 'status', 'city']))
+            <a href="{{ route('admin.bookings') }}" class="adm-btn adm-btn-ghost">Reset</a>
+        @endif
+    </form>
 </div>
 
 <!-- Table -->
@@ -48,7 +56,7 @@
                     <th>Booking ID</th>
                     <th>Customer</th>
                     <th>Technician</th>
-                    <th>Service</th>
+                    <th>Trade / Service</th>
                     <th>City / Area</th>
                     <th>Status</th>
                     <th>Amount</th>
@@ -56,46 +64,34 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>#FM-10245</strong></td>
-                    <td>Ahmed Khan</td>
-                    <td>Ali Khan</td>
-                    <td>Plumbing &mdash; Sink Leak</td>
-                    <td>Karachi (DHA)</td>
-                    <td><span class="adm-badge yellow">En Route &middot; ETA 10m</span></td>
-                    <td><strong>Rs. 800</strong></td>
-                    <td style="text-align: right;"><a href="{{ url('/customer/tracking') }}" class="adm-card-link">Live Map</a></td>
-                </tr>
-                <tr>
-                    <td><strong>#FM-10190</strong></td>
-                    <td>Bilal Tariq</td>
-                    <td>Imran Shah</td>
-                    <td>AC Master Service</td>
-                    <td>Karachi (Gulshan)</td>
-                    <td><span class="adm-badge blue">Scheduled</span></td>
-                    <td><strong>Rs. 1,800</strong></td>
-                    <td style="text-align: right;"><a href="#" class="adm-card-link">Details</a></td>
-                </tr>
-                <tr>
-                    <td><strong>#FM-09942</strong></td>
-                    <td>Sara Ahmed</td>
-                    <td>Riaz Ahmed</td>
-                    <td>Breaker Wiring</td>
-                    <td>Karachi (Clifton)</td>
-                    <td><span class="adm-badge green">Completed</span></td>
-                    <td><strong>Rs. 1,200</strong></td>
-                    <td style="text-align: right;"><a href="#" class="adm-card-link">Receipt</a></td>
-                </tr>
-                <tr>
-                    <td><strong>#FM-09877</strong></td>
-                    <td>Dr. Ayesha K.</td>
-                    <td>Umar Tariq</td>
-                    <td>Deep Cleaning</td>
-                    <td>Islamabad (F-7)</td>
-                    <td><span class="adm-badge red">Disputed</span></td>
-                    <td><strong>Rs. 2,400</strong></td>
-                    <td style="text-align: right;"><a href="{{ url('/admin/complaints') }}" class="adm-card-link">Arbitrate</a></td>
-                </tr>
+                @forelse($bookings as $b)
+                    <tr>
+                        <td><strong>#{{ $b['id'] }}</strong></td>
+                        <td>{{ $b['customer_name'] }}</td>
+                        <td>{{ $b['technician_name'] }}</td>
+                        <td>{{ $b['service_title'] }}</td>
+                        <td>{{ $b['city'] }}</td>
+                        <td>
+                            <span class="adm-badge {{ $b['status_badge'] }}">
+                                {{ $b['status_label'] }}
+                            </span>
+                        </td>
+                        <td><strong>Rs. {{ number_format($b['amount']) }}</strong></td>
+                        <td style="text-align: right;">
+                            @if($b['status'] === 'disputed')
+                                <a href="{{ route('admin.inquiries') }}" class="adm-card-link" style="color: #E11D48; font-weight: 700;">Arbitrate &rarr;</a>
+                            @else
+                                <span style="font-size: 12px; color: var(--adm-muted);">{{ $b['created_at'] }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 36px; color: var(--adm-muted);">
+                            No bookings match the filter criteria.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
