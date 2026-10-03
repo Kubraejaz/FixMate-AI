@@ -17,8 +17,14 @@
             
             <!-- Category / Trade Selection -->
             <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin-bottom: 8px;">Select Trade Category (Optional)</label>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                    <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin: 0;">Trade Category Selection</label>
+                    <span style="font-size: 11.5px; color: #64748B;">Leave as Auto-Detect or specify a trade</span>
+                </div>
                 <select name="category" class="form-input" style="font-size: 13.5px; padding: 10px 14px;">
+                    <option value="auto" {{ !request('category') || request('category') === 'auto' ? 'selected' : '' }}>
+                        🤖 Auto-Detect by AI Scanner (Recommended)
+                    </option>
                     @foreach($professions as $prof)
                         <option value="{{ $prof->slug }}" {{ request('category') == $prof->slug ? 'selected' : '' }}>
                             {{ $prof->name }} (Base: Rs. {{ number_format($prof->base_price) }})
@@ -30,7 +36,7 @@
             <!-- What problem are you facing? matching Mockup 1 -->
             <div class="form-group" style="margin-bottom: 20px;">
                 <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin-bottom: 8px;">What problem are you facing?</label>
-                <textarea name="issue" class="form-input" rows="4" style="font-size: 14px; line-height: 1.6; padding: 12px 14px;" placeholder="e.g. My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the faucet is turned on...">{{ old('issue', request('q', $queryText ?: 'My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the tap is running.')) }}</textarea>
+                <textarea name="issue" class="form-input" rows="4" style="font-size: 14px; line-height: 1.6; padding: 12px 14px;" placeholder="Describe your issue in detail (e.g. 'Split AC outdoor unit is making a loud buzzing sound and indoor is not cooling', 'Kitchen pipe under sink is leaking water', 'Main circuit breaker tripped with burning smell', 'Wooden door is jammed and won't lock')...">{{ old('issue', request('q', $queryText ?: '')) }}</textarea>
             </div>
 
             <!-- Upload Photos (Drag & Drop + Interactive File Input) -->

@@ -112,31 +112,173 @@ class CustomerPortalController extends Controller
      */
     public function aiResult(Request $request): View
     {
-        $categorySlug = $request->input('category', 'electrical');
-        $problemQuery = $request->input('issue', $request->input('q', ''));
+        $categorySlug = $request->input('category', 'auto');
+        $problemQuery = trim($request->input('issue', $request->input('q', '')));
 
-        $profession = Profession::where('slug', $categorySlug)
-            ->orWhere('name', 'like', "%{$categorySlug}%")
-            ->first();
+        // Check for uploaded defect photo
+        $uploadedImage = null;
+        if ($request->hasFile('defect_photo')) {
+            $file = $request->file('defect_photo');
+            $fileName = 'ai_scan_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/images'), $fileName);
+            $uploadedImage = 'assets/images/' . $fileName;
+            session(['last_ai_photo' => $uploadedImage]);
+        } elseif (session('last_ai_photo') && ! $request->has('new_scan')) {
+            $uploadedImage = session('last_ai_photo');
+        }
 
+        // Comprehensive Trade Keyword Dictionary
+        $tradeKeywords = [
+            'ac-refrigeration' => [
+                'ac', 'a/c', 'air conditioner', 'air conditioning', 'cooling', 'compressor', 'gas leak', 'freon',
+                'chilling', 'split', 'inverter', 'condenser', 'evaporator', 'duct', 'blower', 'water dropping from ac',
+                'ice on ac', 'warm air', 'thermostat', 'coil', 'not cooling', 'r410', 'ac leak', 'ac water',
+                'remote not working', 'ac tripping', 'hvac', 'refrigerator', 'fridge', 'deep freezer', 'chiller'
+            ],
+            'electrician' => [
+                'electric', 'electricity', 'spark', 'sparking', 'breaker', 'short circuit', 'wire', 'wiring',
+                'switch', 'socket', 'fuse', 'power', 'voltage', 'shock', 'trip', 'tripping', 'ups', 'generator',
+                'light', 'bulb', 'phase', 'neutral', 'earthing', 'mcb', 'smoke', 'burning smell', 'power outage',
+                'fan', 'ceiling fan', 'dimmer', 'meter', 'distribution box', 'loose connection', 'fluctuation'
+            ],
+            'plumber' => [
+                'pipe', 'leak', 'leaking', 'water', 'sink', 'faucet', 'tap', 'drain', 'drainage', 'sewer',
+                'toilet', 'flush', 'commode', 'geyser', 'shower', 'water pump', 'motor pump', 'tank', 'valve',
+                'drip', 'dripping', 'clog', 'clogged', 'blockage', 'overflow', 'gutter', 'seepage from pipe',
+                'low water pressure', 'water filter', 'wash basin', 'sanitary', 'plumbing', 'submersible pump'
+            ],
+            'carpenter' => [
+                'wood', 'wooden', 'door', 'window', 'latch', 'hinge', 'cupboard', 'cabinet', 'drawer',
+                'wardrobe', 'lock', 'handle', 'furniture', 'table', 'chair', 'bed', 'shelf', 'carpentry',
+                'timber', 'jammed door', 'sagging door', 'hinges', 'plywood', 'door frame', 'sliding door'
+            ],
+            'painter' => [
+                'paint', 'painting', 'wall', 'ceiling', 'damp', 'dampness', 'seepage', 'peeling', 'color',
+                'whitewash', 'crack', 'plaster', 'putty', 'wall bubbles', 'stain on wall', 'efflorescence',
+                'distemper', 'weather sheet', 'emulsion', 'primer', 'water damage on wall', 'repaint'
+            ],
+            'home-appliances' => [
+                'washing machine', 'dryer', 'microwave', 'oven', 'dishwasher', 'vacuum', 'blender', 'appliance',
+                'spin', 'drum', 'heating element', 'motor stalling', 'stovetop', 'hood', 'kitchen hood',
+                'iron', 'water dispenser', 'cooking range', 'stove', 'burners', 'mixer'
+            ],
+            'deep-cleaning' => [
+                'clean', 'cleaning', 'deep clean', 'stain', 'dirt', 'dust', 'sofa', 'carpet', 'rug', 'mattress',
+                'grout', 'kitchen grease', 'bathroom tiles', 'sanitize', 'disinfection', 'pest', 'mold',
+                'sofa wash', 'carpet shampoo', 'water tank cleaning', 'fumigation'
+            ],
+        ];
+
+        // Specific defect diagnosis profiles
+        $defectProfiles = [
+            'ac-refrigeration' => [
+                'title' => 'Compressor Overheat & Refrigerant Gas Depletion',
+                'confidence' => '96% Match',
+                'tools' => 'R410A Digital Manifold Gauge, Ammeter Clamp, Electronic Halogen Leak Detector',
+                'summary' => 'AI detected high thermal load on condenser fins and loss of cooling cycle pressure.',
+                'repair_time' => '45 - 60 Mins',
+            ],
+            'electrician' => [
+                'title' => 'Circuit Breaker Overload & Terminal Sparking',
+                'confidence' => '98% Match',
+                'tools' => 'Non-Contact Voltage Tester, Digital Multimeter, Insulated 1000V Screwdrivers',
+                'summary' => 'AI detected risk of wire insulation burning and irregular current leakage across phase wires.',
+                'repair_time' => '30 - 45 Mins',
+            ],
+            'plumber' => [
+                'title' => 'High-Pressure Pipe Joint Leak & Gasket Wear',
+                'confidence' => '95% Match',
+                'tools' => 'Ultrasonic Acoustic Leak Detector, Slip-Joint Pliers, PTFE Teflon Thread Sealant',
+                'summary' => 'AI detected hydrostatic pressure loss and joint seal degradation under continuous water flow.',
+                'repair_time' => '40 - 60 Mins',
+            ],
+            'carpenter' => [
+                'title' => 'Sagging Door Hinge & Mortise Latch Misalignment',
+                'confidence' => '94% Match',
+                'tools' => 'Electric Wood Planer, High-Speed Router, Heavy-Duty Mortise Chisel Set',
+                'summary' => 'AI detected structural tilt on door hinges causing friction against door frame.',
+                'repair_time' => '45 - 75 Mins',
+            ],
+            'painter' => [
+                'title' => 'Sub-Surface Moisture Seepage & Paint Delamination',
+                'confidence' => '97% Match',
+                'tools' => 'Digital Pinless Moisture Meter, Chemical Elastomeric Waterproof Sealer, Carbide Scraper',
+                'summary' => 'AI detected wall efflorescence and moisture trapped behind the acrylic coating layer.',
+                'repair_time' => '1 - 2 Hours',
+            ],
+            'home-appliances' => [
+                'title' => 'Drain Pump Impeller Blockage & Motor Stalling',
+                'confidence' => '95% Match',
+                'tools' => 'Capacitance & Motor Continuity Tester, Metric Socket Wrench Set, Clamp Pliers',
+                'summary' => 'AI detected mechanical obstruction preventing rotational drainage cycle.',
+                'repair_time' => '45 - 60 Mins',
+            ],
+            'deep-cleaning' => [
+                'title' => 'Deep Fabric Fiber Bio-Contamination & Grime Buildup',
+                'confidence' => '98% Match',
+                'tools' => 'High-Temperature Steam Extraction Machine, Anti-Bacterial Sanitizing Agent, Orbital Brush',
+                'summary' => 'AI detected heavy particulate accumulation and organic staining in upholstery fibers.',
+                'repair_time' => '1 - 3 Hours',
+            ],
+        ];
+
+        $lowerQuery = strtolower($problemQuery);
+        $cleanQuery = ' ' . preg_replace('/[^a-z0-9\s]/', ' ', $lowerQuery) . ' ';
+
+        // Calculate keyword matches for each trade
+        $tradeScores = [];
+        foreach ($tradeKeywords as $tradeSlug => $keywords) {
+            $tradeScores[$tradeSlug] = 0;
+            foreach ($keywords as $kw) {
+                if (str_contains($cleanQuery, ' ' . $kw . ' ') || str_contains($lowerQuery, $kw)) {
+                    $weight = str_contains($kw, ' ') ? 3 : 1;
+                    $tradeScores[$tradeSlug] += $weight;
+                }
+            }
+        }
+
+        arsort($tradeScores);
+        $bestTradeSlug = array_key_first($tradeScores);
+        $highestScore = reset($tradeScores);
+
+        // Determine if query is recognized or inconclusive
+        $isRecognized = true;
+        $inconclusiveReason = null;
+
+        if ($highestScore === 0) {
+            // Check if user explicitly selected a valid trade from dropdown
+            if ($categorySlug !== 'auto' && $categorySlug !== '' && Profession::where('slug', $categorySlug)->exists()) {
+                $bestTradeSlug = $categorySlug;
+                $isRecognized = true;
+            } else {
+                // Completely irrelevant, gibberish, or empty input!
+                $isRecognized = false;
+                $inconclusiveReason = empty($problemQuery)
+                    ? 'No problem description was provided.'
+                    : "The description '{$problemQuery}' does not match any known home maintenance or repair defect.";
+                $bestTradeSlug = 'plumber'; // fallback reference
+            }
+        } else {
+            // Valid trade keywords detected!
+            // If user selected a category that also had matches, prioritize it, otherwise use highest scoring
+            if ($categorySlug !== 'auto' && isset($tradeScores[$categorySlug]) && $tradeScores[$categorySlug] > 0) {
+                $bestTradeSlug = $categorySlug;
+            }
+        }
+
+        $profession = Profession::where('slug', $bestTradeSlug)->first();
         if (! $profession) {
             $profession = Profession::where('is_active', true)->first();
         }
 
-        $defectTypes = [
-            'plumber' => ['title' => 'High-Pressure Pipe Leak & Gasket Wear', 'confidence' => '94% Confidence', 'tools' => 'Ultrasonic Leak Detector, Slip Joint Wrench, Teflon Seal'],
-            'electrician' => ['title' => 'Burned Main Breaker & Neutral Overheat', 'confidence' => '97% Confidence', 'tools' => 'Digital Multimeter, Thermal Gun, Insulated Screwdrivers'],
-            'ac-refrigeration' => ['title' => 'Indoor Evaporator Fin Mold & Gas Pressure Drop', 'confidence' => '95% Confidence', 'tools' => 'High-Pressure Jet Washer, R410a Gauge, Ammeter'],
-            'deep-cleaning' => ['title' => 'Deep Residue & Grout Contamination', 'confidence' => '98% Confidence', 'tools' => 'Steam Extraction Extractor, Antibacterial Disinfectant'],
-            'carpenter' => ['title' => 'Sagging Door Hinge & Mortise Misalignment', 'confidence' => '93% Confidence', 'tools' => 'Wood Planer, Hydraulic Chisel, Smart Lock Router'],
-            'painter' => ['title' => 'Wall Dampness Seepage & Efflorescence', 'confidence' => '96% Confidence', 'tools' => 'Moisture Meter, Chemical Elastomeric Sealer, Wall Putty Scraper'],
-            'home-appliances' => ['title' => 'Drain Pump Blockage & Motor Stalling', 'confidence' => '95% Confidence', 'tools' => 'Multimeter, Socket Wrench Set, Replacement Capacitor'],
-        ];
+        $allProfessions = Profession::where('is_active', true)->get();
 
-        $matchedDefect = $defectTypes[$profession?->slug] ?? [
-            'title' => 'Hardware Calibration & Defect Resolution',
-            'confidence' => '95% Confidence',
-            'tools' => 'Standard Diagnostic Multimeter, Specialized Trade Toolset',
+        $matchedDefect = $defectProfiles[$profession?->slug] ?? [
+            'title' => 'Diagnostic Assessment & Defect Resolution',
+            'confidence' => '95% Match',
+            'tools' => 'Calibrated Trade Toolset, Diagnostic Multimeter',
+            'summary' => 'Standard diagnostic inspection by certified technician.',
+            'repair_time' => '45 Mins',
         ];
 
         $baseRate = $profession?->base_price ?? 750;
@@ -146,18 +288,16 @@ class CustomerPortalController extends Controller
             'avg' => $baseRate + 400,
         ];
 
-        $uploadedImage = null;
-        if ($request->hasFile('defect_photo')) {
-            $file = $request->file('defect_photo');
-            $fileName = 'ai_scan_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('assets/images'), $fileName);
-            $uploadedImage = 'assets/images/' . $fileName;
-            session(['last_ai_photo' => $uploadedImage]);
-        } elseif (session('last_ai_photo')) {
-            $uploadedImage = session('last_ai_photo');
-        }
-
-        return view('Frontend.customer.ai-result', compact('profession', 'matchedDefect', 'costEstimate', 'problemQuery', 'uploadedImage'));
+        return view('Frontend.customer.ai-result', compact(
+            'profession',
+            'matchedDefect',
+            'costEstimate',
+            'problemQuery',
+            'uploadedImage',
+            'isRecognized',
+            'inconclusiveReason',
+            'allProfessions'
+        ));
     }
 
     /**

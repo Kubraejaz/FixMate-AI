@@ -431,5 +431,36 @@ class CustomerPortalTest extends TestCase
 
         $this->assertEquals(0, $this->customer->notifications()->unread()->count());
     }
+
+    public function test_ai_diagnose_correctly_classifies_ac_defect(): void
+    {
+        Profession::firstOrCreate(
+            ['slug' => 'ac-refrigeration'],
+            ['name' => 'AC & Refrigeration', 'base_price' => 1000, 'is_active' => true]
+        );
+
+        $response = $this->actingAs($this->customer)->post(route('customer.ai-result'), [
+            'category' => 'auto',
+            'issue' => 'My split AC outdoor compressor is humming loudly and blowing hot air instead of cooling',
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('AC &amp; Refrigeration', false);
+        $response->assertSee('Defect Identified');
+        $response->assertSee('Compressor Overheat');
+    }
+
+    public function test_ai_diagnose_correctly_flags_irrelevant_content_as_inconclusive(): void
+    {
+        $response = $this->actingAs($this->customer)->post(route('customer.ai-result'), [
+            'category' => 'auto',
+            'issue' => 'asdfghjkl random gibberish 12345 pizza delivery',
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('No Household Repair Defect Detected');
+        $response->assertSee('Inconclusive Analysis');
+        $response->assertDontSee('Defect Identified');
+    }
 }
 
