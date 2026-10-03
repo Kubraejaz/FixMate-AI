@@ -265,23 +265,50 @@ class PublicPageController extends Controller
             $professional = Professional::with(['profession', 'user'])->first();
         }
 
+        $tradeName = $professional?->profession?->name ?? 'Repair';
+        $hasTestimonials = \Illuminate\Support\Facades\Schema::hasTable('testimonials');
+        $reviews = $hasTestimonials
+            ? \App\Models\Testimonial::where('is_featured', true)
+                ->where(function ($q) use ($tradeName) {
+                    $q->where('trade', 'like', "%{$tradeName}%")
+                      ->orWhere('trade', 'like', '%Home%')
+                      ->orWhere('trade', 'like', '%Service%');
+                })
+                ->take(3)
+                ->get()
+            : collect();
+
+        $settings = \Illuminate\Support\Facades\Schema::hasTable('homepage_settings')
+            ? \App\Models\HomepageSetting::instance()
+            : null;
+
         return view('Frontend.public.technician-profile', [
             'techId' => $id,
             'professional' => $professional,
+            'reviews' => $reviews,
+            'settings' => $settings,
         ]);
     }
 
     /**
-     * How It Works guide with dynamic trades, interactive cost estimator, and platform stats.
+     * How It Works guide with dynamic workflow steps, trades, and cost estimator.
      */
     public function howItWorks(): View
     {
         $hasProfessions = \Illuminate\Support\Facades\Schema::hasTable('professions');
         $hasProfessionals = \Illuminate\Support\Facades\Schema::hasTable('professionals');
         $hasIssues = \Illuminate\Support\Facades\Schema::hasTable('community_issues');
+        $hasSteps = \Illuminate\Support\Facades\Schema::hasTable('workflow_steps');
+        $hasSettings = \Illuminate\Support\Facades\Schema::hasTable('homepage_settings');
 
         $professions = $hasProfessions
             ? Profession::where('is_active', true)->withCount('professionals')->get()
+            : collect();
+
+        $settings = $hasSettings ? \App\Models\HomepageSetting::instance() : null;
+
+        $workflowSteps = $hasSteps
+            ? \App\Models\WorkflowStep::where('is_active', true)->orderBy('step_number')->get()
             : collect();
 
         $totalTechs = $hasProfessionals ? Professional::count() : 0;
@@ -290,13 +317,15 @@ class PublicPageController extends Controller
             'total_technicians' => $totalTechs > 0 ? $totalTechs : 150,
             'total_professions' => $hasProfessions ? Profession::where('is_active', true)->count() : 6,
             'avg_arrival_mins' => 24,
-            'warranty_days' => 30,
+            'warranty_days' => $settings?->warranty_days ?? 30,
             'community_issues_resolved' => $hasIssues ? \App\Models\CommunityIssue::where('status', 'resolved')->count() : 45,
         ];
 
         return view('Frontend.public.how-it-works', [
             'professions' => $professions,
             'stats' => $stats,
+            'workflowSteps' => $workflowSteps,
+            'settings' => $settings,
         ]);
     }
 
@@ -308,6 +337,10 @@ class PublicPageController extends Controller
         $hasProfessions = \Illuminate\Support\Facades\Schema::hasTable('professions');
         $hasProfessionals = \Illuminate\Support\Facades\Schema::hasTable('professionals');
         $hasIssues = \Illuminate\Support\Facades\Schema::hasTable('community_issues');
+        $hasSettings = \Illuminate\Support\Facades\Schema::hasTable('homepage_settings');
+        $hasTestimonials = \Illuminate\Support\Facades\Schema::hasTable('testimonials');
+
+        $settings = $hasSettings ? \App\Models\HomepageSetting::instance() : null;
 
         $professions = $hasProfessions
             ? Profession::where('is_active', true)->withCount('professionals')->get()
@@ -338,40 +371,78 @@ class PublicPageController extends Controller
             'total_professions' => $professions->count() > 0 ? $professions->count() : 6,
             'satisfaction_rate' => '98.8%',
             'avg_arrival_mins' => 28,
+            'warranty_days' => $settings?->warranty_days ?? 30,
             'completed_jobs' => '18,500+',
             'resolved_issues' => $resolvedIssues > 0 ? $resolvedIssues : 45,
         ];
 
-        $peopleReviews = collect([
-            [
-                'name' => 'Sara Ahmed',
-                'location' => 'Karachi — Clifton Block 4',
-                'trade' => 'Electrical Repair',
-                'rating' => 5,
-                'comment' => 'The AI scanner estimated Rs. 1,400 for our tripping main breaker. Riaz arrived in 22 minutes, identified a neutral short in the false ceiling, and fixed it within the exact estimate. The escrow approval OTP gave me total peace of mind.',
-                'date' => 'Verified Homeowner',
-                'avatar' => asset('assets/images/image_2.png'),
-            ],
-            [
-                'name' => 'Dr. Kamran Malik',
-                'location' => 'Islamabad — Sector F-7/2',
-                'trade' => 'Inverter AC Chemical Service',
-                'rating' => 5,
-                'comment' => 'My split unit was freezing up. Imran had specialized pressure wash equipment, drained all blockages, and checked the gas pressure on his digital manifold. Truly top-tier craftsmanship.',
-                'date' => 'Verified Homeowner',
-                'avatar' => asset('assets/images/image_3.png'),
-            ],
-            [
-                'name' => 'Bilal Farooq',
-                'location' => 'Lahore — Gulberg III',
-                'trade' => 'Master Plumbing',
-                'rating' => 5,
-                'comment' => 'FixMate completely eliminated the headache of haggling with roadside plumbers who overcharge. Ali Khan was professional, courteous, and polite. The 30-day warranty gives exceptional confidence.',
-                'date' => 'Verified Homeowner',
-                'avatar' => asset('assets/images/image_4.png'),
-            ],
-        ]);
+        $dbReviews = $hasTestimonials
+            ? \App\Models\Testimonial::where('is_featured', true)->orderBy('display_order')->get()
+            : collect();
 
-        return view('Frontend.public.about', compact('professions', 'featuredProfessionals', 'stats', 'peopleReviews'));
+        $peopleReviews = $dbReviews->isNotEmpty()
+            ? $dbReviews->map(fn ($t) => [
+                'name' => $t->author_name,
+                'location' => $t->author_location ?? 'Islamabad / Rawalpindi',
+                'trade' => $t->trade ?? 'General Home Service',
+                'rating' => $t->rating ?? 5,
+                'comment' => $t->quote,
+                'date' => 'Verified Homeowner',
+                'avatar' => asset($t->avatar ?: 'assets/images/image_2.png'),
+            ])
+            : collect([
+                [
+                    'name' => 'Sara Ahmed',
+                    'location' => 'Karachi — Clifton Block 4',
+                    'trade' => 'Electrical Repair',
+                    'rating' => 5,
+                    'comment' => 'The AI scanner estimated Rs. 1,400 for our tripping main breaker. Riaz arrived in 22 minutes, identified a neutral short in the false ceiling, and fixed it within the exact estimate. The escrow approval OTP gave me total peace of mind.',
+                    'date' => 'Verified Homeowner',
+                    'avatar' => asset('assets/images/image_2.png'),
+                ],
+                [
+                    'name' => 'Dr. Kamran Malik',
+                    'location' => 'Islamabad — Sector F-7/2',
+                    'trade' => 'Inverter AC Chemical Service',
+                    'rating' => 5,
+                    'comment' => 'My split unit was freezing up. Imran had specialized pressure wash equipment, drained all blockages, and checked the gas pressure on his digital manifold. Truly top-tier craftsmanship.',
+                    'date' => 'Verified Homeowner',
+                    'avatar' => asset('assets/images/image_3.png'),
+                ],
+                [
+                    'name' => 'Bilal Farooq',
+                    'location' => 'Lahore — Gulberg III',
+                    'trade' => 'Master Plumbing',
+                    'rating' => 5,
+                    'comment' => 'FixMate completely eliminated the headache of haggling with roadside plumbers who overcharge. Ali Khan was professional, courteous, and polite. The rework warranty gives exceptional confidence.',
+                    'date' => 'Verified Homeowner',
+                    'avatar' => asset('assets/images/image_4.png'),
+                ],
+            ]);
+
+        return view('Frontend.public.about', compact('professions', 'featuredProfessionals', 'stats', 'peopleReviews', 'settings'));
+    }
+
+    /**
+     * Dynamic Privacy Policy page.
+     */
+    public function privacyPolicy(): View
+    {
+        $hasSettings = \Illuminate\Support\Facades\Schema::hasTable('homepage_settings');
+        $settings = $hasSettings ? \App\Models\HomepageSetting::instance() : null;
+
+        return view('Frontend.public.privacy-policy', compact('settings'));
+    }
+
+    /**
+     * Dynamic Terms and Conditions page.
+     */
+    public function terms(): View
+    {
+        $hasSettings = \Illuminate\Support\Facades\Schema::hasTable('homepage_settings');
+        $settings = $hasSettings ? \App\Models\HomepageSetting::instance() : null;
+
+        return view('Frontend.public.terms', compact('settings'));
     }
 }
+

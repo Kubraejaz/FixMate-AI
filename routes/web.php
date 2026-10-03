@@ -73,13 +73,8 @@ Route::post('/contact', [ContactController::class, 'submit'])->name('contact.sub
 Route::get('/become-technician', [BecomeTechnicianController::class, 'index'])->name('become-technician');
 Route::post('/become-technician', [BecomeTechnicianController::class, 'store'])->name('become-technician.store');
 
-Route::get('/privacy-policy', function () {
-    return view('Frontend.public.privacy-policy');
-})->name('privacy-policy');
-
-Route::get('/terms', function () {
-    return view('Frontend.public.terms');
-})->name('terms');
+Route::get('/privacy-policy', [PublicPageController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms', [PublicPageController::class, 'terms'])->name('terms');
 
 
 // ==========================================

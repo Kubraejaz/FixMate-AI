@@ -17,7 +17,7 @@
                 Transforming Home Maintenance with <span style="color: #FFB800;">AI Precision & Trust</span>
             </h1>
             <p style="font-size: 16.5px; color: #64748B; margin: 0 auto; line-height: 1.7; max-width: 700px;">
-                FixMate AI is built on a simple conviction: hiring a home technician should be transparent, secure, and stress-free. We unite state-of-the-art computer vision diagnosis with verified local craftsmanship across Pakistan.
+                {{ $settings?->hero_subtitle ?? 'FixMate AI is built on a simple conviction: hiring a home technician should be transparent, secure, and stress-free. We unite state-of-the-art computer vision diagnosis with verified local craftsmanship across Pakistan.' }}
             </p>
         </div>
     </section>
@@ -53,13 +53,13 @@
                 <div>
                     <div style="display: inline-block; font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">Our Mission</div>
                     <h2 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 0 0 20px 0; letter-spacing: -0.02em; line-height: 1.25;">
-                        Solving the Broken Home Repair Experience in Pakistan
+                        {{ $settings?->guarantee_title ?? 'Solving the Broken Home Repair Experience in Pakistan' }}
                     </h2>
                     <p style="font-size: 15px; color: #475569; line-height: 1.75; margin: 0 0 16px 0;">
                         For decades, booking a tradesperson in Pakistan was a gamble. Homeowners faced unverified workers entering their private spaces, unpredictable pricing with arbitrary quotes, and zero accountability if the problem recurred the next day.
                     </p>
                     <p style="font-size: 15px; color: #475569; line-height: 1.75; margin: 0 0 24px 0;">
-                        FixMate AI changes this landscape completely. By deploying neural vision models to analyze defect photos before dispatch, we give homeowners accurate price benchmarks upfront. We back every technician with Nadra CNIC vetting, police record verification, and a 30-day workmanship warranty.
+                        {{ $settings?->guarantee_subtitle ?? 'FixMate AI changes this landscape completely. By deploying neural vision models to analyze defect photos before dispatch, we give homeowners accurate price benchmarks upfront. We back every technician with Nadra CNIC vetting, police record verification, and a ' . ($stats['warranty_days'] ?? 30) . '-day workmanship warranty.' }}
                     </p>
                     <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                         <div style="background: #F8FAFC; border-left: 3px solid #FFB800; padding: 12px 18px; border-radius: 0 10px 10px 0; flex: 1; min-width: 220px;">
@@ -84,7 +84,7 @@
                                 <div style="font-size: 12px; color: #64748B;">NADRA Verified • Police Cleared</div>
                             </div>
                         </div>
-                        <span style="background: #ECFDF5; color: #047857; font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 50px;">100% Guaranteed</span>
+                        <span style="background: #ECFDF5; color: #047857; font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 50px;">{{ $stats['warranty_days'] }}-Day Warranty</span>
                     </div>
                 </div>
             </div>
@@ -99,44 +99,44 @@
                             {{ $stats['total_professions'] }} Certified Trade Disciplines
                         </h3>
                     </div>
-                    <a href="{{ url('/services') }}" style="color: #0F172A; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                        Explore All Services <span style="color: #FFB800;">→</span>
+                    <a href="{{ route('services') }}" style="font-size: 13.5px; font-weight: 700; color: #FFB800; text-decoration: none;">
+                        View Full Services &amp; Tariff Guide →
                     </a>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
-                    @foreach($professions as $prof)
-                    <a href="{{ url('/services/' . $prof->slug) }}" style="text-decoration: none; color: inherit; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px 16px; text-align: center; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFB800'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.04)';" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 12px auto;">
-                            @if(str_contains(strtolower($prof->name), 'plumb')) 🔧
-                            @elseif(str_contains(strtolower($prof->name), 'electr')) ⚡
-                            @elseif(str_contains(strtolower($prof->name), 'ac') || str_contains(strtolower($prof->name), 'refrig')) ❄️
-                            @elseif(str_contains(strtolower($prof->name), 'carpent')) 🪚
-                            @elseif(str_contains(strtolower($prof->name), 'paint')) 🎨
-                            @elseif(str_contains(strtolower($prof->name), 'clean')) 🧹
-                            @else 🛠️
-                            @endif
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                    @foreach($professions as $p)
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.background='#FFFFFF'; this.style.borderColor='#FFB800'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.04)';" onmouseout="this.style.background='#F8FAFC'; this.style.borderColor='#E2E8F0'; this.style.boxShadow='none';">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                                    {{ $p->display_icon }}
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 15px; font-weight: 800; color: #0F172A; margin: 0 0 2px 0;">{{ $p->name }}</h4>
+                                    <span style="font-size: 12px; color: #64748B;">Starting {{ $p->formatted_price }}</span>
+                                </div>
+                            </div>
+                            <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px;">
+                                {{ $p->professionals_count }} Techs
+                            </span>
                         </div>
-                        <strong style="display: block; font-size: 14.5px; color: #0F172A; margin-bottom: 4px;">{{ $prof->name }}</strong>
-                        <span style="font-size: 12px; color: #64748B;">{{ $prof->professionals_count ?? 0 }} Specialists</span>
-                    </a>
                     @endforeach
                 </div>
             </div>
             @endif
 
-            <!-- Dynamic Section: Featured Master Technicians -->
-            @if($featuredProfessionals->isNotEmpty())
+            <!-- Dynamic Section: Top Vetted Technicians Showcase -->
+            @if(isset($featuredProfessionals) && $featuredProfessionals->isNotEmpty())
             <div style="margin-bottom: 70px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
                     <div>
-                        <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Vetted Craftsmanship</span>
+                        <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Our Craftsmanship</span>
                         <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 6px 0 0 0; letter-spacing: -0.02em;">
                             Meet Our Certified Master Technicians
                         </h3>
                     </div>
-                    <a href="{{ url('/technicians') }}" style="color: #0F172A; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                        View All {{ $stats['total_technicians'] }} Technicians <span style="color: #FFB800;">→</span>
+                    <a href="{{ route('technicians') }}" style="font-size: 13.5px; font-weight: 700; color: #FFB800; text-decoration: none;">
+                        Browse All {{ $stats['total_technicians'] }}+ Technicians →
                     </a>
                 </div>
 
@@ -146,7 +146,6 @@
                         asset('assets/images/image_2.png'),
                         asset('assets/images/image_3.png'),
                         asset('assets/images/image_4.png'),
-                        asset('assets/images/image_5.png'),
                     ];
                 @endphp
 
@@ -181,41 +180,6 @@
             </div>
             @endif
 
-            <!-- How Our AI Works Deep Dive -->
-            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 24px; padding: 48px; margin-bottom: 70px;">
-                <div style="text-align: center; max-width: 640px; margin: 0 auto 40px auto;">
-                    <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Proprietary Technology</span>
-                    <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 8px 0 12px 0; letter-spacing: -0.02em;">How Our AI Diagnostics Engine Works</h3>
-                    <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.6;">Trained on over 250,000+ domestic repairs across electrical circuits, water pipelines, HVAC compressors, and furniture structures.</p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
-                    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 26px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px;">
-                            👁️
-                        </div>
-                        <h4 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">1. Visual Defect Detection</h4>
-                        <p style="font-size: 13.5px; color: #64748B; line-height: 1.6; margin: 0;">Our vision algorithm identifies corrosion, frayed wires, seal failures, or broken valves from a simple camera snapshot.</p>
-                    </div>
-
-                    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 26px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #EFF6FF; border: 1px solid #DBEAFE; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px;">
-                            📊
-                        </div>
-                        <h4 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">2. Pre-calculated Cost Index</h4>
-                        <p style="font-size: 13.5px; color: #64748B; line-height: 1.6; margin: 0;">Estimates required replacement components and standard labor hours based on real-time hardware store index pricing.</p>
-                    </div>
-
-                    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 26px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #ECFDF5; border: 1px solid #A7F3D0; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px;">
-                            ⚡
-                        </div>
-                        <h4 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">3. Proximity Radar Dispatch</h4>
-                        <p style="font-size: 13.5px; color: #64748B; line-height: 1.6; margin: 0;">Matches you with the closest qualified specialist with the exact tool inventory required to resolve your specific problem.</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- 4 Pillars of Excellence -->
             <div style="margin-bottom: 70px;">
                 <div style="text-align: center; max-width: 600px; margin: 0 auto 36px auto;">
@@ -244,8 +208,8 @@
 
                     <div style="border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; background: #FFFFFF; text-align: center;">
                         <div style="font-size: 32px; margin-bottom: 12px;">🛠️</div>
-                        <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 6px;">30-Day Work Warranty</strong>
-                        <p style="font-size: 13px; color: #64748B; line-height: 1.6; margin: 0;">If an issue recurs within a month, we send a technician back for free re-inspection and repair.</p>
+                        <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 6px;">{{ $stats['warranty_days'] }}-Day Work Warranty</strong>
+                        <p style="font-size: 13px; color: #64748B; line-height: 1.6; margin: 0;">If an issue recurs within a month, we send a supervisor back for free re-inspection and repair.</p>
                     </div>
                 </div>
             </div>
@@ -259,27 +223,29 @@
                     <p style="font-size: 14.5px; color: #64748B; margin: 0;">Real feedback from verified homeowners across Karachi, Lahore, and Islamabad.</p>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
                     @foreach($peopleReviews as $rev)
-                        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 18px; padding: 26px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03); display: flex; flex-direction: column; justify-content: space-between; gap: 18px; transition: all 0.2s;" onmouseover="this.style.borderColor='#FFB800'; this.style.transform='translateY(-3px)';" onmouseout="this.style.borderColor='#E2E8F0'; this.style.transform='translateY(0)';">
+                        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; padding: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
                             <div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                                    <div style="display: flex; gap: 3px; color: #F59E0B; font-size: 15px;">
-                                        ★★★★★
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                                    <div style="color: #F59E0B; font-size: 14px; font-weight: 800;">
+                                        @for($i = 0; $i < ($rev['rating'] ?? 5); $i++)
+                                            ★
+                                        @endfor
                                     </div>
-                                    <span style="background: #ECFDF5; color: #047857; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 12px; border: 1px solid #A7F3D0;">
-                                        ✓ Verified Order
+                                    <span style="background: #FFF9E6; color: #92400E; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 10px;">
+                                        {{ $rev['trade'] }}
                                     </span>
                                 </div>
-                                <p style="font-size: 14px; color: #334155; line-height: 1.7; font-style: italic; margin: 0 0 14px 0;">
+                                <p style="font-size: 13.5px; color: #334155; line-height: 1.65; margin: 0 0 20px 0; font-style: italic;">
                                     "{{ $rev['comment'] }}"
                                 </p>
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px; border-top: 1px solid #F1F5F9; padding-top: 14px;">
-                                <img src="{{ $rev['avatar'] }}" alt="{{ $rev['name'] }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid #FFB800;">
+                                <img src="{{ $rev['avatar'] }}" alt="{{ $rev['name'] }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #FFB800;">
                                 <div>
-                                    <strong style="font-size: 14px; color: #0F172A; display: block;">{{ $rev['name'] }}</strong>
-                                    <span style="font-size: 12px; color: #64748B;">{{ $rev['location'] }} &middot; {{ $rev['trade'] }}</span>
+                                    <strong style="display: block; font-size: 14px; color: #0F172A;">{{ $rev['name'] }}</strong>
+                                    <span style="font-size: 12px; color: #64748B;">{{ $rev['location'] }}</span>
                                 </div>
                             </div>
                         </div>
@@ -288,18 +254,21 @@
             </div>
             @endif
 
-            <!-- Call to Action Banner -->
-            <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 24px; padding: 48px; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between; gap: 30px; flex-wrap: wrap;">
-                <div>
-                    <h3 style="font-size: 26px; font-weight: 900; margin: 0 0 10px 0; color: #FFFFFF; letter-spacing: -0.02em;">Ready for smarter, stress-free home maintenance?</h3>
-                    <p style="font-size: 14.5px; color: #94A3B8; margin: 0; max-width: 580px; line-height: 1.6;">Experience the convenience of AI diagnosis and certified professional dispatch in Lahore, Karachi, and Islamabad.</p>
-                </div>
-                <div style="display: flex; gap: 14px; flex-shrink: 0;">
-                    <a href="{{ url('/technicians') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 13px 26px; border-radius: 10px; text-decoration: none; transition: all 0.2s;">
-                        Find a Technician
+            <!-- Bottom CTA -->
+            <div style="background: #FFF9E6; border: 2px solid #FEF08A; border-radius: 24px; padding: 48px; text-align: center;">
+                <span style="font-size: 12px; font-weight: 800; color: #92400E; text-transform: uppercase; letter-spacing: 0.05em;">Get Started Now</span>
+                <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 6px 0 12px 0; letter-spacing: -0.02em;">
+                    Experience FixMate AI in Your Home Today
+                </h3>
+                <p style="font-size: 15px; color: #475569; max-width: 580px; margin: 0 auto 24px auto; line-height: 1.6;">
+                    Upload an image of your problem or describe what is broken. Receive upfront pricing in seconds with guaranteed escrow protection.
+                </p>
+                <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ route('services') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 12px 28px; border-radius: 50px; text-decoration: none; box-shadow: 0 4px 12px rgba(255,184,0,0.35);">
+                        Explore Services
                     </a>
-                    <a href="{{ url('/become-technician') }}" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #FFFFFF; font-weight: 700; font-size: 14.5px; padding: 13px 24px; border-radius: 10px; text-decoration: none; transition: all 0.2s;">
-                        Become a Partner
+                    <a href="{{ route('technicians') }}" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 14.5px; padding: 12px 24px; border-radius: 50px; text-decoration: none;">
+                        Find Local Pros
                     </a>
                 </div>
             </div>

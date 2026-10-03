@@ -62,7 +62,9 @@
                             <label style="display: block; font-size: 13px; font-weight: 700; color: #E2E8F0; margin-bottom: 8px;">Select Trade Category</label>
                             <select id="sim_trade" onchange="runCostSimulation()" style="width: 100%; height: 46px; border-radius: 12px; background: #1E293B; border: 1.5px solid #334155; color: #FFFFFF; padding: 0 14px; font-size: 14px; font-family: inherit; outline: none; cursor: pointer;">
                                 @foreach($professions as $prof)
-                                    <option value="{{ $prof->slug }}" data-name="{{ $prof->name }}">{{ $prof->name }} ({{ $prof->professionals_count }} techs)</option>
+                                    <option value="{{ $prof->slug }}" data-name="{{ $prof->name }}" data-base="{{ $prof->base_price ?? 750 }}" data-warranty="{{ $prof->warranty_text ?? '60-Day Re-work' }}">
+                                        {{ $prof->display_icon }} {{ $prof->name }} (Starting {{ $prof->formatted_price }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -110,8 +112,8 @@
                             <div id="sim_total" style="font-size: 32px; font-weight: 900; color: #FFFFFF; line-height: 1.2; margin-top: 4px;">
                                 Rs 2,300 - 3,100
                             </div>
-                            <span style="font-size: 12px; color: #10B981; font-weight: 700; display: block; margin-top: 4px;">
-                                ✓ 30-Day Free Re-inspection Included
+                            <span id="sim_warranty" style="font-size: 12px; color: #10B981; font-weight: 700; display: block; margin-top: 4px;">
+                                ✓ {{ $stats['warranty_days'] }}-Day Free Re-inspection Included
                             </span>
                         </div>
 
@@ -127,116 +129,54 @@
         </div>
     </section>
 
-    <!-- 5-Step Visual Walkthrough -->
+    <!-- Dynamic Visual Walkthrough (Driven by WorkflowStep CMS) -->
     <section style="padding: 50px 0 70px 0;">
         <div class="container" style="max-width: 1040px;">
             
             <div style="text-align: center; margin-bottom: 40px;">
                 <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Step-by-Step Experience</span>
-                <h2 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">From Booking to 30-Day Guarantee</h2>
+                <h2 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">From Booking to {{ $stats['warranty_days'] }}-Day Guarantee</h2>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 24px;">
                 
-                <!-- Step 1 -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-                    <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFF9E6; border: 2px solid #FEF08A; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        01
-                    </div>
-                    <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; margin-bottom: 6px;">
-                            <span>Step 1 • Instant Capture</span>
+                @if(isset($workflowSteps) && $workflowSteps->count() > 0)
+                    @foreach($workflowSteps as $index => $step)
+                        @php
+                            $stepNum = str_pad($step->step_number ?? ($index + 1), 2, '0', STR_PAD_LEFT);
+                            $badgeColor = $step->badge_color ?? '#FFB800';
+                            $isHighlight = ($index === 1);
+                        @endphp
+                        <div style="background: {{ $isHighlight ? '#FFFDF0' : '#FFFFFF' }}; border: 1.5px solid {{ $isHighlight ? '#FDE68A' : '#E2E8F0' }}; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: {{ $isHighlight ? '0 8px 24px rgba(255, 184, 0, 0.08)' : '0 4px 16px rgba(0,0,0,0.02)' }};">
+                            <div style="width: 56px; height: 56px; border-radius: 16px; background: {{ $isHighlight ? '#FFB800' : '#FFF9E6' }}; border: 2px solid #FEF08A; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                {{ $stepNum }}
+                            </div>
+                            <div>
+                                <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #92400E; text-transform: uppercase; margin-bottom: 6px;">
+                                    <span>Step {{ $step->step_number }}</span>
+                                </div>
+                                <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">{{ $step->title }}</h3>
+                                <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.7;">
+                                    {{ $step->description }}
+                                </p>
+                            </div>
+                            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; padding: 14px 20px; border-radius: 14px; text-align: center; min-width: 140px;">
+                                <span style="font-size: 26px; display: block; margin-bottom: 4px;">{{ $step->icon }}</span>
+                                <span style="font-size: 12px; font-weight: 700; color: #475569;">Verified Process</span>
+                            </div>
                         </div>
-                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Snap a Photo or Describe the Issue</h3>
-                        <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.7;">
-                            Simply take a photo of your leaking pipe, broken socket, or noisy air conditioner. You can also type in Urdu or English, or record a quick voice note explaining the problem.
-                        </p>
-                    </div>
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 14px 20px; border-radius: 14px; text-align: center; min-width: 140px;">
-                        <span style="font-size: 26px; display: block; margin-bottom: 4px;">📸</span>
-                        <span style="font-size: 12px; font-weight: 700; color: #475569;">Camera / Voice</span>
-                    </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div style="background: #FFFDF0; border: 1.5px solid #FDE68A; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: 0 8px 24px rgba(255, 184, 0, 0.08);">
-                    <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFB800; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35);">
-                        02
-                    </div>
-                    <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #92400E; text-transform: uppercase; margin-bottom: 6px;">
-                            <span>Step 2 • Artificial Intelligence</span>
+                    @endforeach
+                @else
+                    <!-- Fallback Steps if CMS is empty -->
+                    <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center;">
+                        <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFF9E6; border: 2px solid #FEF08A; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center;">01</div>
+                        <div>
+                            <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Describe the Problem or Upload Photo</h3>
+                            <p style="font-size: 14.5px; color: #64748B; margin: 0;">Upload defect photos or describe the issue. Our AI assists in categorizing the fault.</p>
                         </div>
-                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">AI Diagnostic Analysis &amp; Upfront Pricing</h3>
-                        <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.7;">
-                            Our computer vision neural network recognizes the damaged component, diagnoses the underlying fault, specifies parts required, and calculates a fair, standardized labor cost range. No surprise bills.
-                        </p>
+                        <div style="font-size: 26px;">📸</div>
                     </div>
-                    <div style="background: #FFFFFF; border: 1px solid #FEF08A; padding: 14px 20px; border-radius: 14px; text-align: center; min-width: 140px;">
-                        <span style="font-size: 26px; display: block; margin-bottom: 4px;">⚡</span>
-                        <span style="font-size: 12px; font-weight: 800; color: #92400E;">Instant Estimate</span>
-                    </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-                    <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFF9E6; border: 2px solid #FEF08A; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        03
-                    </div>
-                    <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; margin-bottom: 6px;">
-                            <span>Step 3 • Verified Matching</span>
-                        </div>
-                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Match with Top-Rated Verified Professionals</h3>
-                        <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.7;">
-                            Compare nearby certified technicians based on customer review scores, distance from your home, verified badges, and historical completion rates. Pick your favorite or auto-dispatch the fastest pro.
-                        </p>
-                    </div>
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 14px 20px; border-radius: 14px; text-align: center; min-width: 140px;">
-                        <span style="font-size: 26px; display: block; margin-bottom: 4px;">🛡️</span>
-                        <span style="font-size: 12px; font-weight: 700; color: #475569;">100% Vetted</span>
-                    </div>
-                </div>
-
-                <!-- Step 4 -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-                    <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFF9E6; border: 2px solid #FEF08A; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        04
-                    </div>
-                    <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; margin-bottom: 6px;">
-                            <span>Step 4 • Safe Dispatch</span>
-                        </div>
-                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Live GPS Tracking &amp; Arrival OTP Handshake</h3>
-                        <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.7;">
-                            Watch the technician’s live route on our interactive map. When they ring your doorbell, verify their identity using a secure 4-digit Arrival OTP generated on your dashboard before letting them in.
-                        </p>
-                    </div>
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 14px 20px; border-radius: 14px; text-align: center; min-width: 140px;">
-                        <span style="font-size: 26px; display: block; margin-bottom: 4px;">📍</span>
-                        <span style="font-size: 12px; font-weight: 700; color: #475569;">4-Digit OTP</span>
-                    </div>
-                </div>
-
-                <!-- Step 5 -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
-                    <div style="width: 56px; height: 56px; border-radius: 16px; background: #10B981; color: #FFFFFF; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        05
-                    </div>
-                    <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: #047857; text-transform: uppercase; margin-bottom: 6px;">
-                            <span>Step 5 • Escrow &amp; Warranty</span>
-                        </div>
-                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Work Approval, Escrow Release &amp; 30-Day Guarantee</h3>
-                        <p style="font-size: 14.5px; color: #64748B; margin: 0; line-height: 1.7;">
-                            Test the repaired fixture with the technician. Once you approve the work, funds are released from secure escrow. The job is backed by FixMate AI's 30-day workmanship re-inspection guarantee.
-                        </p>
-                    </div>
-                    <div style="background: #ECFDF5; border: 1px solid #A7F3D0; padding: 14px 20px; border-radius: 14px; text-align: center; min-width: 140px;">
-                        <span style="font-size: 26px; display: block; margin-bottom: 4px;">✅</span>
-                        <span style="font-size: 12px; font-weight: 800; color: #047857;">30-Day Cover</span>
-                    </div>
-                </div>
+                @endif
 
             </div>
 
@@ -248,43 +188,44 @@
         <div class="container" style="max-width: 960px;">
             <div style="text-align: center; margin-bottom: 40px;">
                 <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Why Choose FixMate AI</span>
-                <h3 style="font-size: 30px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">Traditional Handyman vs FixMate AI Certified</h3>
+                <h2 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">Traditional Market vs. FixMate AI</h2>
+                <p style="font-size: 15px; color: #64748B; margin: 0;">See how our technology transforms roadside guesswork into accountable, transparent home service.</p>
             </div>
 
-            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+            <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.03);">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
-                        <tr style="background: #0F172A; color: #FFFFFF;">
-                            <th style="padding: 18px 24px; font-weight: 800; font-size: 15px;">Service Feature</th>
-                            <th style="padding: 18px 24px; font-weight: 800; font-size: 15px; color: #94A3B8;">Local Marketplace Handyman</th>
-                            <th style="padding: 18px 24px; font-weight: 800; font-size: 15px; background: #FFB800; color: #0F172A;">FixMate AI Certified</th>
+                        <tr style="border-bottom: 1.5px solid #E2E8F0; background: #F8FAFC;">
+                            <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #0F172A; width: 34%;">Feature / Standard</th>
+                            <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #DC2626; width: 33%;">Traditional Roadside Pro</th>
+                            <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #059669; width: 33%; background: #F0FDF4;">FixMate AI Platform</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody style="font-size: 14px; color: #334155;">
                         <tr style="border-bottom: 1px solid #F1F5F9;">
-                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Price Certainty</td>
-                            <td style="padding: 16px 24px; color: #EF4444;">❌ Arbitrary quote upon arrival</td>
-                            <td style="padding: 16px 24px; font-weight: 700; color: #047857; background: #FFFDF0;">✓ AI Pre-calculated cost index</td>
+                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Background Check</td>
+                            <td style="padding: 16px 24px; color: #DC2626;">❌ Zero identity verification</td>
+                            <td style="padding: 16px 24px; color: #059669; font-weight: 700; background: #F0FDF4;">✓ NADRA Biometric + Police Vetted</td>
                         </tr>
                         <tr style="border-bottom: 1px solid #F1F5F9;">
-                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Identity &amp; Background Vetting</td>
-                            <td style="padding: 16px 24px; color: #EF4444;">❌ Unverified, no background check</td>
-                            <td style="padding: 16px 24px; font-weight: 700; color: #047857; background: #FFFDF0;">✓ 100% NADRA CNIC &amp; Police Vetted</td>
+                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Pricing Transparency</td>
+                            <td style="padding: 16px 24px; color: #DC2626;">❌ Roadside haggling &amp; hidden charges</td>
+                            <td style="padding: 16px 24px; color: #059669; font-weight: 700; background: #F0FDF4;">✓ Fixed Upfront Benchmark</td>
                         </tr>
                         <tr style="border-bottom: 1px solid #F1F5F9;">
-                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Arrival Verification</td>
-                            <td style="padding: 16px 24px; color: #EF4444;">❌ Anyone can show up</td>
-                            <td style="padding: 16px 24px; font-weight: 700; color: #047857; background: #FFFDF0;">✓ Secure 4-Digit Arrival OTP</td>
+                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Payment Security</td>
+                            <td style="padding: 16px 24px; color: #DC2626;">❌ Direct cash with zero dispute recourse</td>
+                            <td style="padding: 16px 24px; color: #059669; font-weight: 700; background: #F0FDF4;">✓ Escrow Released Upon Approval</td>
                         </tr>
                         <tr style="border-bottom: 1px solid #F1F5F9;">
-                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Payment Protection</td>
-                            <td style="padding: 16px 24px; color: #EF4444;">❌ Cash in advance with no recourse</td>
-                            <td style="padding: 16px 24px; font-weight: 700; color: #047857; background: #FFFDF0;">✓ Protected Escrow, released upon sign-off</td>
+                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Rework Warranty</td>
+                            <td style="padding: 16px 24px; color: #DC2626;">❌ None; phone switched off if issue returns</td>
+                            <td style="padding: 16px 24px; color: #059669; font-weight: 700; background: #F0FDF4;">✓ {{ $stats['warranty_days'] }}-Day Free Re-inspection</td>
                         </tr>
                         <tr>
-                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Workmanship Warranty</td>
-                            <td style="padding: 16px 24px; color: #EF4444;">❌ No warranty once they leave</td>
-                            <td style="padding: 16px 24px; font-weight: 700; color: #047857; background: #FFFDF0;">✓ 30-Day Free Re-inspection Warranty</td>
+                            <td style="padding: 16px 24px; font-weight: 700; color: #0F172A;">Arrival Verification</td>
+                            <td style="padding: 16px 24px; color: #DC2626;">❌ Unknown person at your front door</td>
+                            <td style="padding: 16px 24px; color: #059669; font-weight: 700; background: #F0FDF4;">✓ 4-Digit Arrival OTP Handshake</td>
                         </tr>
                     </tbody>
                 </table>
@@ -292,13 +233,16 @@
         </div>
     </section>
 
-    <!-- Bottom CTA -->
-    <section style="padding: 60px 0;">
-        <div class="container" style="max-width: 860px; text-align: center;">
-            <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 24px; padding: 48px; color: #FFFFFF;">
-                <h3 style="font-size: 28px; font-weight: 900; margin: 0 0 12px 0;">Have a home repair emergency right now?</h3>
+    <!-- Bottom CTA Banner -->
+    <section style="padding: 70px 0; background: #0F172A; color: #FFFFFF; text-align: center;">
+        <div class="container" style="max-width: 760px;">
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 48px 36px;">
+                <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Start in 60 Seconds</span>
+                <h2 style="font-size: 34px; font-weight: 900; margin: 8px 0 14px 0; letter-spacing: -0.02em;">
+                    Ready for a Better Home Repair Experience?
+                </h2>
                 <p style="font-size: 15px; color: #94A3B8; margin: 0 auto 24px auto; max-width: 540px; line-height: 1.6;">
-                    Upload an image or describe your issue. Our AI diagnosis engine takes under 10 seconds to estimate and match you with a pro.
+                    Upload an image or describe your issue. Our AI diagnosis engine matches you with verified pros in your neighborhood.
                 </p>
                 <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
                     <a href="{{ route('services') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 13px 28px; border-radius: 10px; text-decoration: none;">
@@ -334,32 +278,17 @@
 
     function runCostSimulation() {
         var tradeSelect = document.getElementById('sim_trade');
+        if (!tradeSelect) return;
         var selectedSlug = tradeSelect.value;
         var selectedOption = tradeSelect.options[tradeSelect.selectedIndex];
         var tradeName = selectedOption.getAttribute('data-name') || 'Technicians';
+        var baseFromDb = parseInt(selectedOption.getAttribute('data-base')) || 750;
+        var warrantyText = selectedOption.getAttribute('data-warranty') || "{{ $stats['warranty_days'] }}-Day Re-work";
 
-        var baseLabor = 1000;
+        var baseLabor = baseFromDb;
         var baseVisiting = 500;
-        var basePartsMin = 400;
-        var basePartsMax = 1200;
-
-        if (selectedSlug.includes('plumb')) {
-            baseLabor = 900;
-            basePartsMin = 500;
-            basePartsMax = 1500;
-        } else if (selectedSlug.includes('electr')) {
-            baseLabor = 1100;
-            basePartsMin = 600;
-            basePartsMax = 1800;
-        } else if (selectedSlug.includes('ac') || selectedSlug.includes('hvac')) {
-            baseLabor = 1500;
-            basePartsMin = 1500;
-            basePartsMax = 4000;
-        } else if (selectedSlug.includes('paint')) {
-            baseLabor = 1400;
-            basePartsMin = 1000;
-            basePartsMax = 3000;
-        }
+        var basePartsMin = Math.round(baseFromDb * 0.4);
+        var basePartsMax = Math.round(baseFromDb * 1.5);
 
         var labor = Math.round(baseLabor * currentSeverityFactor);
         var partsMin = Math.round(basePartsMin * currentSeverityFactor);
@@ -372,10 +301,17 @@
         document.getElementById('sim_labor').textContent = 'Rs ' + labor.toLocaleString();
         document.getElementById('sim_parts').textContent = 'Rs ' + partsMin.toLocaleString() + ' - ' + partsMax.toLocaleString();
         document.getElementById('sim_total').textContent = 'Rs ' + totalMin.toLocaleString() + ' - ' + totalMax.toLocaleString();
+        
+        var warrantyEl = document.getElementById('sim_warranty');
+        if (warrantyEl) {
+            warrantyEl.textContent = '✓ ' + warrantyText + ' Included';
+        }
 
         var cta = document.getElementById('sim_cta');
-        cta.textContent = 'Find Verified ' + tradeName + ' →';
-        cta.href = "{{ url('/technicians') }}?search=" + encodeURIComponent(tradeName);
+        if (cta) {
+            cta.textContent = 'Find Verified ' + tradeName + ' →';
+            cta.href = "{{ url('/technicians') }}?search=" + encodeURIComponent(tradeName);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', runCostSimulation);
