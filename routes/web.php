@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\TechnicianVerificationController;
 use App\Http\Controllers\BecomeTechnicianController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Customer\CustomerPortalController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
@@ -144,73 +145,53 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('r
 Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer'])->group(function () {
     
     // Customer Dashboard
-    Route::get('/dashboard', function () {
-        return view('Frontend.customer.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [CustomerPortalController::class, 'dashboard'])->name('dashboard');
 
     // AI Problem Diagnosis Scanner Flow
-    Route::get('/diagnose', function () {
-        return view('Frontend.customer.diagnose');
-    })->name('diagnose');
-
-    Route::get('/ai-result', function () {
-        return view('Frontend.customer.ai-result');
-    })->name('ai-result');
+    Route::get('/diagnose', [CustomerPortalController::class, 'diagnose'])->name('diagnose');
+    Route::get('/ai-result', [CustomerPortalController::class, 'aiResult'])->name('ai-result');
 
     // Recommended Technicians & Booking Flow
-    Route::get('/technicians', function () {
-        return view('Frontend.customer.technicians');
-    })->name('technicians');
-
+    Route::get('/technicians', [CustomerPortalController::class, 'technicians'])->name('technicians');
     Route::get('/technicians/{id}', function ($id = 'ali-khan') {
         return view('Frontend.public.technician-profile', ['techId' => $id]);
     })->name('technician.details');
 
-    Route::get('/booking', function () {
-        return view('Frontend.customer.booking');
-    })->name('booking');
+    Route::get('/booking', [CustomerPortalController::class, 'bookingForm'])->name('booking');
+    Route::post('/booking', [CustomerPortalController::class, 'storeBooking'])->name('booking.store');
 
     Route::get('/payment', function () {
         return view('Frontend.customer.payment');
     })->name('payment');
 
-    Route::get('/booking/{id}/confirm', function ($id = 'FM-10245') {
-        return view('Frontend.customer.confirmation', ['bookingId' => $id]);
-    })->name('booking.confirm');
+    Route::get('/booking/{booking}/confirm', [CustomerPortalController::class, 'bookingConfirm'])->name('booking.confirm');
 
     // Live Tracking & Service State
-    Route::get('/tracking', function () {
-        return view('Frontend.customer.tracking');
-    })->name('tracking');
+    Route::get('/tracking', [CustomerPortalController::class, 'tracking'])->name('tracking');
+    Route::get('/booking/{booking}/tracking', [CustomerPortalController::class, 'tracking'])->name('booking.tracking');
 
-    Route::get('/booking/{id}/tracking', function ($id = 'FM-10245') {
-        return view('Frontend.customer.tracking', ['bookingId' => $id]);
-    })->name('booking.tracking');
+    // Customer Bookings Management
+    Route::get('/bookings', [CustomerPortalController::class, 'bookings'])->name('bookings');
+    Route::post('/booking/{booking}/cancel', [CustomerPortalController::class, 'cancelBooking'])->name('booking.cancel');
 
-    // Customer Account Pages
-    Route::get('/bookings', function () {
-        return view('Frontend.customer.bookings');
-    })->name('bookings');
-
+    // Messages & Communication
     Route::get('/messages', function () {
         return view('Frontend.customer.messages');
     })->name('messages');
 
-    Route::get('/reviews', function () {
-        return view('Frontend.customer.reviews');
-    })->name('reviews');
+    // Ratings & Reviews
+    Route::get('/reviews', [CustomerPortalController::class, 'reviews'])->name('reviews');
+    Route::post('/booking/{booking}/review', [CustomerPortalController::class, 'storeReview'])->name('review.store');
 
-    Route::get('/complaints', function () {
-        return view('Frontend.customer.complaints');
-    })->name('complaints');
+    // Complaints & Dispute Center
+    Route::get('/complaints', [CustomerPortalController::class, 'complaints'])->name('complaints');
+    Route::post('/complaints', [CustomerPortalController::class, 'storeComplaint'])->name('complaints.store');
 
-    Route::get('/profile', function () {
-        return view('Frontend.customer.profile');
-    })->name('profile');
-
-    Route::get('/settings', function () {
-        return view('Frontend.customer.settings');
-    })->name('settings');
+    // Profile & Settings
+    Route::get('/profile', [CustomerPortalController::class, 'profile'])->name('profile');
+    Route::post('/profile', [CustomerPortalController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/settings', [CustomerPortalController::class, 'settings'])->name('settings');
+    Route::post('/settings/password', [CustomerPortalController::class, 'updatePassword'])->name('password.update');
 
 });
 

@@ -10,7 +10,7 @@
         <p style="font-size: 14px; color: #666; margin: 0;">Payment is held safely in escrow and only released after technician completes the job and you provide verification OTP.</p>
     </div>
 
-    <form action="{{ url('/customer/booking/FM-10245/confirm') }}" method="GET">
+    <form action="{{ auth()->user() && auth()->user()->bookings()->latest()->first() ? route('customer.booking.confirm', auth()->user()->bookings()->latest()->first()->id) : route('customer.bookings') }}" method="GET">
         <div class="portal-card" style="padding: 32px; background: #FFFFFF; margin-bottom: 24px;">
             <h3 style="font-size: 16px; font-weight: 800; color: #111; margin-bottom: 18px;">Choose Payment Option</h3>
 

@@ -1,9 +1,9 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'Booking Confirmed — FixMate AI')
+@section('title', 'Booking Confirmed #' . $booking->booking_number . ' — FixMate AI')
 
 @section('content')
-<div style="max-width: 640px; margin: 0 auto; text-align: center;">
+<div style="max-width: 680px; margin: 0 auto; text-align: center;">
     
     <!-- Confirmation Banner matching Mockup 1 & 2 -->
     <div class="portal-card" style="padding: 40px 32px; background: #FFFFFF; border-radius: 20px;">
@@ -14,32 +14,45 @@
         </div>
 
         <h1 style="font-size: 26px; font-weight: 900; color: #111; margin-bottom: 6px;">Booking Confirmed!</h1>
-        <p style="font-size: 14px; color: #666; margin-bottom: 28px;">Your booking has been successfully created and dispatched.</p>
+        <p style="font-size: 14px; color: #666; margin-bottom: 24px;">Your service booking has been created and assigned.</p>
+
+        <!-- Arrival OTP Card (Critical Security Feature from SRS) -->
+        <div style="background: #FFFDF0; border: 2px dashed #FEF08A; border-radius: 14px; padding: 18px 24px; text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 11px; font-weight: 800; color: #92400E; text-transform: uppercase; letter-spacing: 0.5px;">Arrival Verification OTP</span>
+            <strong style="display: block; font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #111; margin: 6px 0;">{{ $booking->arrival_otp }}</strong>
+            <span style="font-size: 12px; color: #777;">Provide this 4-digit code ONLY when the technician arrives at your door</span>
+        </div>
 
         <!-- Booking Summary Card -->
         <div style="background: #FAFAFA; border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; text-align: left; margin-bottom: 28px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                 <div>
                     <span style="font-size: 11.5px; color: #777;">Booking ID</span>
-                    <strong style="display: block; font-size: 15px; color: #111;">#FM-10245</strong>
+                    <strong style="display: block; font-size: 15px; color: #111;">#{{ $booking->booking_number }}</strong>
                 </div>
                 <div>
-                    <span style="font-size: 11.5px; color: #777;">Technician</span>
-                    <strong style="display: block; font-size: 15px; color: #111;">Ali Khan (Plumber)</strong>
+                    <span style="font-size: 11.5px; color: #777;">Assigned Technician</span>
+                    <strong style="display: block; font-size: 15px; color: #111;">{{ $booking->professional ? $booking->professional->name . ' (' . ($booking->profession->name ?? 'Pro') . ')' : 'FixMate AI Auto-Dispatch' }}</strong>
                 </div>
                 <div>
                     <span style="font-size: 11.5px; color: #777;">Service</span>
-                    <strong style="display: block; font-size: 15px; color: #111;">Sink / Pipe Repair</strong>
+                    <strong style="display: block; font-size: 15px; color: #111;">{{ $booking->service_title }}</strong>
                 </div>
                 <div>
                     <span style="font-size: 11.5px; color: #777;">Date & Time</span>
-                    <strong style="display: block; font-size: 15px; color: #111;">Today • 2:30 PM - 3:30 PM</strong>
+                    <strong style="display: block; font-size: 15px; color: #111;">{{ $booking->service_date ? $booking->service_date->format('M d, Y') : 'Scheduled' }} • {{ $booking->service_time_slot }}</strong>
                 </div>
             </div>
 
-            <div>
-                <span style="font-size: 11.5px; color: #777;">Location</span>
-                <strong style="display: block; font-size: 14px; color: #111;">House 42-B, Street 18, Phase 6, DHA, Karachi</strong>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 11.5px; color: #777;">Location</span>
+                    <strong style="display: block; font-size: 14px; color: #111;">{{ $booking->service_address }}, {{ $booking->city }}</strong>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 11.5px; color: #777;">Escrow Amount</span>
+                    <strong style="display: block; font-size: 15px; color: #047857;">Rs. {{ number_format($booking->total_price) }}</strong>
+                </div>
             </div>
         </div>
 
@@ -53,8 +66,8 @@
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div style="width: 24px; height: 24px; border-radius: 50%; background: #10B981; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">✓</div>
                     <div>
-                        <strong style="font-size: 13.5px; color: #111;">Booking Requested</strong>
-                        <span style="font-size: 11px; color: #888; display: block;">Sep 27, 2026 • 10:00 AM</span>
+                        <strong style="font-size: 13.5px; color: #111;">Booking Confirmed & Dispatched</strong>
+                        <span style="font-size: 11px; color: #888; display: block;">{{ $booking->created_at->format('M d, Y • h:i A') }}</span>
                     </div>
                 </div>
 
@@ -62,8 +75,8 @@
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div style="width: 24px; height: 24px; border-radius: 50%; background: #10B981; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">✓</div>
                     <div>
-                        <strong style="font-size: 13.5px; color: #111;">Technician Accepted</strong>
-                        <span style="font-size: 11px; color: #888; display: block;">Ali Khan accepted job • 10:02 AM</span>
+                        <strong style="font-size: 13.5px; color: #111;">Technician Handshake Ready</strong>
+                        <span style="font-size: 11px; color: #888; display: block;">Arrival OTP generated: <strong>{{ $booking->arrival_otp }}</strong></span>
                     </div>
                 </div>
 
@@ -71,26 +84,8 @@
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div style="width: 24px; height: 24px; border-radius: 50%; background: #FFCC00; color: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">●</div>
                     <div>
-                        <strong style="font-size: 13.5px; color: #111;">Technician On The Way</strong>
-                        <span style="font-size: 11px; color: #059669; font-weight: 700; display: block;">En route (ETA ~10 mins)</span>
-                    </div>
-                </div>
-
-                <!-- Status 4 -->
-                <div style="display: flex; align-items: center; gap: 14px; opacity: 0.6;">
-                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #E5E7EB; color: #888; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">○</div>
-                    <div>
-                        <strong style="font-size: 13.5px; color: #111;">Service Started (OTP Verified)</strong>
-                        <span style="font-size: 11px; color: #888; display: block;">Pending technician arrival</span>
-                    </div>
-                </div>
-
-                <!-- Status 5 -->
-                <div style="display: flex; align-items: center; gap: 14px; opacity: 0.6;">
-                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #E5E7EB; color: #888; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">○</div>
-                    <div>
-                        <strong style="font-size: 13.5px; color: #111;">Completed & Payment Released</strong>
-                        <span style="font-size: 11px; color: #888; display: block;">Pending service completion</span>
+                        <strong style="font-size: 13.5px; color: #111;">GPS Dispatch & Live Status</strong>
+                        <span style="font-size: 11px; color: #059669; font-weight: 700; display: block;">Follow real-time status in tracking portal</span>
                     </div>
                 </div>
 
@@ -99,10 +94,10 @@
 
         <!-- Action Buttons matching Mockup 1 & 2 -->
         <div style="display: flex; gap: 12px;">
-            <a href="{{ url('/customer/tracking') }}" class="btn-yellow" style="flex: 1; padding: 12px 0; font-size: 14.5px; font-weight: 800; border-radius: 10px;">
+            <a href="{{ route('customer.booking.tracking', $booking->id) }}" class="btn-yellow" style="flex: 1; padding: 12px 0; font-size: 14.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
                 Track Live Booking →
             </a>
-            <a href="{{ url('/customer/bookings') }}" class="btn-outline" style="flex: 1; padding: 12px 0; font-size: 14px; border-radius: 10px;">
+            <a href="{{ route('customer.bookings') }}" class="btn-outline" style="flex: 1; padding: 12px 0; font-size: 14px; border-radius: 10px; text-decoration: none;">
                 View My Bookings
             </a>
         </div>

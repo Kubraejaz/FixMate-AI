@@ -12,12 +12,24 @@
     </div>
 
     <div class="portal-card" style="padding: 32px; background: #FFFFFF;">
-        <form action="{{ url('/customer/ai-result') }}" method="GET">
+        <form action="{{ route('customer.ai-result') }}" method="GET">
             
+            <!-- Category / Trade Selection -->
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin-bottom: 8px;">Select Trade Category (Optional)</label>
+                <select name="category" class="form-input" style="font-size: 13.5px; padding: 10px 14px;">
+                    @foreach($professions as $prof)
+                        <option value="{{ $prof->slug }}" {{ request('category') == $prof->slug ? 'selected' : '' }}>
+                            {{ $prof->name }} (Base: Rs. {{ number_format($prof->base_price) }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <!-- What problem are you facing? matching Mockup 1 -->
             <div class="form-group" style="margin-bottom: 20px;">
                 <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin-bottom: 8px;">What problem are you facing?</label>
-                <textarea class="form-input" rows="4" style="font-size: 14px; line-height: 1.6; padding: 12px 14px;" placeholder="e.g. My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the faucet is turned on...">{{ request('q', 'My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the tap is running.') }}</textarea>
+                <textarea name="issue" class="form-input" rows="4" style="font-size: 14px; line-height: 1.6; padding: 12px 14px;" placeholder="e.g. My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the faucet is turned on...">{{ old('issue', request('q', $queryText ?: 'My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the tap is running.')) }}</textarea>
             </div>
 
             <!-- Upload Photos (Drag & Drop + Real Image preview matching Mockup 1) -->
@@ -33,14 +45,14 @@
                         <span style="font-size: 11px; color: #888;">or drag and drop</span>
                     </div>
 
-                    <!-- Photo 1 preview using user's real image_6.png (Kitchen sink pipe leak) -->
+                    <!-- Photo 1 preview using real image_6.png (Kitchen sink pipe leak) -->
                     <div style="position: relative; border-radius: 14px; overflow: hidden; height: 110px; border: 2px solid #FFCC00; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
                         <img src="{{ asset('assets/images/image_6.png') }}" alt="Leaking sink" style="width: 100%; height: 100%; object-fit: cover;">
                         <span style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #FFF; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</span>
                         <span style="position: absolute; bottom: 4px; left: 4px; background: #10B981; color: #FFF; font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">Photo 1</span>
                     </div>
 
-                    <!-- Photo 2 preview using user's real image_7.png -->
+                    <!-- Photo 2 preview using real image_7.png -->
                     <div style="position: relative; border-radius: 14px; overflow: hidden; height: 110px; border: 1px solid var(--border-color);">
                         <img src="{{ asset('assets/images/image_7.png') }}" alt="Cabinet interior" style="width: 100%; height: 100%; object-fit: cover;">
                         <span style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #FFF; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</span>
@@ -54,11 +66,11 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px;">
                 <div>
                     <label class="form-label" style="font-size: 13px; font-weight: 800; color: #111; margin-bottom: 6px;">Select Location</label>
-                    <select class="form-input" style="font-size: 13.5px; padding: 10px 14px;">
-                        <option>Karachi, Pakistan (DHA Phase 6)</option>
-                        <option>Karachi, Clifton Block 4</option>
-                        <option>Lahore, Gulberg III</option>
-                        <option>Islamabad, Sector F-8/2</option>
+                    <select name="city" class="form-input" style="font-size: 13.5px; padding: 10px 14px;">
+                        <option value="Karachi">Karachi, Pakistan (DHA Phase 6)</option>
+                        <option value="Karachi">Karachi, Clifton Block 4</option>
+                        <option value="Lahore">Lahore, Gulberg III</option>
+                        <option value="Islamabad">Islamabad, Sector F-8/2</option>
                     </select>
                 </div>
 
@@ -84,8 +96,8 @@
             </div>
 
             <!-- Submit CTA matching Mockup 1 -->
-            <button type="submit" class="btn-yellow" style="width: 100%; padding: 13px 0; font-size: 15px; font-weight: 900; border-radius: 12px;">
-                Analyze My Problem
+            <button type="submit" class="btn-yellow" style="width: 100%; padding: 13px 0; font-size: 15px; font-weight: 900; border-radius: 12px; border: none; cursor: pointer;">
+                Analyze My Problem With AI
             </button>
         </form>
     </div>

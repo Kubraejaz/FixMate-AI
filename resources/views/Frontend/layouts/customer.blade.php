@@ -53,12 +53,12 @@
 
                 <!-- User Profile Pill -->
                 <div style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--border-color); padding-left: 14px;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #111; color: #FFCC00; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">
-                        AK
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #111; color: #FFCC00; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; text-transform: uppercase;">
+                        {{ auth()->check() ? mb_substr(auth()->user()->name, 0, 2) : 'CU' }}
                     </div>
                     <div style="line-height: 1.2;">
-                        <strong style="font-size: 13px; color: #111; display: block;">Ahmed Khan</strong>
-                        <span style="font-size: 11px; color: #757575;">Karachi, PK</span>
+                        <strong style="font-size: 13px; color: #111; display: block;">{{ auth()->user()->name ?? 'Customer' }}</strong>
+                        <span style="font-size: 11px; color: #757575;">{{ auth()->user()->city ?? 'Karachi, PK' }}</span>
                     </div>
                 </div>
             </div>
@@ -75,31 +75,31 @@
             </div>
 
             <nav style="display: flex; flex-direction: column;">
-                <a href="{{ url('/customer/dashboard') }}" class="portal-nav-link {{ Request::is('customer/dashboard*') ? 'active' : '' }}">
+                <a href="{{ route('customer.dashboard') }}" class="portal-nav-link {{ Request::is('customer/dashboard*') ? 'active' : '' }}">
                     <span>🏠</span> <span>Dashboard</span>
                 </a>
-                <a href="{{ url('/customer/diagnose') }}" class="portal-nav-link {{ Request::is('customer/diagnose*') ? 'active' : '' }}">
+                <a href="{{ route('customer.diagnose') }}" class="portal-nav-link {{ Request::is('customer/diagnose*') ? 'active' : '' }}">
                     <span>🔍</span> <span>AI Problem Diagnosis</span>
                 </a>
-                <a href="{{ url('/customer/technicians') }}" class="portal-nav-link {{ Request::is('customer/technicians*') ? 'active' : '' }}">
+                <a href="{{ route('customer.technicians') }}" class="portal-nav-link {{ Request::is('customer/technicians*') ? 'active' : '' }}">
                     <span>👷</span> <span>Find Technicians</span>
                 </a>
-                <a href="{{ url('/customer/bookings') }}" class="portal-nav-link {{ Request::is('customer/booking*') ? 'active' : '' }}">
+                <a href="{{ route('customer.bookings') }}" class="portal-nav-link {{ Request::is('customer/bookings*') || Request::is('customer/booking*') ? 'active' : '' }}">
                     <span>📅</span> <span>My Bookings</span>
                 </a>
-                <a href="{{ url('/customer/booking/FM-10245/tracking') }}" class="portal-nav-link {{ Request::is('*tracking*') ? 'active' : '' }}">
+                <a href="{{ route('customer.tracking') }}" class="portal-nav-link {{ Request::is('*tracking*') ? 'active' : '' }}">
                     <span>📍</span> <span>Live Tracking</span>
                 </a>
-                <a href="{{ url('/customer/messages') }}" class="portal-nav-link {{ Request::is('customer/messages*') ? 'active' : '' }}">
+                <a href="{{ route('customer.messages') }}" class="portal-nav-link {{ Request::is('customer/messages*') ? 'active' : '' }}">
                     <span>💬</span> <span>Messages</span>
                 </a>
-                <a href="{{ url('/customer/reviews') }}" class="portal-nav-link {{ Request::is('customer/reviews*') ? 'active' : '' }}">
+                <a href="{{ route('customer.reviews') }}" class="portal-nav-link {{ Request::is('customer/reviews*') ? 'active' : '' }}">
                     <span>⭐</span> <span>Service Reviews</span>
                 </a>
-                <a href="{{ url('/customer/complaints') }}" class="portal-nav-link {{ Request::is('customer/complaints*') ? 'active' : '' }}">
+                <a href="{{ route('customer.complaints') }}" class="portal-nav-link {{ Request::is('customer/complaints*') ? 'active' : '' }}">
                     <span>⚖️</span> <span>Disputes & Help</span>
                 </a>
-                <a href="{{ url('/customer/profile') }}" class="portal-nav-link {{ Request::is('customer/profile*') || Request::is('customer/settings*') ? 'active' : '' }}">
+                <a href="{{ route('customer.profile') }}" class="portal-nav-link {{ Request::is('customer/profile*') || Request::is('customer/settings*') ? 'active' : '' }}">
                     <span>⚙️</span> <span>Settings & Profile</span>
                 </a>
 
@@ -107,9 +107,12 @@
                     <a href="{{ url('/') }}" class="portal-nav-link" style="color: #6B7280; font-size: 13px;">
                         <span>🌐</span> <span>Public Website</span>
                     </a>
-                    <a href="{{ url('/login') }}" class="portal-nav-link" style="color: #EF4444; font-size: 13px;">
+                    <a href="javascript:void(0);" onclick="document.getElementById('customer-logout-form').submit();" class="portal-nav-link" style="color: #EF4444; font-size: 13px;">
                         <span>🚪</span> <span>Sign Out</span>
                     </a>
+                    <form id="customer-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
                 </div>
             </nav>
         </aside>
@@ -142,8 +145,20 @@
                 toast.style.transform = 'translateY(30px)';
                 toast.style.opacity = '0';
                 toast.style.pointerEvents = 'none';
-            }, 3000);
+            }, 4000);
         }
+
+        @if(session('success'))
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast(@json(session('success')), true);
+            });
+        @endif
+
+        @if(session('error'))
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast(@json(session('error')), false);
+            });
+        @endif
     </script>
 
     @yield('extra_js')
