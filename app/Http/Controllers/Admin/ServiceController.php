@@ -57,7 +57,17 @@ class ServiceController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'slug' => ['nullable', 'string', 'max:100', 'unique:professions,slug'],
             'icon' => ['nullable', 'string', 'max:50'],
+            'base_price' => ['nullable', 'integer', 'min:0'],
+            'price_unit' => ['nullable', 'string', 'max:50'],
+            'estimated_duration' => ['nullable', 'string', 'max:100'],
+            'headline' => ['nullable', 'string', 'max:255'],
+            'image' => ['nullable', 'string', 'max:255'],
+            'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:2048'],
+            'warranty_text' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'feature_points' => ['nullable'],
+            'included_items' => ['nullable'],
+            'excluded_items' => ['nullable'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -73,10 +83,38 @@ class ServiceController extends Controller
             $counter++;
         }
 
+        $imagePath = $validated['image'] ?? 'assets/images/image_3.png';
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $fileName = 'service_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/images'), $fileName);
+            $imagePath = 'assets/images/' . $fileName;
+        }
+
+        $parseList = function ($input) {
+            if (is_array($input)) {
+                return array_values(array_filter(array_map('trim', $input)));
+            }
+            if (is_string($input)) {
+                $lines = preg_split('/\r\n|\r|\n/', $input);
+                return array_values(array_filter(array_map('trim', $lines)));
+            }
+            return null;
+        };
+
         Profession::create([
             'name' => trim($validated['name']),
             'slug' => $slug,
-            'icon' => $validated['icon'] ?? 'wrench',
+            'icon' => $validated['icon'] ?? '🔧',
+            'base_price' => $validated['base_price'] ?? 650,
+            'price_unit' => $validated['price_unit'] ?? 'base',
+            'estimated_duration' => $validated['estimated_duration'] ?? '30 – 60 mins',
+            'headline' => $validated['headline'] ?? trim($validated['name']) . ' Repair & Maintenance',
+            'image' => $imagePath,
+            'warranty_text' => $validated['warranty_text'] ?? '60-Day Re-work Free',
+            'feature_points' => $parseList($request->input('feature_points')),
+            'included_items' => $parseList($request->input('included_items')),
+            'excluded_items' => $parseList($request->input('excluded_items')),
             'description' => $validated['description'] ?? null,
             'is_active' => $request->boolean('is_active', true),
         ]);
@@ -94,14 +132,52 @@ class ServiceController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'slug' => ['required', 'string', 'max:100', 'unique:professions,slug,' . $service->id],
             'icon' => ['nullable', 'string', 'max:50'],
+            'base_price' => ['nullable', 'integer', 'min:0'],
+            'price_unit' => ['nullable', 'string', 'max:50'],
+            'estimated_duration' => ['nullable', 'string', 'max:100'],
+            'headline' => ['nullable', 'string', 'max:255'],
+            'image' => ['nullable', 'string', 'max:255'],
+            'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:2048'],
+            'warranty_text' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'feature_points' => ['nullable'],
+            'included_items' => ['nullable'],
+            'excluded_items' => ['nullable'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        $imagePath = $validated['image'] ?? $service->image;
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $fileName = 'service_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/images'), $fileName);
+            $imagePath = 'assets/images/' . $fileName;
+        }
+
+        $parseList = function ($input) {
+            if (is_array($input)) {
+                return array_values(array_filter(array_map('trim', $input)));
+            }
+            if (is_string($input)) {
+                $lines = preg_split('/\r\n|\r|\n/', $input);
+                return array_values(array_filter(array_map('trim', $lines)));
+            }
+            return null;
+        };
 
         $service->update([
             'name' => trim($validated['name']),
             'slug' => Str::slug($validated['slug']),
             'icon' => $validated['icon'] ?? $service->icon,
+            'base_price' => isset($validated['base_price']) ? (int) $validated['base_price'] : $service->base_price,
+            'price_unit' => $validated['price_unit'] ?? ($service->price_unit ?? 'base'),
+            'estimated_duration' => $validated['estimated_duration'] ?? ($service->estimated_duration ?? '30 – 60 mins'),
+            'headline' => $validated['headline'] ?? ($service->headline ?? $validated['name']),
+            'image' => $imagePath ?: $service->image,
+            'warranty_text' => $validated['warranty_text'] ?? ($service->warranty_text ?? '60-Day Re-work Free'),
+            'feature_points' => $request->has('feature_points') ? $parseList($request->input('feature_points')) : $service->feature_points,
+            'included_items' => $request->has('included_items') ? $parseList($request->input('included_items')) : $service->included_items,
+            'excluded_items' => $request->has('excluded_items') ? $parseList($request->input('excluded_items')) : $service->excluded_items,
             'description' => $validated['description'] ?? null,
             'is_active' => $request->boolean('is_active'),
         ]);

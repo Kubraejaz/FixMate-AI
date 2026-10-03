@@ -8,7 +8,7 @@
 <div class="adm-page-head">
     <div>
         <h1>Services &amp; Professions Catalog</h1>
-        <p>Manage dynamic services displayed across the website, registration dropdowns, and search filters.</p>
+        <p>Manage dynamic services displayed across the website, registration dropdowns, and search filters with upfront pricing and scope features.</p>
     </div>
     <div class="adm-page-actions">
         <button type="button" class="adm-btn adm-btn-primary" onclick="openAddServiceModal()">
@@ -146,30 +146,17 @@
 </div>
 
 <!-- Services Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; margin-bottom: 40px;">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 22px; margin-bottom: 40px;">
     
     @forelse($services as $svc)
-        @php
-            $iconMap = [
-                'plumber' => '💧',
-                'electrician' => '⚡',
-                'ac-refrigeration' => '❄️',
-                'deep-cleaning' => '🧹',
-                'painter' => '🖌️',
-                'carpenter' => '🔨',
-                'home-appliances' => '🧺',
-            ];
-            $iconEmoji = $iconMap[$svc->slug] ?? '🔧';
-        @endphp
-
-        <div class="adm-card" style="display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid {{ $svc->is_active ? 'var(--adm-accent)' : 'var(--adm-border)' }}; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+        <div class="adm-card" style="display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid {{ $svc->is_active ? 'var(--adm-accent)' : 'var(--adm-border)' }}; transition: transform 0.15s ease, box-shadow 0.15s ease; padding: 22px;">
             
             <div>
                 <!-- Card Header -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 48px; height: 48px; border-radius: 12px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 22px;">
-                            {{ $iconEmoji }}
+                        <div style="width: 50px; height: 50px; border-radius: 14px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            {{ $svc->display_icon }}
                         </div>
                         <div>
                             <h3 style="font-size: 16px; font-weight: 800; color: var(--adm-ink); margin-bottom: 2px;">{{ $svc->name }}</h3>
@@ -187,10 +174,34 @@
                     </form>
                 </div>
 
+                <!-- Price and Duration Strip -->
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0F172A; background: #FFF9E6; border: 1px solid #FEF08A; padding: 4px 10px; border-radius: 8px;">
+                        Rs. {{ number_format($svc->base_price) }} <span style="font-size: 11px; font-weight: 600; color: #64748B;">{{ $svc->price_unit }}</span>
+                    </span>
+                    <span style="font-size: 11.5px; font-weight: 700; color: #475569; background: #F1F5F9; padding: 4px 10px; border-radius: 8px;">
+                        ⏱ {{ $svc->estimated_duration ?: '30 – 60 mins' }}
+                    </span>
+                    <span style="font-size: 11.5px; font-weight: 700; color: #0369A1; background: #E0F2FE; padding: 4px 10px; border-radius: 8px;">
+                        🛡️ {{ $svc->warranty_text ?: '60-Day Re-work' }}
+                    </span>
+                </div>
+
                 <!-- Description -->
-                <p style="font-size: 13px; color: var(--adm-body); line-height: 1.5; margin-bottom: 16px;">
+                <p style="font-size: 13px; color: var(--adm-body); line-height: 1.5; margin-bottom: 14px;">
                     {{ $svc->description ?: 'No detailed description set for this service category.' }}
                 </p>
+
+                <!-- Key Feature Points Preview -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #475569;">
+                    <div style="font-weight: 700; color: #0F172A; margin-bottom: 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em;">Key Features / Scope:</div>
+                    @foreach($svc->feature_points_list as $point)
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                            <span style="color: #059669; font-weight: 900;">✓</span>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $point }}</span>
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
             <!-- Card Bottom Bar -->
@@ -243,47 +254,134 @@
 <!-- ======================================================== -->
 <!-- MODAL: ADD SERVICE                                       -->
 <!-- ======================================================== -->
-<div id="addServiceModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: #FFFFFF; border-radius: 20px; max-width: 520px; width: 100%; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; animation: modalPop 0.2s ease;">
+<div id="addServiceModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+    <div style="background: #FFFFFF; border-radius: 20px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); position: relative; animation: modalPop 0.2s ease;">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 24px;">✨</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid #E2E8F0;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    ✨
+                </div>
                 <div>
-                    <h2 style="font-size: 19px; font-weight: 800; color: var(--adm-ink); margin: 0;">Add New Service</h2>
-                    <span style="font-size: 12px; color: var(--adm-muted);">Create a category for public pages &amp; registration.</span>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--adm-ink); margin: 0;">Add New Service</h2>
+                    <span style="font-size: 12.5px; color: var(--adm-muted);">Create dynamic service with upfront pricing, scope, and guarantees.</span>
                 </div>
             </div>
             <button type="button" onclick="closeAddServiceModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--adm-muted);">&times;</button>
         </div>
 
-        <form action="{{ route('admin.categories.store') }}" method="POST">
+        <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <div class="adm-field">
-                <label for="addServiceName">Service Name *</label>
-                <input type="text" id="addServiceName" name="name" required placeholder="e.g. Solar & Inverter Specialist" class="adm-input" onkeyup="autoGenerateSlug(this.value)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="adm-field">
+                    <label for="addServiceName">Service Name *</label>
+                    <input type="text" id="addServiceName" name="name" required placeholder="e.g. Solar & Inverter Specialist" class="adm-input" onkeyup="autoGenerateSlug(this.value)">
+                </div>
+
+                <div class="adm-field">
+                    <label for="addServiceSlug">URL Slug (lowercase-with-hyphens)</label>
+                    <input type="text" id="addServiceSlug" name="slug" placeholder="e.g. solar-specialist" class="adm-input">
+                </div>
             </div>
 
+            <!-- Icon Picker -->
             <div class="adm-field">
-                <label for="addServiceSlug">URL Slug (lowercase-with-hyphens)</label>
-                <input type="text" id="addServiceSlug" name="slug" placeholder="e.g. solar-specialist" class="adm-input">
-                <span style="font-size: 11px; color: var(--adm-faint); margin-top: 4px; display: block;">Leave blank to generate automatically from name.</span>
+                <label for="addServiceIcon">Service Icon / Emoji</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="addServiceIcon" name="icon" value="🔧" class="adm-input" style="max-width: 120px; font-size: 18px; text-align: center;">
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        @foreach(['💧', '⚡', '❄️', '🧹', '🖌️', '🔨', '🧺', '📹', '☀️', '🔧', '🚪', '🛡️'] as $em)
+                            <button type="button" onclick="document.getElementById('addServiceIcon').value='{{ $em }}'" style="border: 1px solid #E2E8F0; background: #F8FAFC; border-radius: 8px; padding: 4px 8px; font-size: 16px; cursor: pointer;">{{ $em }}</button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing & Duration Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+                <div class="adm-field">
+                    <label for="addServicePrice">Base Labor Price (PKR) *</label>
+                    <input type="number" id="addServicePrice" name="base_price" required value="750" min="0" step="50" class="adm-input">
+                </div>
+
+                <div class="adm-field">
+                    <label for="addServicePriceUnit">Price Unit</label>
+                    <select id="addServicePriceUnit" name="price_unit" class="adm-select">
+                        <option value="base" selected>base (Starting rate)</option>
+                        <option value="service">service (Fixed fee)</option>
+                        <option value="package">package</option>
+                        <option value="/ sq.ft">/ sq.ft</option>
+                        <option value="diagnosis">diagnosis</option>
+                        <option value="visit">visit</option>
+                    </select>
+                </div>
+
+                <div class="adm-field">
+                    <label for="addServiceDuration">Estimated Duration</label>
+                    <input type="text" id="addServiceDuration" name="estimated_duration" value="30 – 50 mins" class="adm-input" placeholder="e.g. 30 – 50 mins">
+                </div>
+            </div>
+
+            <!-- Headline & Warranty -->
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px;">
+                <div class="adm-field">
+                    <label for="addServiceHeadline">Details Page Headline</label>
+                    <input type="text" id="addServiceHeadline" name="headline" class="adm-input" placeholder="e.g. Ultrasonic Leak Detection & Pipe Repair">
+                </div>
+
+                <div class="adm-field">
+                    <label for="addServiceWarranty">Warranty Coverage</label>
+                    <input type="text" id="addServiceWarranty" name="warranty_text" value="60-Day Re-work Free" class="adm-input">
+                </div>
+            </div>
+
+            <!-- Image Selection -->
+            <div class="adm-field">
+                <label for="addServiceImage">Banner Image Asset</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <select id="addServiceImage" name="image" class="adm-select">
+                        <option value="assets/images/image_3.png" selected>assets/images/image_3.png (Plumbing / Workshop)</option>
+                        <option value="assets/images/image_2.png">assets/images/image_2.png (Electrical / Wiring)</option>
+                        <option value="assets/images/image_1.png">assets/images/image_1.png (HVAC / Appliances)</option>
+                        <option value="assets/images/image_4.png">assets/images/image_4.png (Cleaning / Janitorial)</option>
+                        <option value="assets/images/image_8.png">assets/images/image_8.png (Modern Home Service)</option>
+                    </select>
+                    <input type="file" name="image_file" accept="image/*" class="adm-input" style="font-size: 12px; padding: 7px 10px;">
+                </div>
+            </div>
+
+            <!-- Bullet Points Textarea -->
+            <div class="adm-field">
+                <label for="addServiceFeatures">Key Features (One bullet per line, shown on service cards)</label>
+                <textarea id="addServiceFeatures" name="feature_points" rows="3" class="adm-textarea" placeholder="Pipe leak repair & Teflon sealing&#10;Electric/Gas geyser heating element overhaul&#10;Water pressure motor suction calibration"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="adm-field">
+                    <label for="addServiceIncluded">What's Included (One per line)</label>
+                    <textarea id="addServiceIncluded" name="included_items" rows="3" class="adm-textarea" placeholder="Ultrasonic joint leak inspection&#10;Slip washer Teflon replacement&#10;60-day rework warranty"></textarea>
+                </div>
+
+                <div class="adm-field">
+                    <label for="addServiceExcluded">What's Excluded / Extra (One per line)</label>
+                    <textarea id="addServiceExcluded" name="excluded_items" rows="3" class="adm-textarea" placeholder="Spare brass mixer hardware&#10;Excavation beyond 2 feet"></textarea>
+                </div>
             </div>
 
             <div class="adm-field">
                 <label for="addServiceDesc">Short Description</label>
-                <textarea id="addServiceDesc" name="description" rows="3" class="adm-textarea" placeholder="Describe the scope of work (leak detection, motor overhaul, breaker trips, etc.)..."></textarea>
+                <textarea id="addServiceDesc" name="description" rows="2" class="adm-textarea" placeholder="Brief summary of trade and skills..."></textarea>
             </div>
 
-            <div class="adm-field" style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
-                <input type="checkbox" id="addServiceActive" name="is_active" value="1" checked style="width: 16px; height: 16px; accent-color: var(--adm-accent);">
-                <label for="addServiceActive" style="margin-bottom: 0; cursor: pointer; font-size: 13.5px; font-weight: 600;">Make visible immediately on website</label>
+            <div class="adm-field" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                <input type="checkbox" id="addServiceActive" name="is_active" value="1" checked style="width: 18px; height: 18px; accent-color: var(--adm-accent);">
+                <label for="addServiceActive" style="margin-bottom: 0; cursor: pointer; font-size: 13.5px; font-weight: 700;">Make visible immediately on public website and registration forms</label>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 24px;">
+            <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 14px; border-top: 1px solid #E2E8F0;">
                 <button type="button" class="adm-btn adm-btn-secondary" style="flex: 1; justify-content: center;" onclick="closeAddServiceModal()">Cancel</button>
-                <button type="submit" class="adm-btn adm-btn-primary" style="flex: 1.5; justify-content: center;">Create Service</button>
+                <button type="submit" class="adm-btn adm-btn-primary" style="flex: 1.5; justify-content: center;">Create Service Category</button>
             </div>
         </form>
 
@@ -294,45 +392,133 @@
 <!-- ======================================================== -->
 <!-- MODAL: EDIT SERVICE                                      -->
 <!-- ======================================================== -->
-<div id="editServiceModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: #FFFFFF; border-radius: 20px; max-width: 520px; width: 100%; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative;">
+<div id="editServiceModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+    <div style="background: #FFFFFF; border-radius: 20px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); position: relative;">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 24px;">✏️</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid #E2E8F0;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #EFF6FF; border: 1px solid #BFDBFE; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    ✏️
+                </div>
                 <div>
-                    <h2 style="font-size: 19px; font-weight: 800; color: var(--adm-ink); margin: 0;">Edit Service Category</h2>
-                    <span style="font-size: 12px; color: var(--adm-muted);">Update details, URL slug, or active status.</span>
+                    <h2 style="font-size: 20px; font-weight: 800; color: var(--adm-ink); margin: 0;">Edit Service Category</h2>
+                    <span style="font-size: 12.5px; color: var(--adm-muted);">Update pricing, scope features, guarantees, or active status.</span>
                 </div>
             </div>
             <button type="button" onclick="closeEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--adm-muted);">&times;</button>
         </div>
 
-        <form id="editServiceForm" method="POST">
+        <form id="editServiceForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
-            <div class="adm-field">
-                <label for="editServiceName">Service Name *</label>
-                <input type="text" id="editServiceName" name="name" required class="adm-input">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="adm-field">
+                    <label for="editServiceName">Service Name *</label>
+                    <input type="text" id="editServiceName" name="name" required class="adm-input">
+                </div>
+
+                <div class="adm-field">
+                    <label for="editServiceSlug">URL Slug *</label>
+                    <input type="text" id="editServiceSlug" name="slug" required class="adm-input">
+                </div>
             </div>
 
+            <!-- Icon Picker -->
             <div class="adm-field">
-                <label for="editServiceSlug">URL Slug *</label>
-                <input type="text" id="editServiceSlug" name="slug" required class="adm-input">
+                <label for="editServiceIcon">Service Icon / Emoji</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="editServiceIcon" name="icon" class="adm-input" style="max-width: 120px; font-size: 18px; text-align: center;">
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        @foreach(['💧', '⚡', '❄️', '🧹', '🖌️', '🔨', '🧺', '📹', '☀️', '🔧', '🚪', '🛡️'] as $em)
+                            <button type="button" onclick="document.getElementById('editServiceIcon').value='{{ $em }}'" style="border: 1px solid #E2E8F0; background: #F8FAFC; border-radius: 8px; padding: 4px 8px; font-size: 16px; cursor: pointer;">{{ $em }}</button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing & Duration Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+                <div class="adm-field">
+                    <label for="editServicePrice">Base Labor Price (PKR) *</label>
+                    <input type="number" id="editServicePrice" name="base_price" required min="0" step="50" class="adm-input">
+                </div>
+
+                <div class="adm-field">
+                    <label for="editServicePriceUnit">Price Unit</label>
+                    <select id="editServicePriceUnit" name="price_unit" class="adm-select">
+                        <option value="base">base (Starting rate)</option>
+                        <option value="service">service (Fixed fee)</option>
+                        <option value="package">package</option>
+                        <option value="/ sq.ft">/ sq.ft</option>
+                        <option value="diagnosis">diagnosis</option>
+                        <option value="visit">visit</option>
+                    </select>
+                </div>
+
+                <div class="adm-field">
+                    <label for="editServiceDuration">Estimated Duration</label>
+                    <input type="text" id="editServiceDuration" name="estimated_duration" class="adm-input">
+                </div>
+            </div>
+
+            <!-- Headline & Warranty -->
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px;">
+                <div class="adm-field">
+                    <label for="editServiceHeadline">Details Page Headline</label>
+                    <input type="text" id="editServiceHeadline" name="headline" class="adm-input">
+                </div>
+
+                <div class="adm-field">
+                    <label for="editServiceWarranty">Warranty Coverage</label>
+                    <input type="text" id="editServiceWarranty" name="warranty_text" class="adm-input">
+                </div>
+            </div>
+
+            <!-- Image Selection -->
+            <div class="adm-field">
+                <label for="editServiceImage">Banner Image Asset</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <select id="editServiceImage" name="image" class="adm-select">
+                        <option value="assets/images/image_3.png">assets/images/image_3.png (Plumbing / Workshop)</option>
+                        <option value="assets/images/image_2.png">assets/images/image_2.png (Electrical / Wiring)</option>
+                        <option value="assets/images/image_1.png">assets/images/image_1.png (HVAC / Appliances)</option>
+                        <option value="assets/images/image_4.png">assets/images/image_4.png (Cleaning / Janitorial)</option>
+                        <option value="assets/images/image_8.png">assets/images/image_8.png (Modern Home Service)</option>
+                    </select>
+                    <input type="file" name="image_file" accept="image/*" class="adm-input" style="font-size: 12px; padding: 7px 10px;">
+                </div>
+            </div>
+
+            <!-- Bullet Points Textarea -->
+            <div class="adm-field">
+                <label for="editServiceFeatures">Key Features (One bullet per line, shown on service cards)</label>
+                <textarea id="editServiceFeatures" name="feature_points" rows="3" class="adm-textarea"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="adm-field">
+                    <label for="editServiceIncluded">What's Included (One per line)</label>
+                    <textarea id="editServiceIncluded" name="included_items" rows="3" class="adm-textarea"></textarea>
+                </div>
+
+                <div class="adm-field">
+                    <label for="editServiceExcluded">What's Excluded / Extra (One per line)</label>
+                    <textarea id="editServiceExcluded" name="excluded_items" rows="3" class="adm-textarea"></textarea>
+                </div>
             </div>
 
             <div class="adm-field">
                 <label for="editServiceDesc">Short Description</label>
-                <textarea id="editServiceDesc" name="description" rows="3" class="adm-textarea"></textarea>
+                <textarea id="editServiceDesc" name="description" rows="2" class="adm-textarea"></textarea>
             </div>
 
-            <div class="adm-field" style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
-                <input type="checkbox" id="editServiceActive" name="is_active" value="1" style="width: 16px; height: 16px; accent-color: var(--adm-accent);">
-                <label for="editServiceActive" style="margin-bottom: 0; cursor: pointer; font-size: 13.5px; font-weight: 600;">Active on website</label>
+            <div class="adm-field" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                <input type="checkbox" id="editServiceActive" name="is_active" value="1" style="width: 18px; height: 18px; accent-color: var(--adm-accent);">
+                <label for="editServiceActive" style="margin-bottom: 0; cursor: pointer; font-size: 13.5px; font-weight: 700;">Active on website</label>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 24px;">
+            <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 14px; border-top: 1px solid #E2E8F0;">
                 <button type="button" class="adm-btn adm-btn-secondary" style="flex: 1; justify-content: center;" onclick="closeEditModal()">Cancel</button>
                 <button type="submit" class="adm-btn adm-btn-primary" style="flex: 1.5; justify-content: center;">Save Changes</button>
             </div>
@@ -345,8 +531,8 @@
 <!-- ======================================================== -->
 <!-- MODAL: DELETE CONFIRMATION                               -->
 <!-- ======================================================== -->
-<div id="deleteServiceModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: #FFFFFF; border-radius: 20px; max-width: 440px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center;">
+<div id="deleteServiceModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #FFFFFF; border-radius: 20px; max-width: 440px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); text-align: center;">
         
         <div style="width: 56px; height: 56px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 16px auto;">
             🗑️
@@ -390,10 +576,43 @@
         document.getElementById('addServiceSlug').placeholder = slug || 'e.g. service-name';
     }
 
+    function parseLines(items) {
+        if (!items) return '';
+        if (Array.isArray(items)) return items.join('\n');
+        if (typeof items === 'string') {
+            try {
+                const parsed = JSON.parse(items);
+                if (Array.isArray(parsed)) return parsed.join('\n');
+            } catch(e) {}
+            return items;
+        }
+        return '';
+    }
+
     function openEditModal(service) {
         document.getElementById('editServiceForm').action = "{{ url('/admin/categories') }}/" + service.id;
-        document.getElementById('editServiceName').value = service.name;
-        document.getElementById('editServiceSlug').value = service.slug;
+        document.getElementById('editServiceName').value = service.name || '';
+        document.getElementById('editServiceSlug').value = service.slug || '';
+        document.getElementById('editServiceIcon').value = service.icon || '🔧';
+        document.getElementById('editServicePrice').value = service.base_price !== undefined ? service.base_price : 650;
+        
+        const priceUnitSelect = document.getElementById('editServicePriceUnit');
+        if (priceUnitSelect) {
+            priceUnitSelect.value = service.price_unit || 'base';
+        }
+
+        document.getElementById('editServiceDuration').value = service.estimated_duration || '30 – 60 mins';
+        document.getElementById('editServiceHeadline').value = service.headline || service.name || '';
+        document.getElementById('editServiceWarranty').value = service.warranty_text || '60-Day Re-work Free';
+
+        const imageSelect = document.getElementById('editServiceImage');
+        if (imageSelect && service.image) {
+            imageSelect.value = service.image;
+        }
+
+        document.getElementById('editServiceFeatures').value = parseLines(service.feature_points);
+        document.getElementById('editServiceIncluded').value = parseLines(service.included_items);
+        document.getElementById('editServiceExcluded').value = parseLines(service.excluded_items);
         document.getElementById('editServiceDesc').value = service.description || '';
         document.getElementById('editServiceActive').checked = service.is_active ? true : false;
         

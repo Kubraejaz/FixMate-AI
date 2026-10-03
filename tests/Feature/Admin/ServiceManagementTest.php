@@ -19,6 +19,8 @@ class ServiceManagementTest extends TestCase
         Profession::create([
             'name' => 'Solar Specialist',
             'slug' => 'solar-specialist',
+            'base_price' => 1200,
+            'price_unit' => 'visit',
             'description' => 'Solar panel maintenance and inverter setup',
             'is_active' => true,
         ]);
@@ -27,7 +29,8 @@ class ServiceManagementTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Solar Specialist');
-        $response->assertSee('Services &amp; Professions Catalog', false);
+        $response->assertSee('Rs. 1,200');
+        $response->assertSee('visit');
     }
 
     public function test_admin_can_create_a_new_service_category(): void
@@ -37,6 +40,15 @@ class ServiceManagementTest extends TestCase
         $response = $this->actingAs($admin)->post(route('admin.categories.store'), [
             'name' => 'CCTV & Smart Security',
             'slug' => 'cctv-smart-security',
+            'icon' => '📹',
+            'base_price' => 1500,
+            'price_unit' => 'service',
+            'estimated_duration' => '45 – 90 mins',
+            'headline' => 'HD IP Camera Installation & Smart Monitoring',
+            'warranty_text' => '90-Day Protection Guarantee',
+            'feature_points' => "Night vision camera calibration\nDVR/NVR cloud setup\nMobile app live view configuration",
+            'included_items' => "Full wiring conduit audit\nBNC connector fitting\nMobile remote view setup",
+            'excluded_items' => "Hard disk drive hardware\nCoaxial cable beyond 30 meters",
             'description' => 'IP camera installation and DVR repair',
             'is_active' => '1',
         ]);
@@ -47,8 +59,15 @@ class ServiceManagementTest extends TestCase
         $this->assertDatabaseHas('professions', [
             'name' => 'CCTV & Smart Security',
             'slug' => 'cctv-smart-security',
+            'base_price' => 1500,
+            'price_unit' => 'service',
             'is_active' => true,
         ]);
+
+        $service = Profession::where('slug', 'cctv-smart-security')->first();
+        $this->assertNotNull($service);
+        $this->assertCount(3, $service->feature_points);
+        $this->assertEquals('Night vision camera calibration', $service->feature_points[0]);
     }
 
     public function test_admin_can_update_an_existing_service(): void
@@ -58,13 +77,22 @@ class ServiceManagementTest extends TestCase
         $service = Profession::create([
             'name' => 'Old Service Name',
             'slug' => 'old-service-name',
+            'base_price' => 500,
+            'price_unit' => 'base',
             'description' => 'Old description',
             'is_active' => true,
         ]);
 
         $response = $this->actingAs($admin)->put(route('admin.categories.update', $service->id), [
-            'name' => 'Updated Service Name',
-            'slug' => 'updated-service-name',
+            'name' => 'Updated Master Plumber',
+            'slug' => 'updated-master-plumber',
+            'icon' => '💧',
+            'base_price' => 950,
+            'price_unit' => 'service',
+            'estimated_duration' => '30 – 45 mins',
+            'headline' => 'Modern Bathroom Fitting & Leak Repairs',
+            'warranty_text' => '60-Day Rework Escrow',
+            'feature_points' => "Pipe leakage ultrasonic inspection\nTeflon sanitary thread sealing",
             'description' => 'Updated description text',
             'is_active' => '1',
         ]);
@@ -74,9 +102,15 @@ class ServiceManagementTest extends TestCase
 
         $this->assertDatabaseHas('professions', [
             'id' => $service->id,
-            'name' => 'Updated Service Name',
-            'slug' => 'updated-service-name',
+            'name' => 'Updated Master Plumber',
+            'slug' => 'updated-master-plumber',
+            'base_price' => 950,
+            'price_unit' => 'service',
         ]);
+
+        $service->refresh();
+        $this->assertCount(2, $service->feature_points);
+        $this->assertEquals('Pipe leakage ultrasonic inspection', $service->feature_points[0]);
     }
 
     public function test_admin_can_toggle_service_status(): void
@@ -151,6 +185,58 @@ class ServiceManagementTest extends TestCase
         $this->assertDatabaseMissing('professions', [
             'id' => $service->id,
         ]);
+    }
+
+    public function test_public_services_page_displays_dynamic_service_attributes(): void
+    {
+        Profession::create([
+            'name' => 'Solar Maintenance Pro',
+            'slug' => 'solar-maintenance-pro',
+            'icon' => '☀️',
+            'base_price' => 1850,
+            'price_unit' => 'panel',
+            'estimated_duration' => '1 – 2 hours',
+            'feature_points' => ['Solar inverter string diagnosis', 'PV cell dust & micro-crack wash'],
+            'description' => 'Solar panel maintenance and inverter setup',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('services'));
+
+        $response->assertOk();
+        $response->assertSee('Solar Maintenance Pro');
+        $response->assertSee('Rs. 1,850');
+        $response->assertSee('panel');
+        $response->assertSee('Solar inverter string diagnosis');
+    }
+
+    public function test_public_service_details_page_displays_dynamic_service_content(): void
+    {
+        $prof = Profession::create([
+            'name' => 'HVAC Duct Specialist',
+            'slug' => 'hvac-duct-specialist',
+            'icon' => '❄️',
+            'base_price' => 2200,
+            'price_unit' => 'unit',
+            'headline' => 'Central Air Duct Sanitation & Filter Refresh',
+            'estimated_duration' => '2 – 3 hours',
+            'warranty_text' => '45-Day Pure Air Escrow',
+            'feature_points' => ['Duct pressure differential check'],
+            'included_items' => ['HEPA vacuum suction', 'Antibacterial fogging mist'],
+            'excluded_items' => ['Galvanized sheet metal duct fabrication'],
+            'description' => 'Full HVAC inspection and cleaning for homes.',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/services/' . $prof->slug);
+
+        $response->assertOk();
+        $response->assertSee('HVAC Duct Specialist');
+        $response->assertSee('Central Air Duct Sanitation & Filter Refresh');
+        $response->assertSee('Rs. 2,200');
+        $response->assertSee('45-Day Pure Air Escrow');
+        $response->assertSee('HEPA vacuum suction');
+        $response->assertSee('Galvanized sheet metal duct fabrication');
     }
 
     public function test_customer_cannot_access_admin_services(): void
