@@ -56,27 +56,4 @@ class PublicHomePageTest extends TestCase
         $response->assertSee('Javed Iqbal');
         $response->assertSee('Verified');
     }
-
-    public function test_home_page_renders_active_civic_alert_when_present(): void
-    {
-        CommunityIssue::create([
-            'reference_no' => 'FIX-HAZ-9999',
-            'title' => 'Open Manhole Hazard on Main Boulevard',
-            'category' => 'sewerage',
-            'city' => 'Lahore',
-            'location' => 'Gulberg Main Boulevard',
-            'description' => 'Urgent hazard near market intersection.',
-            'reporter_name' => 'Concerned Citizen',
-            'reporter_phone' => '03001234567',
-            'upvotes_count' => 15,
-            'status' => 'alert_active',
-            'is_approved' => true,
-        ]);
-
-        $response = $this->get(route('home'));
-
-        $response->assertStatus(200);
-        $response->assertSee('Active Civic Alert (Lahore)');
-        $response->assertSee('Open Manhole Hazard on Main Boulevard');
-    }
 }

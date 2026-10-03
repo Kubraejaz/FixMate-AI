@@ -5,22 +5,6 @@
 @section('content')
 <div>
 
-    <!-- Optional Live Civic Alert Banner if active in community -->
-    @if(isset($latestAlert) && $latestAlert)
-        <div style="background: #FEF2F2; border-bottom: 1px solid #FEE2E2; padding: 10px 0; font-size: 13px; color: #991B1B;">
-            <div class="container" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #EF4444; animation: pulse 1.5s infinite;"></span>
-                    <strong>Active Civic Alert ({{ $latestAlert->city }}):</strong>
-                    <span>{{ $latestAlert->title }}</span>
-                </div>
-                <a href="{{ url('/community') }}" style="color: #DC2626; font-weight: 700; text-decoration: underline; white-space: nowrap;">
-                    View Community Board &rarr;
-                </a>
-            </div>
-        </div>
-    @endif
-
     <!-- Hero Section matching user's exact mockup image with dynamic content -->
     <section style="background: #FFFFFF; padding: 40px 0 60px 0; overflow: hidden; position: relative;">
         <div class="container">
