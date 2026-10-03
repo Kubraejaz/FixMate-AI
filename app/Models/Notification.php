@@ -57,8 +57,7 @@ class Notification extends Model
      */
     public static function notifyAdmins(string $type, string $title, string $message, ?string $link = null): void
     {
-        $adminIds = User::where('user_type', User::TYPE_ADMIN)
-            ->orWhere('role', User::ROLE_ADMIN)
+        $adminIds = User::whereIn('user_type', [User::TYPE_ADMIN, '1', 'admin'])
             ->pluck('id');
 
         foreach ($adminIds as $adminId) {
