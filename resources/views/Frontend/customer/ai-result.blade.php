@@ -23,8 +23,8 @@
             
             <!-- Left: Scanned Image with AI Bounding Box overlay -->
             <div>
-                <div style="position: relative; border-radius: 16px; overflow: hidden; height: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 2px solid #FFCC00;">
-                    <img src="{{ asset('assets/images/image_6.png') }}" alt="Analyzed defect" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="position: relative; border-radius: 16px; overflow: hidden; height: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); border: 2px solid #FFCC00; background: #000;">
+                    <img src="{{ asset($uploadedImage ?? 'assets/images/image_6.png') }}" alt="Analyzed defect" style="width: 100%; height: 100%; object-fit: cover;">
                     
                     <!-- AI Detection Bounding Box Marker -->
                     <div style="position: absolute; top: 35%; left: 20%; width: 55%; height: 45%; border: 2px dashed #10B981; background: rgba(16, 185, 129, 0.15); border-radius: 8px; pointer-events: none;">

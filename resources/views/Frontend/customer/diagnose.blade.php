@@ -12,7 +12,8 @@
     </div>
 
     <div class="portal-card" style="padding: 32px; background: #FFFFFF;">
-        <form action="{{ route('customer.ai-result') }}" method="GET">
+        <form action="{{ route('customer.ai-result') }}" method="POST" enctype="multipart/form-data" id="diagnoseForm">
+            @csrf
             
             <!-- Category / Trade Selection -->
             <div class="form-group" style="margin-bottom: 20px;">
@@ -32,31 +33,47 @@
                 <textarea name="issue" class="form-input" rows="4" style="font-size: 14px; line-height: 1.6; padding: 12px 14px;" placeholder="e.g. My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the faucet is turned on...">{{ old('issue', request('q', $queryText ?: 'My kitchen sink is leaking and water is coming from the pipe under the cabinet whenever the tap is running.')) }}</textarea>
             </div>
 
-            <!-- Upload Photos (Drag & Drop + Real Image preview matching Mockup 1) -->
+            <!-- Upload Photos (Drag & Drop + Interactive File Input) -->
             <div class="form-group" style="margin-bottom: 24px;">
-                <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin-bottom: 8px;">Upload Photos / Video (AI Scanner)</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="form-label" style="font-size: 13.5px; font-weight: 800; color: #111; margin: 0;">Upload Photos / Video (AI Scanner)</label>
+                    <span style="font-size: 12px; color: #10B981; font-weight: 600;">✓ Supports JPG, PNG, WEBP up to 5MB</span>
+                </div>
                 
-                <div style="display: grid; grid-template-columns: 180px 140px 140px; gap: 14px; align-items: center;">
+                <!-- Hidden file input for real selection -->
+                <input type="file" id="defect_photo_input" name="defect_photo" accept="image/*" style="display: none;">
+
+                <div style="display: grid; grid-template-columns: 200px 1fr; gap: 18px; align-items: stretch;">
                     
-                    <!-- Upload Dropzone -->
-                    <div style="border: 2px dashed #D1D5DB; border-radius: 14px; padding: 24px 14px; text-align: center; background: #F9FAFB; cursor: pointer;">
-                        <div style="font-size: 26px; margin-bottom: 6px;">📷</div>
-                        <strong style="display: block; font-size: 12px; color: #111;">Upload Photos</strong>
-                        <span style="font-size: 11px; color: #888;">or drag and drop</span>
+                    <!-- Clickable Upload Dropzone -->
+                    <div id="dropzoneBox" 
+                         style="border: 2px dashed #D1D5DB; border-radius: 14px; padding: 24px 16px; text-align: center; background: #F9FAFB; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 130px;"
+                         tabindex="0"
+                         role="button"
+                         aria-label="Upload photo for diagnosis">
+                        <div style="font-size: 30px; margin-bottom: 6px; pointer-events: none;">📷</div>
+                        <strong style="display: block; font-size: 13px; color: #111; pointer-events: none;">Click to Upload Photo</strong>
+                        <span style="font-size: 11px; color: #6B7280; pointer-events: none;">or drag and drop here</span>
                     </div>
 
-                    <!-- Photo 1 preview using real image_6.png (Kitchen sink pipe leak) -->
-                    <div style="position: relative; border-radius: 14px; overflow: hidden; height: 110px; border: 2px solid #FFCC00; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
-                        <img src="{{ asset('assets/images/image_6.png') }}" alt="Leaking sink" style="width: 100%; height: 100%; object-fit: cover;">
-                        <span style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #FFF; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</span>
-                        <span style="position: absolute; bottom: 4px; left: 4px; background: #10B981; color: #FFF; font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">Photo 1</span>
-                    </div>
+                    <!-- Active Image Preview Container -->
+                    <div id="previewCard" style="display: flex; gap: 14px; align-items: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 16px;">
+                        
+                        <!-- Main Preview Thumbnail -->
+                        <div style="position: relative; width: 110px; height: 105px; border-radius: 12px; overflow: hidden; border: 2px solid #FFB800; flex-shrink: 0; background: #FFF;">
+                            <img id="previewImg" src="{{ asset('assets/images/image_6.png') }}" alt="Diagnostic Target" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span id="removeBtn" title="Remove image" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.65); color: #FFF; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;">✕</span>
+                            <span id="photoBadge" style="position: absolute; bottom: 4px; left: 4px; background: #10B981; color: #FFF; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">Selected</span>
+                        </div>
 
-                    <!-- Photo 2 preview using real image_7.png -->
-                    <div style="position: relative; border-radius: 14px; overflow: hidden; height: 110px; border: 1px solid var(--border-color);">
-                        <img src="{{ asset('assets/images/image_7.png') }}" alt="Cabinet interior" style="width: 100%; height: 100%; object-fit: cover;">
-                        <span style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #FFF; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</span>
-                        <span style="position: absolute; bottom: 4px; left: 4px; background: #6B7280; color: #FFF; font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">Photo 2</span>
+                        <!-- Image Status & Meta -->
+                        <div style="flex: 1;">
+                            <strong id="previewFileName" style="display: block; font-size: 13.5px; color: #0F172A; word-break: break-all; margin-bottom: 4px;">Sample: kitchen_sink_leak.jpg</strong>
+                            <p id="previewFileMeta" style="font-size: 12px; color: #64748B; margin: 0 0 10px 0;">Ready for computer vision neural analysis.</p>
+                            <button type="button" id="changeImageBtn" style="background: none; border: 1px solid #CBD5E1; color: #0F172A; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">
+                                🔄 Replace Photo
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -103,4 +120,99 @@
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.getElementById('defect_photo_input');
+    const dropzone = document.getElementById('dropzoneBox');
+    const previewImg = document.getElementById('previewImg');
+    const fileNameSpan = document.getElementById('previewFileName');
+    const fileMetaSpan = document.getElementById('previewFileMeta');
+    const removeBtn = document.getElementById('removeBtn');
+    const changeBtn = document.getElementById('changeImageBtn');
+    const defaultSampleUrl = "{{ asset('assets/images/image_6.png') }}";
+
+    // 1. Click dropzone triggers file picker
+    dropzone.addEventListener('click', function (e) {
+        fileInput.click();
+    });
+
+    changeBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        fileInput.click();
+    });
+
+    // 2. Keyboard support (Enter or Space)
+    dropzone.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInput.click();
+        }
+    });
+
+    // 3. Drag and Drop handlers
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#FFB800';
+            dropzone.style.background = '#FFFDF0';
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#D1D5DB';
+            dropzone.style.background = '#F9FAFB';
+        });
+    });
+
+    dropzone.addEventListener('drop', function (e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+
+    // 4. Change event on input
+    fileInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            handleFileSelect(this.files[0]);
+        }
+    });
+
+    function handleFileSelect(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file (JPG, PNG, WEBP)');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            fileNameSpan.textContent = file.name;
+            const sizeInKb = Math.round(file.size / 1024);
+            fileMetaSpan.textContent = `Size: ${sizeInKb} KB • Ready for AI diagnosis`;
+            dropzone.style.borderColor = '#10B981';
+            dropzone.style.background = '#F0FDF4';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 5. Remove button resets to sample
+    removeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        fileInput.value = '';
+        previewImg.src = defaultSampleUrl;
+        fileNameSpan.textContent = 'Sample: kitchen_sink_leak.jpg';
+        fileMetaSpan.textContent = 'Default sample ready for analysis.';
+        dropzone.style.borderColor = '#D1D5DB';
+        dropzone.style.background = '#F9FAFB';
+    });
+});
+</script>
 @endsection

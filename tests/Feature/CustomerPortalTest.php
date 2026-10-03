@@ -358,4 +358,78 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('Tariq Mehmood');
         $response->assertSee('En Route');
     }
+
+    public function test_customer_can_upload_photo_for_ai_diagnosis(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $file = \Illuminate\Http\UploadedFile::fake()->create('kitchen_pipe_defect.jpg', 150, 'image/jpeg');
+
+        $response = $this->actingAs($this->customer)->post(route('customer.ai-result'), [
+            'category' => 'plumber',
+            'issue' => 'Severe pipe burst in kitchen cabinet',
+            'defect_photo' => $file,
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Plumber');
+        $response->assertSee('Severe pipe burst in kitchen cabinet');
+        $response->assertSee('ai_scan_');
+    }
+
+    public function test_customer_can_send_message_and_trigger_notification(): void
+    {
+        $response = $this->actingAs($this->customer)->post(route('customer.messages.send'), [
+            'technician_id' => $this->technician->id,
+            'message' => 'Please bring extra teflon tape and wrench.',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('messages', [
+            'sender_id' => $this->customer->id,
+            'receiver_id' => $this->technician->user_id,
+            'message' => 'Please bring extra teflon tape and wrench.',
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->technician->user_id,
+            'type' => 'chat_message',
+        ]);
+    }
+
+    public function test_customer_can_update_notification_preferences(): void
+    {
+        $response = $this->actingAs($this->customer)->post(route('customer.settings.notifications'), [
+            'sms_alerts' => '1',
+            'whatsapp_alerts' => '1',
+            'email_receipts' => '1',
+            'booking_updates' => '1',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->customer->refresh();
+        $this->assertTrue($this->customer->getNotificationPref('sms_alerts'));
+        $this->assertTrue($this->customer->getNotificationPref('whatsapp_alerts'));
+    }
+
+    public function test_customer_can_mark_notifications_as_read(): void
+    {
+        \App\Models\Notification::sendToUser(
+            $this->customer->id,
+            'test_alert',
+            'Test Notification',
+            'Your service has arrived'
+        );
+
+        $this->assertEquals(1, $this->customer->notifications()->unread()->count());
+
+        $response = $this->actingAs($this->customer)->post(route('customer.notifications.read'));
+        $response->assertRedirect();
+
+        $this->assertEquals(0, $this->customer->notifications()->unread()->count());
+    }
 }
+

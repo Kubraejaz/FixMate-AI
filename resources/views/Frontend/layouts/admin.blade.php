@@ -914,6 +914,48 @@
         </form>
 
         <div class="adm-topbar-right">
+            @php
+                $adminNotifications = auth()->check() ? auth()->user()->notifications()->latest()->take(6)->get() : collect();
+                $adminUnreadCount = auth()->check() ? auth()->user()->notifications()->unread()->count() : 0;
+            @endphp
+            <div style="position: relative;" id="adminNotifContainer">
+                <button type="button" id="adminNotifBtn" style="background: #FFFFFF; border: 1.5px solid var(--adm-border); width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;" title="Platform Verification Alerts">
+                    <span style="font-size: 16px;">🔔</span>
+                    @if($adminUnreadCount > 0)
+                        <span style="position: absolute; top: -4px; right: -4px; background: var(--adm-danger); color: #FFF; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            {{ $adminUnreadCount }}
+                        </span>
+                    @endif
+                </button>
+
+                <div id="adminNotifPanel" style="display: none; position: absolute; right: 0; top: 48px; width: 360px; background: #FFFFFF; border: 1px solid var(--adm-border); border-radius: 14px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12); z-index: 1000; overflow: hidden;">
+                    <div style="padding: 12px 16px; background: var(--adm-ink); color: #FFF; display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="font-size: 13px;">Platform Alerts ({{ $adminUnreadCount }} New)</strong>
+                        <span style="font-size: 11px; color: var(--adm-accent);">Verified KYC & Bookings</span>
+                    </div>
+                    <div style="max-height: 320px; overflow-y: auto;">
+                        @forelse($adminNotifications as $an)
+                            <a href="{{ $an->link ?: url('/admin/technicians/verification') }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid var(--adm-border-soft); background: {{ $an->is_read ? '#FFF' : '#FFFDF0' }};">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                                    <strong style="font-size: 12.5px; color: var(--adm-ink);">{{ $an->title }}</strong>
+                                    <span style="font-size: 10px; color: var(--adm-faint);">{{ $an->created_at->diffForHumans(null, true) }}</span>
+                                </div>
+                                <p style="font-size: 12px; color: var(--adm-body); margin: 0; line-height: 1.4;">{{ $an->message }}</p>
+                            </a>
+                        @empty
+                            <div style="padding: 24px; text-align: center; color: var(--adm-muted); font-size: 12.5px;">
+                                ✨ All verification queues clear
+                            </div>
+                        @endforelse
+                    </div>
+                    <div style="padding: 10px 16px; background: var(--adm-bg); border-top: 1px solid var(--adm-border); text-align: center;">
+                        <a href="{{ route('admin.technicians.verification') }}" style="font-size: 12px; font-weight: 700; color: var(--adm-ink); text-decoration: none;">
+                            Go to KYC Verification Pipeline →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <span class="adm-health">
                 <span class="dot"></span>
                 Systems Online
@@ -1147,6 +1189,21 @@
                 toast.style.opacity = '0';
                 toast.style.pointerEvents = 'none';
             }, 3000);
+        }
+
+        // Admin Notification Dropdown
+        var adminNotifBtn = document.getElementById('adminNotifBtn');
+        var adminNotifPanel = document.getElementById('adminNotifPanel');
+        if (adminNotifBtn && adminNotifPanel) {
+            adminNotifBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                adminNotifPanel.style.display = adminNotifPanel.style.display === 'block' ? 'none' : 'block';
+            });
+            document.addEventListener('click', function(e) {
+                if (!adminNotifPanel.contains(e.target) && e.target !== adminNotifBtn) {
+                    adminNotifPanel.style.display = 'none';
+                }
+            });
         }
 
         document.addEventListener('keydown', function (e) {

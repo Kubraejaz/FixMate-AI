@@ -3,12 +3,12 @@
 @section('title', 'Direct Messages & Technician Chat — FixMate AI')
 
 @section('content')
-<div style="height: 660px; display: grid; grid-template-columns: 300px 1fr; background: #FFFFFF; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+<div style="height: 680px; display: grid; grid-template-columns: 300px 1fr; background: #FFFFFF; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
     
     <!-- Left Conversation List -->
     <div style="border-right: 1px solid var(--border-color); display: flex; flex-direction: column; background: #FFFFFF;">
         <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
-            <strong style="font-size: 16px; color: #111; display: block; margin-bottom: 8px;">Technician Chats ({{ $assignedTechnicians->count() }})</strong>
+            <strong style="font-size: 15px; color: #111; display: block; margin-bottom: 8px;">Technician Chats ({{ $assignedTechnicians->count() }})</strong>
             <form action="{{ route('customer.messages') }}" method="GET">
                 <input type="text" name="q" placeholder="Filter conversations..." value="{{ request('q') }}" class="form-input" style="padding: 7px 10px; font-size: 12.5px;">
             </form>
@@ -43,6 +43,14 @@
     <div style="display: flex; flex-direction: column; background: #FAFAFA;">
         
         @if($selectedTech)
+            @php
+                $rawPhone = $selectedTech->phone ?: '03001234567';
+                $waPhone = preg_replace('/[^0-9]/', '', $rawPhone);
+                if (str_starts_with($waPhone, '0')) {
+                    $waPhone = '92' . substr($waPhone, 1);
+                }
+            @endphp
+
             <!-- Chat Header -->
             <div style="padding: 14px 20px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 12px;">
@@ -50,26 +58,34 @@
                     <div>
                         <strong style="font-size: 14px; color: #111; display: block;">{{ $selectedTech->name }}</strong>
                         <span style="font-size: 11px; color: #047857; font-weight: 700;">
-                            ● Active Verified • {{ $selectedTech->profession->name ?? 'Technician' }}
+                            ● Active Verified • {{ $selectedTech->profession->name ?? 'Technician' }} • {{ $rawPhone }}
                         </span>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 8px;">
-                    <a href="tel:{{ $selectedTech->phone ?? '03001234567' }}" class="btn-outline" style="padding: 6px 14px; font-size: 12px; text-decoration: none; border-radius: 6px;">📞 Call</a>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <!-- Interactive Call Button Trigger -->
+                    <button type="button" id="openCallModalBtn" class="btn-outline" style="padding: 7px 14px; font-size: 12.5px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 700;">
+                        <span>📞</span> <span>Call Technician</span>
+                    </button>
+
                     @if($activeBooking)
-                        <a href="{{ route('customer.booking.tracking', $activeBooking->id) }}" class="btn-yellow" style="padding: 6px 14px; font-size: 12px; text-decoration: none; border-radius: 6px;">📍 Live Route</a>
+                        <a href="{{ route('customer.booking.tracking', $activeBooking->id) }}" class="btn-yellow" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; border-radius: 8px; font-weight: 700;">
+                            📍 Live Route
+                        </a>
                     @else
-                        <a href="{{ route('customer.booking', ['tech_id' => $selectedTech->id]) }}" class="btn-yellow" style="padding: 6px 14px; font-size: 12px; text-decoration: none; border-radius: 6px;">Book Service</a>
+                        <a href="{{ route('customer.booking', ['tech_id' => $selectedTech->id]) }}" class="btn-yellow" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; border-radius: 8px; font-weight: 700;">
+                            Book Service
+                        </a>
                     @endif
                 </div>
             </div>
 
             <!-- Chat Stream -->
-            <div style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;">
+            <div id="chatMessageStream" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;">
                 
                 <!-- Welcome Handshake Bubble -->
-                <div style="display: flex; gap: 10px; max-width: 75%;">
+                <div style="display: flex; gap: 10px; max-width: 80%; align-self: flex-start;">
                     <div style="background: #FFFFFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 14px 14px 14px 2px; font-size: 13.5px; color: #111; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                         Assalam o Alaikum <strong>{{ $user->name }}</strong>! I am {{ $selectedTech->name }} ({{ $selectedTech->profession->name ?? 'Professional' }}). Let me know if you need specific spare parts or have directions to your gate/address.
                         <span style="display: block; font-size: 10px; color: #888; margin-top: 4px; text-align: right;">FixMate Verified Handshake</span>
@@ -78,13 +94,26 @@
 
                 @if($activeBooking)
                     <!-- Active Booking Context Bubble -->
-                    <div style="display: flex; gap: 10px; max-width: 75%;">
-                        <div style="background: #FFFDF0; border: 1px solid #FEF08A; padding: 12px 16px; border-radius: 14px 14px 14px 2px; font-size: 13.5px; color: #92400E; line-height: 1.5;">
+                    <div style="display: flex; gap: 10px; max-width: 80%; align-self: flex-start;">
+                        <div style="background: #FFFDF0; border: 1px solid #FEF08A; padding: 12px 16px; border-radius: 14px 14px 14px 2px; font-size: 13px; color: #92400E; line-height: 1.5;">
                             📌 Regarding Booking <strong>#{{ $activeBooking->booking_number }}</strong> ({{ $activeBooking->service_title }}): Scheduled for {{ $activeBooking->service_date ? $activeBooking->service_date->format('M d, Y') : 'Today' }} • {{ $activeBooking->service_time_slot }}.
-                            <span style="display: block; font-size: 11px; margin-top: 4px;">Status: <strong>{{ $activeBooking->status_label }}</strong></span>
+                            <span style="display: block; font-size: 11px; margin-top: 4px;">Arrival OTP: <strong>{{ $activeBooking->arrival_otp }}</strong></span>
                         </div>
                     </div>
                 @endif
+
+                <!-- Dynamic Chat Conversation from Database -->
+                @foreach($chatMessages as $msg)
+                    @php $isMine = $msg->sender_id === auth()->id(); @endphp
+                    <div style="display: flex; gap: 10px; max-width: 75%; align-self: {{ $isMine ? 'flex-end' : 'flex-start' }};">
+                        <div style="background: {{ $isMine ? '#FFB800' : '#FFFFFF' }}; color: #0F172A; border: {{ $isMine ? 'none' : '1px solid var(--border-color)' }}; padding: 10px 14px; border-radius: {{ $isMine ? '14px 14px 2px 14px' : '14px 14px 14px 2px' }}; font-size: 13.5px; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <p style="margin: 0; white-space: pre-wrap;">{{ $msg->message }}</p>
+                            <span style="display: block; font-size: 10px; color: {{ $isMine ? '#78350F' : '#94A3B8' }}; margin-top: 4px; text-align: right;">
+                                {{ $msg->created_at->format('h:i A') }} • {{ $isMine ? 'Sent' : $selectedTech->name }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
 
             </div>
 
@@ -92,11 +121,56 @@
             <form action="{{ route('customer.messages.send') }}" method="POST" style="padding: 14px 20px; background: #FFFFFF; border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center;">
                 @csrf
                 <input type="hidden" name="technician_id" value="{{ $selectedTech->id }}">
-                <input type="text" name="message" placeholder="Type a message to {{ $selectedTech->name }}..." class="form-input" required style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
+                @if($activeBooking)
+                    <input type="hidden" name="booking_id" value="{{ $activeBooking->id }}">
+                @endif
+                <input type="text" name="message" id="messageInput" placeholder="Type a message to {{ $selectedTech->name }}..." class="form-input" required autocomplete="off" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
                 <button type="submit" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer; border-radius: 8px;">
                     Send
                 </button>
             </form>
+
+            <!-- Call & Contact Modal -->
+            <div id="callModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+                <div style="background: #FFFFFF; border-radius: 16px; width: 90%; max-width: 420px; padding: 26px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; text-align: center;">
+                    
+                    <button type="button" id="closeCallModalBtn" style="position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 18px; color: #94A3B8; cursor: pointer;">✕</button>
+
+                    <img src="{{ asset($selectedTech->profile_image ?: 'assets/images/image_1.png') }}" alt="{{ $selectedTech->name }}" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid #FFB800; margin: 0 auto 12px auto; display: block;">
+                    
+                    <h3 style="font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 2px;">{{ $selectedTech->name }}</h3>
+                    <p style="font-size: 13px; color: #64748B; margin: 0 0 16px 0;">{{ $selectedTech->profession->name ?? 'Technician' }} • FixMate Verified</p>
+
+                    <!-- Phone Number Display Card -->
+                    <div style="background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 14px; margin-bottom: 20px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700; display: block; margin-bottom: 4px;">Direct Contact Number</span>
+                        <strong id="displayPhoneNum" style="font-size: 20px; font-weight: 900; color: #0F172A; letter-spacing: 0.5px; display: block;">{{ $rawPhone }}</strong>
+                    </div>
+
+                    <!-- Action Grid -->
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Copy Button -->
+                        <button type="button" id="copyPhoneBtn" class="btn-outline" style="width: 100%; padding: 11px 0; font-size: 13.5px; font-weight: 700; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span id="copyIcon">📋</span> <span id="copyText">Copy Phone Number</span>
+                        </button>
+
+                        <!-- WhatsApp Direct Link -->
+                        <a href="https://wa.me/{{ $waPhone }}?text={{ urlencode('Hello ' . $selectedTech->name . ', I am contacting you regarding my FixMate service booking.') }}" target="_blank" rel="noopener noreferrer" style="background: #25D366; color: #FFFFFF; font-weight: 800; font-size: 13.5px; padding: 11px 0; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>💬</span> <span>Open in WhatsApp</span>
+                        </a>
+
+                        <!-- Direct Phone Dialer -->
+                        <a href="tel:{{ $rawPhone }}" style="background: #0F172A; color: #FFFFFF; font-weight: 800; font-size: 13.5px; padding: 11px 0; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>📞</span> <span>Dial via Phone App</span>
+                        </a>
+                    </div>
+
+                    <p style="font-size: 11px; color: #94A3B8; margin: 16px 0 0 0;">
+                        Calls may be monitored by FixMate Quality Arbitration for customer safety.
+                    </p>
+                </div>
+            </div>
+
         @else
             <div style="flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #888; padding: 32px;">
                 <span style="font-size: 40px; margin-bottom: 12px;">✉️</span>
@@ -108,4 +182,60 @@
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Scroll chat to bottom
+    const stream = document.getElementById('chatMessageStream');
+    if (stream) {
+        stream.scrollTop = stream.scrollHeight;
+    }
+
+    // 2. Call Modal triggers
+    const openBtn = document.getElementById('openCallModalBtn');
+    const closeBtn = document.getElementById('closeCallModalBtn');
+    const modal = document.getElementById('callModal');
+    const copyBtn = document.getElementById('copyPhoneBtn');
+    const phoneNum = "{{ $selectedTech->phone ?? '03001234567' }}";
+
+    if (openBtn && modal) {
+        openBtn.addEventListener('click', function() {
+            modal.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            navigator.clipboard.writeText(phoneNum).then(function() {
+                const icon = document.getElementById('copyIcon');
+                const text = document.getElementById('copyText');
+                icon.textContent = '✓';
+                text.textContent = 'Copied to Clipboard!';
+                copyBtn.style.background = '#ECFDF5';
+                copyBtn.style.borderColor = '#10B981';
+                copyBtn.style.color = '#047857';
+                setTimeout(function() {
+                    icon.textContent = '📋';
+                    text.textContent = 'Copy Phone Number';
+                    copyBtn.style.background = '';
+                    copyBtn.style.borderColor = '';
+                    copyBtn.style.color = '';
+                }, 2500);
+            }).catch(function() {
+                alert('Phone number: ' + phoneNum);
+            });
+        });
+    }
+});
+</script>
 @endsection

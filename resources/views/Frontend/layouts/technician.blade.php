@@ -52,12 +52,54 @@
                     <strong style="display: block; font-size: 15px; color: #111;">Rs. 12,490</strong>
                 </div>
 
+                <!-- Notification Bell -->
+                @php
+                    $techNotifications = auth()->check() ? auth()->user()->notifications()->latest()->take(6)->get() : collect();
+                    $techUnreadCount = auth()->check() ? auth()->user()->notifications()->unread()->count() : 0;
+                @endphp
+                <div style="position: relative;" id="techNotifContainer">
+                    <button type="button" id="techNotifBtn" class="btn-outline" style="padding: 7px 11px; position: relative; border-radius: 8px; cursor: pointer;" title="Job & KYC Notifications">
+                        <span>🔔</span>
+                        @if($techUnreadCount > 0)
+                            <span style="position: absolute; top: -4px; right: -4px; width: 17px; height: 17px; border-radius: 50%; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                                {{ $techUnreadCount }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <div id="techNotifPanel" style="display: none; position: absolute; right: 0; top: 44px; width: 340px; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden;">
+                        <div style="padding: 12px 16px; background: #111827; color: #FFF; display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="font-size: 13px;">Pro Alerts ({{ $techUnreadCount }} Unread)</strong>
+                            <span style="font-size: 11px; color: #FFB800;">FixMate Dispatch</span>
+                        </div>
+                        <div style="max-height: 280px; overflow-y: auto;">
+                            @forelse($techNotifications as $tn)
+                                <a href="{{ $tn->link ?: url('/technician/jobs') }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid #F1F5F9; background: {{ $tn->is_read ? '#FFF' : '#FFFDF0' }};">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                        <strong style="font-size: 12.5px; color: #111;">{{ $tn->title }}</strong>
+                                        <span style="font-size: 10px; color: #94A3B8;">{{ $tn->created_at->diffForHumans(null, true) }}</span>
+                                    </div>
+                                    <p style="font-size: 12px; color: #555; margin: 0; line-height: 1.4;">{{ $tn->message }}</p>
+                                </a>
+                            @empty
+                                <div style="padding: 22px; text-align: center; color: #888; font-size: 12.5px;">
+                                    <span>✨</span>
+                                    <p style="margin: 4px 0 0 0;">No new job or KYC alerts</p>
+                                </div>
+                            @endforelse
+                        </div>
+                        <div style="padding: 8px 16px; background: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
+                            <a href="{{ url('/technician/verification') }}" style="font-size: 11.5px; color: #475569; text-decoration: none; font-weight: 700;">🛡️ Check KYC Verification Status</a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Profile Avatar (Using user's image_1.png) -->
-                <a href="{{ url('/technician/profile') }}" style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--border-color); padding-left: 14px;">
-                    <img src="{{ asset('assets/images/image_1.png') }}" alt="Ali Khan" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
+                <a href="{{ url('/technician/profile') }}" style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--border-color); padding-left: 14px; text-decoration: none;">
+                    <img src="{{ asset(auth()->user()->profile_image ?: 'assets/images/image_1.png') }}" alt="{{ auth()->user()->name ?? 'Pro' }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
                     <div>
-                        <strong style="font-size: 13px; color: #111; display: block;">Ali Khan</strong>
-                        <span style="font-size: 11px; color: #757575;">Plumber • 4.8 ★</span>
+                        <strong style="font-size: 13px; color: #111; display: block;">{{ auth()->user()->name ?? 'Technician Pro' }}</strong>
+                        <span style="font-size: 11px; color: #757575;">{{ auth()->user()->is_verified ? 'Verified Pro ★ 4.9' : 'Under Review' }}</span>
                     </div>
                 </a>
             </div>
@@ -129,6 +171,21 @@
     </div>
 
     <script>
+        // Technician Notification Dropdown
+        var techNotifBtn = document.getElementById('techNotifBtn');
+        var techNotifPanel = document.getElementById('techNotifPanel');
+        if (techNotifBtn && techNotifPanel) {
+            techNotifBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                techNotifPanel.style.display = techNotifPanel.style.display === 'block' ? 'none' : 'block';
+            });
+            document.addEventListener('click', function(e) {
+                if (!techNotifPanel.contains(e.target) && e.target !== techNotifBtn) {
+                    techNotifPanel.style.display = 'none';
+                }
+            });
+        }
+
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('fmToast');
             document.getElementById('fmToastMsg').textContent = msg;

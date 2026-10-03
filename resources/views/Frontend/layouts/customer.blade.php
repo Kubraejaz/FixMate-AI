@@ -45,6 +45,54 @@
                     <span>+ Describe Problem</span>
                 </a>
 
+                <!-- Notifications Bell with live unread badge -->
+                @php
+                    $unreadNotifications = auth()->check() ? auth()->user()->notifications()->latest()->take(6)->get() : collect();
+                    $unreadNotificationsCount = auth()->check() ? auth()->user()->notifications()->unread()->count() : 0;
+                @endphp
+                <div style="position: relative;" id="custNotifContainer">
+                    <button type="button" id="custNotifBtn" class="btn-outline" style="padding: 8px 12px; position: relative; border-radius: 8px; cursor: pointer;" title="Notifications">
+                        <span>🔔</span>
+                        @if($unreadNotificationsCount > 0)
+                            <span style="position: absolute; top: -4px; right: -4px; width: 17px; height: 17px; border-radius: 50%; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                                {{ $unreadNotificationsCount }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <!-- Notification Dropdown Panel -->
+                    <div id="custNotifPanel" style="display: none; position: absolute; right: 0; top: 46px; width: 340px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden;">
+                        <div style="padding: 12px 16px; background: #0F172A; color: #FFF; display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="font-size: 13px;">Notifications ({{ $unreadNotificationsCount }} unread)</strong>
+                            <form action="{{ route('customer.notifications.read') }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <button type="submit" style="background: none; border: none; color: #FFB800; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: underline;">
+                                    Mark all read
+                                </button>
+                            </form>
+                        </div>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            @forelse($unreadNotifications as $n)
+                                <a href="{{ $n->link ?: '#' }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid #F1F5F9; background: {{ $n->is_read ? '#FFFFFF' : '#FFFDF0' }};">
+                                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+                                        <strong style="font-size: 12.5px; color: #0F172A;">{{ $n->title }}</strong>
+                                        <span style="font-size: 10px; color: #94A3B8;">{{ $n->created_at->diffForHumans(null, true) }}</span>
+                                    </div>
+                                    <p style="font-size: 12px; color: #475569; margin: 0; line-height: 1.4;">{{ $n->message }}</p>
+                                </a>
+                            @empty
+                                <div style="padding: 24px; text-align: center; color: #94A3B8; font-size: 12.5px;">
+                                    <span>✨</span>
+                                    <p style="margin: 6px 0 0 0;">No notifications right now</p>
+                                </div>
+                            @endforelse
+                        </div>
+                        <div style="padding: 8px 16px; background: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
+                            <a href="{{ route('customer.settings') }}" style="font-size: 11.5px; color: #475569; text-decoration: none; font-weight: 700;">⚙️ Notification Settings</a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Messages -->
                 <a href="{{ route('customer.messages') }}" class="btn-outline" style="padding: 8px 12px; position: relative; text-decoration: none;" title="Messages">
                     <span>💬</span>
@@ -94,6 +142,9 @@
                 <a href="{{ route('customer.bookings') }}" class="portal-nav-link {{ Request::is('customer/bookings*') || Request::is('customer/booking*') ? 'active' : '' }}">
                     <span>📅</span> <span>My Bookings</span>
                 </a>
+                <a href="{{ route('customer.payment') }}" class="portal-nav-link {{ Request::is('customer/payment*') ? 'active' : '' }}">
+                    <span>💳</span> <span>Escrow & Payments</span>
+                </a>
                 <a href="{{ route('customer.tracking') }}" class="portal-nav-link {{ Request::is('*tracking*') ? 'active' : '' }}">
                     <span>📍</span> <span>Live Tracking</span>
                 </a>
@@ -140,6 +191,21 @@
     </div>
 
     <script>
+        // Notification dropdown toggle
+        const notifBtn = document.getElementById('custNotifBtn');
+        const notifPanel = document.getElementById('custNotifPanel');
+        if (notifBtn && notifPanel) {
+            notifBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notifPanel.style.display = notifPanel.style.display === 'block' ? 'none' : 'block';
+            });
+            document.addEventListener('click', function(e) {
+                if (!notifPanel.contains(e.target) && e.target !== notifBtn) {
+                    notifPanel.style.display = 'none';
+                }
+            });
+        }
+
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('fmToast');
             document.getElementById('fmToastMsg').textContent = msg;

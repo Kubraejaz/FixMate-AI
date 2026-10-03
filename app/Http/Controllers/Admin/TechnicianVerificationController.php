@@ -70,6 +70,7 @@ class TechnicianVerificationController extends Controller
         ]);
 
         // If a linked user or professional exists with matching phone/email, mark verified
+        $techUserId = $application->user_id;
         if ($application->user_id) {
             User::where('id', $application->user_id)->update(['is_verified' => true]);
             Professional::where('user_id', $application->user_id)->update(['is_verified' => true]);
@@ -82,8 +83,26 @@ class TechnicianVerificationController extends Controller
                 $matchedUser->update(['is_verified' => true]);
                 Professional::where('user_id', $matchedUser->id)->update(['is_verified' => true]);
                 $application->update(['user_id' => $matchedUser->id]);
+                $techUserId = $matchedUser->id;
             }
         }
+
+        if ($techUserId) {
+            \App\Models\Notification::sendToUser(
+                $techUserId,
+                'kyc_approved',
+                'Technician Credentials Approved! 🎉',
+                "Congratulations {$application->name}! Your FixMate technician profile is officially verified. You can now accept customer jobs and receive payouts.",
+                route('technician.dashboard')
+            );
+        }
+
+        \App\Models\Notification::notifyAdmins(
+            'kyc_approved_admin',
+            'Technician Approved: ' . $application->name,
+            "Application #{$application->reference_no} verified by " . (auth()->user()?->name ?? 'Admin'),
+            route('admin.technicians.verification')
+        );
 
         return redirect()->route('admin.technicians.verification')
             ->with('success', "Technician {$application->name} (#{$application->reference_no}) approved as verified partner!");
@@ -103,6 +122,31 @@ class TechnicianVerificationController extends Controller
             'admin_notes' => $request->input('reason'),
             'reviewed_at' => now(),
         ]);
+
+        $techUserId = $application->user_id;
+        if (! $techUserId) {
+            $matchedUser = User::where('email', $application->email)
+                ->orWhere('phone', $application->phone)
+                ->first();
+            $techUserId = $matchedUser?->id;
+        }
+
+        if ($techUserId) {
+            \App\Models\Notification::sendToUser(
+                $techUserId,
+                'kyc_rejected',
+                'Verification Status Update',
+                "Your application #{$application->reference_no} requires revision: " . $request->input('reason'),
+                route('technician.profile')
+            );
+        }
+
+        \App\Models\Notification::notifyAdmins(
+            'kyc_rejected_admin',
+            'Technician Rejected: ' . $application->name,
+            "Application #{$application->reference_no} rejected: " . $request->input('reason'),
+            route('admin.technicians.verification')
+        );
 
         return redirect()->route('admin.technicians.verification')
             ->with('success', "Application #{$application->reference_no} rejected with recorded justification.");

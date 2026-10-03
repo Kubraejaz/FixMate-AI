@@ -149,7 +149,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
 
     // AI Problem Diagnosis Scanner Flow
     Route::get('/diagnose', [CustomerPortalController::class, 'diagnose'])->name('diagnose');
-    Route::get('/ai-result', [CustomerPortalController::class, 'aiResult'])->name('ai-result');
+    Route::match(['get', 'post'], '/ai-result', [CustomerPortalController::class, 'aiResult'])->name('ai-result');
 
     // Recommended Technicians & Booking Flow
     Route::get('/technicians', [CustomerPortalController::class, 'technicians'])->name('technicians');
@@ -185,11 +185,13 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::get('/complaints', [CustomerPortalController::class, 'complaints'])->name('complaints');
     Route::post('/complaints', [CustomerPortalController::class, 'storeComplaint'])->name('complaints.store');
 
-    // Profile & Settings
+    // Profile, Settings & Notifications
     Route::get('/profile', [CustomerPortalController::class, 'profile'])->name('profile');
     Route::post('/profile', [CustomerPortalController::class, 'updateProfile'])->name('profile.update');
     Route::get('/settings', [CustomerPortalController::class, 'settings'])->name('settings');
     Route::post('/settings/password', [CustomerPortalController::class, 'updatePassword'])->name('password.update');
+    Route::post('/settings/notifications', [CustomerPortalController::class, 'updateNotificationSettings'])->name('settings.notifications');
+    Route::post('/notifications/read', [CustomerPortalController::class, 'markNotificationsRead'])->name('notifications.read');
 
 });
 

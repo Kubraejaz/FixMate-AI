@@ -42,6 +42,7 @@ class User extends Authenticatable
         'is_active',
         'city',
         'area',
+        'notification_settings',
         'contact_verified_at',
         'last_login_at',
     ];
@@ -74,6 +75,7 @@ class User extends Authenticatable
             'otp_expires_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'notification_settings' => 'array',
         ];
     }
 
@@ -140,5 +142,32 @@ class User extends Authenticatable
     public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function notifications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function sentMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function getNotificationPref(string $key, bool $default = true): bool
+    {
+        $prefs = $this->notification_settings ?? [
+            'sms' => true,
+            'whatsapp' => true,
+            'email' => true,
+            'push' => true,
+        ];
+
+        return (bool) ($prefs[$key] ?? $default);
     }
 }

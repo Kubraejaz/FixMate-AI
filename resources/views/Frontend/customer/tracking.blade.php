@@ -157,8 +157,12 @@
                             <strong style="display: block; font-size: 16px; color: #111;">{{ $booking->professional?->name ?? 'FixMate Dedicated Pro' }}</strong>
                             <span style="font-size: 12.5px; color: #666; display: block; margin-bottom: 4px;">{{ $booking->profession?->name ?? 'Technician' }} • ★ {{ number_format($booking->professional?->rating ?? 4.9, 1) }}</span>
                             <div style="display: flex; gap: 8px;">
-                                <a href="tel:{{ $booking->professional?->phone ?? '03001234567' }}" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; border-radius: 6px; text-decoration: none;">📞 Call</a>
-                                <a href="{{ route('customer.messages') }}" class="btn-yellow" style="padding: 5px 14px; font-size: 11.5px; border-radius: 6px; text-decoration: none;">💬 Chat</a>
+                                <button type="button" onclick="document.getElementById('trackCallModal').style.display='flex';" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
+                                    📞 Call
+                                </button>
+                                <a href="{{ route('customer.messages', ['tech_id' => $booking->professional_id]) }}" class="btn-yellow" style="padding: 5px 14px; font-size: 11.5px; border-radius: 6px; text-decoration: none; font-weight: 700;">
+                                    💬 Chat
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -170,6 +174,42 @@
                         <span style="font-size: 10.5px; color: #777;">Provide this 4-digit code ONLY when the technician arrives at your door</span>
                     </div>
 
+                </div>
+
+                <!-- Call Modal -->
+                @php
+                    $techPhone = $booking->professional?->phone ?: '03001234567';
+                    $waTechPhone = preg_replace('/[^0-9]/', '', $techPhone);
+                    if (str_starts_with($waTechPhone, '0')) {
+                        $waTechPhone = '92' . substr($waTechPhone, 1);
+                    }
+                @endphp
+                <div id="trackCallModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+                    <div style="background: #FFFFFF; border-radius: 16px; width: 90%; max-width: 400px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; text-align: center;">
+                        <button type="button" onclick="document.getElementById('trackCallModal').style.display='none';" style="position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 18px; color: #94A3B8; cursor: pointer;">✕</button>
+
+                        <img src="{{ asset($booking->professional?->profile_image ?: 'assets/images/image_1.png') }}" alt="{{ $booking->professional?->name ?? 'Pro' }}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #FFB800; margin: 0 auto 10px auto; display: block;">
+                        
+                        <h3 style="font-size: 17px; font-weight: 900; color: #0F172A; margin-bottom: 2px;">{{ $booking->professional?->name ?? 'Dedicated Pro' }}</h3>
+                        <p style="font-size: 12.5px; color: #64748B; margin: 0 0 16px 0;">En-route for Booking #{{ $booking->booking_number }}</p>
+
+                        <div style="background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+                            <span style="font-size: 11px; text-transform: uppercase; color: #64748B; font-weight: 700; display: block; margin-bottom: 2px;">Technician Contact</span>
+                            <strong style="font-size: 19px; font-weight: 900; color: #0F172A;">{{ $techPhone }}</strong>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button type="button" onclick="navigator.clipboard.writeText('{{ $techPhone }}'); alert('Phone number copied to clipboard: {{ $techPhone }}');" class="btn-outline" style="width: 100%; padding: 10px 0; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer;">
+                                📋 Copy Phone Number
+                            </button>
+                            <a href="https://wa.me/{{ $waTechPhone }}?text={{ urlencode('Hello, I am waiting for you for FixMate booking #' . $booking->booking_number) }}" target="_blank" rel="noopener noreferrer" style="background: #25D366; color: #FFFFFF; font-weight: 800; font-size: 13px; padding: 10px 0; border-radius: 8px; text-decoration: none; display: block;">
+                                💬 WhatsApp Chat
+                            </a>
+                            <a href="tel:{{ $techPhone }}" style="background: #0F172A; color: #FFFFFF; font-weight: 800; font-size: 13px; padding: 10px 0; border-radius: 8px; text-decoration: none; display: block;">
+                                📞 Call on Phone
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
             </div>

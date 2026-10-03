@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\CommunityIssue;
 use App\Models\ContactInquiry;
+use App\Models\Message;
+use App\Models\Notification;
 use App\Models\Profession;
 use App\Models\Professional;
 use App\Models\Review;
@@ -139,11 +141,23 @@ class CustomerPortalController extends Controller
 
         $baseRate = $profession?->base_price ?? 750;
         $costEstimate = [
-            'min' => $baseRate + 450,
-            'max' => $baseRate + 1200,
+            'min' => $baseRate,
+            'max' => $baseRate + 850,
+            'avg' => $baseRate + 400,
         ];
 
-        return view('Frontend.customer.ai-result', compact('profession', 'matchedDefect', 'costEstimate', 'problemQuery'));
+        $uploadedImage = null;
+        if ($request->hasFile('defect_photo')) {
+            $file = $request->file('defect_photo');
+            $fileName = 'ai_scan_' . time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/images'), $fileName);
+            $uploadedImage = 'assets/images/' . $fileName;
+            session(['last_ai_photo' => $uploadedImage]);
+        } elseif (session('last_ai_photo')) {
+            $uploadedImage = session('last_ai_photo');
+        }
+
+        return view('Frontend.customer.ai-result', compact('profession', 'matchedDefect', 'costEstimate', 'problemQuery', 'uploadedImage'));
     }
 
     /**
@@ -254,6 +268,31 @@ class CustomerPortalController extends Controller
             'payment_status' => 'escrow_held',
             'payment_method' => 'escrow',
         ]);
+
+        Notification::sendToUser(
+            $booking->user_id,
+            'booking_created',
+            "Booking #{$booking->booking_number} Confirmed!",
+            "Your repair has been booked for {$booking->service_date->format('M d')}. Your Arrival OTP is {$arrivalOtp}.",
+            route('customer.booking.confirm', $booking->id)
+        );
+
+        if ($booking->professional && $booking->professional->user_id) {
+            Notification::sendToUser(
+                $booking->professional->user_id,
+                'booking_assigned',
+                "New Booking Assigned: #{$booking->booking_number}",
+                "Customer booked {$booking->service_title} in {$booking->city}.",
+                route('technician.dashboard')
+            );
+        }
+
+        Notification::notifyAdmins(
+            'booking_dispatched',
+            "New Booking: #{$booking->booking_number}",
+            "Booking for {$profession->name} in {$booking->city} created by " . auth()->user()->name,
+            route('admin.bookings')
+        );
 
         return redirect()->route('customer.booking.confirm', $booking->id)
             ->with('success', "Booking #{$booking->booking_number} created successfully! Your arrival OTP is {$arrivalOtp}.");
@@ -551,7 +590,19 @@ class CustomerPortalController extends Controller
                 ->first()
             : null;
 
-        return view('Frontend.customer.messages', compact('user', 'assignedTechnicians', 'selectedTech', 'activeBooking'));
+        // Fetch real chat conversation
+        $chatMessages = collect();
+        if ($selectedTech) {
+            $chatMessages = Message::where(function ($q) use ($user, $selectedTech) {
+                $q->where('sender_id', $user->id)
+                  ->where('professional_id', $selectedTech->id);
+            })->orWhere(function ($q) use ($user, $selectedTech) {
+                $q->where('receiver_id', $user->id)
+                  ->where('professional_id', $selectedTech->id);
+            })->oldest()->get();
+        }
+
+        return view('Frontend.customer.messages', compact('user', 'assignedTechnicians', 'selectedTech', 'activeBooking', 'chatMessages'));
     }
 
     /**
@@ -559,12 +610,71 @@ class CustomerPortalController extends Controller
      */
     public function sendMessage(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'technician_id' => ['required', 'exists:professionals,id'],
             'message' => ['required', 'string', 'max:1000'],
+            'booking_id' => ['nullable', 'exists:bookings,id'],
         ]);
 
+        $professional = Professional::findOrFail($validated['technician_id']);
+        $receiverUserId = $professional->user_id;
+
+        Message::create([
+            'sender_id' => auth()->id(),
+            'receiver_id' => $receiverUserId,
+            'professional_id' => $professional->id,
+            'booking_id' => $validated['booking_id'] ?? null,
+            'message' => trim($validated['message']),
+            'is_read' => false,
+        ]);
+
+        if ($receiverUserId) {
+            Notification::sendToUser(
+                $receiverUserId,
+                'chat_message',
+                'New Message from ' . auth()->user()->name,
+                Str::limit($validated['message'], 100),
+                route('technician.dashboard')
+            );
+        }
+
         return back()->with('success', 'Message dispatched to technician via SMS & App chat.');
+    }
+
+    /**
+     * Update customer notification channel preferences.
+     */
+    public function updateNotificationSettings(Request $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $user->update([
+            'notification_settings' => [
+                'booking_updates' => $request->boolean('booking_updates'),
+                'promotions' => $request->boolean('promotions'),
+                'sms_alerts' => $request->boolean('sms_alerts'),
+                'whatsapp_alerts' => $request->boolean('whatsapp_alerts'),
+                'email_receipts' => $request->boolean('email_receipts'),
+                'security_alerts' => true,
+            ],
+        ]);
+
+        return back()->with('success', 'Notification preferences saved successfully!');
+    }
+
+    /**
+     * Mark customer notifications as read.
+     */
+    public function markNotificationsRead(Request $request): \Illuminate\Http\JsonResponse|RedirectResponse
+    {
+        auth()->user()->notifications()->where('is_read', false)->update(['is_read' => true]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'All notifications marked as read.');
     }
 
     /**
@@ -590,7 +700,13 @@ class CustomerPortalController extends Controller
             $booking->load(['professional', 'profession']);
         }
 
-        return view('Frontend.customer.payment', compact('user', 'booking'));
+        $allBookings = $user->bookings()
+            ->with(['professional', 'profession'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('Frontend.customer.payment', compact('user', 'booking', 'allBookings'));
     }
 
     /**

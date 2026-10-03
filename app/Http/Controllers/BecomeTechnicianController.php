@@ -80,6 +80,23 @@ class BecomeTechnicianController extends Controller
             'user_id' => $request->user()?->id,
         ]);
 
+        \App\Models\Notification::notifyAdmins(
+            'technician_registered',
+            'New Technician KYC Registration: ' . $application->name,
+            "{$application->name} has submitted KYC documents for review (Ref: #{$ref}, City: {$application->city}).",
+            route('admin.technicians.verification')
+        );
+
+        if ($request->user()) {
+            \App\Models\Notification::sendToUser(
+                $request->user()->id,
+                'kyc_submitted',
+                'Technician Application Received! 📋',
+                "Your partner verification application #{$ref} is in queue for document & biometric inspection.",
+                route('technician.dashboard')
+            );
+        }
+
         return redirect()->route('become-technician')
             ->with('success_application', "Your technician partner application #{$ref} has been received! Our inspector team will contact you within 24 hours for skill & NADRA biometric scheduling.")
             ->with('app_ref', $ref);
