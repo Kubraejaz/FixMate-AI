@@ -160,9 +160,8 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::get('/booking', [CustomerPortalController::class, 'bookingForm'])->name('booking');
     Route::post('/booking', [CustomerPortalController::class, 'storeBooking'])->name('booking.store');
 
-    Route::get('/payment', function () {
-        return view('Frontend.customer.payment');
-    })->name('payment');
+    Route::get('/payment/{booking?}', [CustomerPortalController::class, 'payment'])->name('payment');
+    Route::post('/payment/{booking}', [CustomerPortalController::class, 'processPayment'])->name('payment.process');
 
     Route::get('/booking/{booking}/confirm', [CustomerPortalController::class, 'bookingConfirm'])->name('booking.confirm');
 
@@ -175,9 +174,8 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::post('/booking/{booking}/cancel', [CustomerPortalController::class, 'cancelBooking'])->name('booking.cancel');
 
     // Messages & Communication
-    Route::get('/messages', function () {
-        return view('Frontend.customer.messages');
-    })->name('messages');
+    Route::get('/messages', [CustomerPortalController::class, 'messages'])->name('messages');
+    Route::post('/messages', [CustomerPortalController::class, 'sendMessage'])->name('messages.send');
 
     // Ratings & Reviews
     Route::get('/reviews', [CustomerPortalController::class, 'reviews'])->name('reviews');

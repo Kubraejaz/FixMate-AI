@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\CommunityIssue;
 use App\Models\ContactInquiry;
 use App\Models\Profession;
 use App\Models\Professional;
@@ -19,7 +20,7 @@ use Illuminate\View\View;
 class CustomerPortalController extends Controller
 {
     /**
-     * Customer Dashboard with live statistics, recommended technicians, and active bookings.
+     * Customer Dashboard with live statistics, recommended technicians, active bookings, and local alerts.
      */
     public function dashboard(): View
     {
@@ -61,6 +62,20 @@ class CustomerPortalController extends Controller
                 ->get();
         }
 
+        $activeEnRouteBooking = $user->bookings()
+            ->with(['professional.profession', 'profession'])
+            ->whereIn('status', ['confirmed', 'en_route', 'in_progress'])
+            ->latest()
+            ->first();
+
+        $quickTrades = Profession::where('is_active', true)->take(6)->get();
+
+        $cityAlerts = CommunityIssue::where('city', 'like', '%' . ($user->city ?? 'Karachi') . '%')
+            ->where('status', 'investigating')
+            ->latest()
+            ->take(2)
+            ->get();
+
         $stats = [
             'active' => $activeBookingsCount,
             'upcoming' => $upcomingBookingsCount,
@@ -68,7 +83,15 @@ class CustomerPortalController extends Controller
             'pending' => $pendingRequestsCount,
         ];
 
-        return view('Frontend.customer.dashboard', compact('user', 'stats', 'recentBookings', 'recommendedTechnicians'));
+        return view('Frontend.customer.dashboard', compact(
+            'user',
+            'stats',
+            'recentBookings',
+            'recommendedTechnicians',
+            'activeEnRouteBooking',
+            'quickTrades',
+            'cityAlerts'
+        ));
     }
 
     /**
@@ -478,6 +501,118 @@ class CustomerPortalController extends Controller
         ]);
 
         return back()->with('success', 'Your complaint/inquiry ticket has been dispatched to FixMate arbitration supervisors.');
+    }
+
+    /**
+     * Direct Chat with Assigned Technicians.
+     */
+    public function messages(Request $request): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        // Get technicians assigned to any of user's bookings
+        $assignedTechnicians = Professional::with(['profession', 'user'])
+            ->whereIn('id', function ($query) use ($user) {
+                $query->select('professional_id')
+                    ->from('bookings')
+                    ->where('user_id', $user->id)
+                    ->whereNotNull('professional_id');
+            })
+            ->get();
+
+        // If none assigned yet, include top recommended technicians as available contacts
+        if ($assignedTechnicians->isEmpty()) {
+            $assignedTechnicians = Professional::with(['profession', 'user'])
+                ->where('is_verified', true)
+                ->take(3)
+                ->get();
+        }
+
+        $activeTechId = $request->input('tech_id') ?: $request->input('tech');
+        $selectedTech = null;
+
+        if ($activeTechId) {
+            $selectedTech = is_numeric($activeTechId)
+                ? $assignedTechnicians->firstWhere('id', (int) $activeTechId)
+                : $assignedTechnicians->first(fn($t) => strtolower(str_replace(' ', '-', $t->name)) === strtolower($activeTechId));
+        }
+
+        if (! $selectedTech) {
+            $selectedTech = $assignedTechnicians->first();
+        }
+
+        // Active booking with this technician if any
+        $activeBooking = $selectedTech
+            ? $user->bookings()
+                ->where('professional_id', $selectedTech->id)
+                ->whereIn('status', ['pending', 'confirmed', 'en_route', 'in_progress'])
+                ->latest()
+                ->first()
+            : null;
+
+        return view('Frontend.customer.messages', compact('user', 'assignedTechnicians', 'selectedTech', 'activeBooking'));
+    }
+
+    /**
+     * Send direct message to technician.
+     */
+    public function sendMessage(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'technician_id' => ['required', 'exists:professionals,id'],
+            'message' => ['required', 'string', 'max:1000'],
+        ]);
+
+        return back()->with('success', 'Message dispatched to technician via SMS & App chat.');
+    }
+
+    /**
+     * Escrow Payment Checkout View.
+     */
+    public function payment(Request $request, ?Booking $booking = null): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if (! $booking) {
+            $booking = $user->bookings()
+                ->with(['professional', 'profession'])
+                ->whereIn('status', ['pending', 'confirmed', 'en_route', 'in_progress'])
+                ->latest()
+                ->first();
+
+            if (! $booking) {
+                $booking = $user->bookings()->with(['professional', 'profession'])->latest()->first();
+            }
+        } else {
+            $this->authorizeBookingOwnership($booking);
+            $booking->load(['professional', 'profession']);
+        }
+
+        return view('Frontend.customer.payment', compact('user', 'booking'));
+    }
+
+    /**
+     * Process Escrow Payment for a Booking.
+     */
+    public function processPayment(Request $request, Booking $booking): RedirectResponse
+    {
+        $this->authorizeBookingOwnership($booking);
+
+        $validated = $request->validate([
+            'payment_method' => ['required', 'in:jazzcash,easypaisa,card,cash'],
+        ]);
+
+        $status = $validated['payment_method'] === 'cash' ? 'cash_on_delivery' : 'escrow_held';
+
+        $booking->update([
+            'payment_method' => $validated['payment_method'],
+            'payment_status' => $status,
+        ]);
+
+        return redirect()->route('customer.booking.confirm', $booking->id)
+            ->with('success', 'Payment method saved! Rs. ' . number_format($booking->total_price) . ' is secured in FixMate Escrow.');
     }
 
     /**

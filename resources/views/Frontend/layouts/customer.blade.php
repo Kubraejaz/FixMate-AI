@@ -29,26 +29,33 @@
             </a>
 
             <!-- Header Search Bar (Per User Requirement) -->
-            <form action="{{ url('/customer/technicians') }}" method="GET" class="header-search-box">
+            <form action="{{ route('customer.technicians') }}" method="GET" class="header-search-box">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2.2">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" name="q" placeholder="Search my bookings or find pro..." value="{{ request('q') }}">
-                <span style="font-size: 10px; background: #E5E7EB; color: #555; padding: 2px 5px; border-radius: 4px; font-weight: 700;">⌘K</span>
+                <input type="text" name="search" placeholder="Search technicians or trades..." value="{{ request('search') }}">
+                <span style="font-size: 10px; background: #E5E7EB; color: #555; padding: 2px 5px; border-radius: 4px; font-weight: 700;">⏎</span>
             </form>
 
             <!-- Customer Header Action Items -->
             <div style="display: flex; align-items: center; gap: 14px;">
                 <!-- Fast AI Diagnosis Trigger -->
-                <a href="{{ url('/customer/diagnose') }}" class="btn-yellow" style="font-size: 13px; padding: 8px 16px;">
+                <a href="{{ route('customer.diagnose') }}" class="btn-yellow" style="font-size: 13px; padding: 8px 16px; text-decoration: none;">
                     <span>+ Describe Problem</span>
                 </a>
 
                 <!-- Messages -->
-                <a href="{{ url('/customer/messages') }}" class="btn-outline" style="padding: 8px 12px; position: relative;" title="Messages">
+                <a href="{{ route('customer.messages') }}" class="btn-outline" style="padding: 8px 12px; position: relative; text-decoration: none;" title="Messages">
                     <span>💬</span>
-                    <span style="position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;">1</span>
+                    @php
+                        $activeJobsCount = auth()->check() ? auth()->user()->bookings()->whereIn('status', ['confirmed', 'en_route', 'in_progress'])->count() : 0;
+                    @endphp
+                    @if($activeJobsCount > 0)
+                        <span style="position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                            {{ $activeJobsCount }}
+                        </span>
+                    @endif
                 </a>
 
                 <!-- User Profile Pill -->

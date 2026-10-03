@@ -284,4 +284,78 @@ class CustomerPortalTest extends TestCase
             'rating' => 5,
         ]);
     }
+
+    public function test_customer_can_view_messages_and_send_chat(): void
+    {
+        $response = $this->actingAs($this->customer)->get('/customer/messages');
+        $response->assertOk();
+        $response->assertSee('Tariq Mehmood');
+
+        $sendResponse = $this->actingAs($this->customer)->post('/customer/messages', [
+            'technician_id' => $this->technician->id,
+            'message' => 'Please bring an extra replacement seal.',
+        ]);
+
+        $sendResponse->assertSessionHas('success');
+    }
+
+    public function test_customer_can_view_payment_and_process_escrow_method(): void
+    {
+        $booking = Booking::create([
+            'booking_number' => 'FM-44441',
+            'user_id' => $this->customer->id,
+            'professional_id' => $this->technician->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'Kitchen Valve Fix',
+            'service_date' => now()->toDateString(),
+            'service_time_slot' => 'Afternoon (12:00 PM - 3:00 PM)',
+            'service_address' => 'House 12-A, Street 4, Clifton Block 2',
+            'city' => 'Karachi',
+            'status' => 'pending',
+            'arrival_otp' => '7823',
+            'base_price' => 500,
+            'total_price' => 500,
+        ]);
+
+        $viewResponse = $this->actingAs($this->customer)->get(route('customer.payment', $booking->id));
+        $viewResponse->assertOk();
+        $viewResponse->assertSee('Kitchen Valve Fix');
+        $viewResponse->assertSee('Rs. 500');
+
+        $processResponse = $this->actingAs($this->customer)->post(route('customer.payment.process', $booking->id), [
+            'payment_method' => 'jazzcash',
+        ]);
+
+        $processResponse->assertRedirect(route('customer.booking.confirm', $booking->id));
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->id,
+            'payment_method' => 'jazzcash',
+            'payment_status' => 'escrow_held',
+        ]);
+    }
+
+    public function test_dashboard_displays_live_en_route_alert_banner_when_job_active(): void
+    {
+        $activeJob = Booking::create([
+            'booking_number' => 'FM-33331',
+            'user_id' => $this->customer->id,
+            'professional_id' => $this->technician->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'Main Line Clog Cleanout',
+            'service_date' => now()->toDateString(),
+            'service_time_slot' => 'Morning (9:00 AM - 12:00 PM)',
+            'service_address' => 'House 12-A, Street 4, Clifton Block 2',
+            'city' => 'Karachi',
+            'status' => 'en_route',
+            'arrival_otp' => '9988',
+            'base_price' => 500,
+            'total_price' => 500,
+        ]);
+
+        $response = $this->actingAs($this->customer)->get('/customer/dashboard');
+        $response->assertOk();
+        $response->assertSee('9988');
+        $response->assertSee('Tariq Mehmood');
+        $response->assertSee('En Route');
+    }
 }

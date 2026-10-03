@@ -5,11 +5,45 @@
 @section('content')
 <div>
     
-    <!-- Welcome Header matching Mockup 1 -->
-    <div style="margin-bottom: 24px;">
+    <!-- Welcome Header -->
+    <div style="margin-bottom: 20px;">
         <h1 style="font-size: 26px; font-weight: 900; color: #111; margin-bottom: 4px;">Welcome, {{ $user->name }}</h1>
-        <p style="font-size: 14px; color: #666; margin: 0;">Here's what's happening with your home services and active repairs.</p>
+        <p style="font-size: 14px; color: #666; margin: 0;">Here's what's happening with your home services, active requests and verified technicians.</p>
     </div>
+
+    <!-- 1. Live Ongoing Job Alert Banner (Dynamic when a job is en-route or in-progress) -->
+    @if($activeEnRouteBooking)
+        <div style="background: linear-gradient(135deg, #FFF9E6 0%, #FEF3C7 100%); border: 2px solid #FFCC00; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 14px rgba(255,204,0,0.15); flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 52px; height: 52px; border-radius: 50%; background: #111; color: #FFCC00; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 0 4px rgba(255,204,0,0.3);">
+                    🛵
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="background: #111; color: #FFCC00; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">
+                            {{ $activeEnRouteBooking->status_label }}
+                        </span>
+                        <strong style="font-size: 15px; color: #111;">{{ $activeEnRouteBooking->service_title }}</strong>
+                    </div>
+                    <span style="font-size: 13px; color: #4B5563;">
+                        Assigned Pro: <strong>{{ $activeEnRouteBooking->professional?->name ?? 'FixMate Dedicated Pro' }}</strong> ({{ $activeEnRouteBooking->profession?->name ?? 'Technician' }})
+                    </span>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <!-- Handshake OTP -->
+                <div style="background: #FFFFFF; border: 1.5px dashed #B45309; border-radius: 10px; padding: 6px 14px; text-align: center;">
+                    <span style="font-size: 10px; font-weight: 800; color: #92400E; display: block; text-transform: uppercase;">Arrival OTP</span>
+                    <strong style="font-size: 18px; font-weight: 900; letter-spacing: 2px; color: #111;">{{ $activeEnRouteBooking->arrival_otp }}</strong>
+                </div>
+
+                <a href="{{ route('customer.booking.tracking', $activeEnRouteBooking->id) }}" class="btn-yellow" style="padding: 10px 20px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px;">
+                    📍 Track Live GPS →
+                </a>
+            </div>
+        </div>
+    @endif
 
     <!-- 4 Stats Cards matching Mockup 1 -->
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -48,23 +82,66 @@
 
     </div>
 
-    <!-- Quick "Describe Your Problem" Banner matching Mockup 1 -->
-    <div style="background: #FFF9E6; border: 1px solid #FFECB3; border-radius: 16px; padding: 24px 30px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+    <!-- Quick Book by Trade Category Grid (100% Dynamic Professions) -->
+    <div style="margin-bottom: 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="font-size: 16px; font-weight: 800; color: #111; margin: 0;">Quick Book by Trade</h3>
+            <a href="{{ route('customer.technicians') }}" style="font-size: 13px; color: #B45309; font-weight: 700; text-decoration: none;">View All Trades →</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;">
+            @php
+                $tradeIcons = [
+                    'plumber' => '🚰',
+                    'electrician' => '⚡',
+                    'ac-refrigeration' => '❄️',
+                    'carpenter' => '🪚',
+                    'painter' => '🎨',
+                    'deep-cleaning' => '🧹',
+                    'home-appliances' => '🔧',
+                ];
+            @endphp
+            @foreach($quickTrades as $trade)
+                <a href="{{ route('customer.booking', ['profession' => $trade->slug]) }}" class="portal-card" style="padding: 16px 10px; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <span style="font-size: 24px;">{{ $tradeIcons[$trade->slug] ?? '🛠️' }}</span>
+                    <strong style="font-size: 13px; color: #111; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">{{ $trade->name }}</strong>
+                    <span style="font-size: 10.5px; color: #047857; font-weight: 700;">From Rs. {{ number_format($trade->base_price) }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Quick "Describe Your Problem" AI Banner -->
+    <div style="background: #FFF9E6; border: 1px solid #FFECB3; border-radius: 16px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
         <div style="display: flex; align-items: center; gap: 18px;">
             <div style="width: 52px; height: 52px; border-radius: 14px; background: #FFCC00; display: flex; align-items: center; justify-content: center; font-size: 26px;">
                 🔍
             </div>
             <div>
-                <strong style="display: block; font-size: 18px; color: #111; margin-bottom: 4px;">Describe Your Problem</strong>
-                <span style="font-size: 13.5px; color: #666;">Let AI find the right solution & estimate repair costs for you.</span>
+                <strong style="display: block; font-size: 17px; color: #111; margin-bottom: 4px;">Describe Your Problem With AI</strong>
+                <span style="font-size: 13px; color: #666;">Upload photos or defect descriptions. Our AI will analyze the root cause and estimate repair costs.</span>
             </div>
         </div>
-        <a href="{{ route('customer.diagnose') }}" class="btn-yellow" style="padding: 11px 26px; font-size: 14px; font-weight: 800; text-decoration: none;">
-            Start Now
+        <a href="{{ route('customer.diagnose') }}" class="btn-yellow" style="padding: 11px 26px; font-size: 13.5px; font-weight: 800; text-decoration: none; border-radius: 8px;">
+            Start AI Scanner
         </a>
     </div>
 
-    <!-- Two Columns: Recommended Technicians & Recent Bookings (Matching Mockup 1) -->
+    <!-- Local Civic Alerts if available in customer city -->
+    @if($cityAlerts->isNotEmpty())
+        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 14px; padding: 14px 20px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #1E40AF;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px;">📢</span>
+                <div>
+                    <strong>Civic Alert for {{ $user->city ?? 'Karachi' }}:</strong>
+                    {{ $cityAlerts->first()->title }} ({{ $cityAlerts->first()->upvotes_count ?? 12 }} residents confirmed)
+                </div>
+            </div>
+            <a href="{{ route('community') }}" style="color: #1D4ED8; font-weight: 800; text-decoration: none; white-space: nowrap;">Community Board →</a>
+        </div>
+    @endif
+
+    <!-- Two Columns: Recommended Technicians & Recent Bookings -->
     <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
         
         <!-- Left: Recommended Technicians -->
@@ -95,7 +172,7 @@
             </div>
         </div>
 
-        <!-- Right: Recent Bookings matching Mockup 1 -->
+        <!-- Right: Recent Bookings -->
         <div class="portal-card" style="padding: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h3 style="font-size: 17px; font-weight: 800; color: #111; margin: 0;">Recent Bookings</h3>
