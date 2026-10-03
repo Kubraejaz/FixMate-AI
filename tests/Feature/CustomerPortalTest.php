@@ -8,6 +8,7 @@ use App\Models\Professional;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class CustomerPortalTest extends TestCase
@@ -461,6 +462,68 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('No Household Repair Defect Detected');
         $response->assertSee('Inconclusive Analysis');
         $response->assertDontSee('Defect Identified');
+    }
+
+    public function test_ai_diagnose_classifies_uploaded_repair_image_even_without_text(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+        $file = UploadedFile::fake()->createWithContent('kitchen_sink_leak.png', $png);
+
+        $response = $this->actingAs($this->customer)->post(route('customer.ai-result'), [
+            'category' => 'auto',
+            'issue' => '',
+            'defect_photo' => $file,
+            'image_vision_trade' => 'plumber',
+            'image_vision_confidence' => 96,
+            'image_vision_defect' => 'Pipe Joint Leak & Water Drainage Defect',
+            'image_is_doc' => '0',
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Defect Identified');
+        $response->assertSee('Plumber');
+        $response->assertSee('AI Computer Vision Active');
+        $response->assertSee('Pipe Joint Leak &amp; Water Drainage Defect', false);
+    }
+
+    public function test_ai_diagnose_rejects_document_screenshot_image_when_text_is_irrelevant(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+        $file = UploadedFile::fake()->createWithContent('medical_card_screenshot.png', $png);
+
+        $response = $this->actingAs($this->customer)->post(route('customer.ai-result'), [
+            'category' => 'auto',
+            'issue' => 'please check this',
+            'defect_photo' => $file,
+            'image_vision_trade' => 'irrelevant_document',
+            'image_vision_confidence' => 92,
+            'image_is_doc' => '1',
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Non-Repair Document / Screenshot Detected');
+        $response->assertSee('Inconclusive Analysis');
+        $response->assertDontSee('Defect Identified');
+    }
+
+    public function test_ai_diagnose_supports_multi_modal_image_and_text_agreement(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+        $file = UploadedFile::fake()->createWithContent('drain_pipe.png', $png);
+
+        $response = $this->actingAs($this->customer)->post(route('customer.ai-result'), [
+            'category' => 'auto',
+            'issue' => 'Water is leaking heavily from the drain pipe under the sink',
+            'defect_photo' => $file,
+            'image_vision_trade' => 'plumber',
+            'image_vision_confidence' => 96,
+            'image_is_doc' => '0',
+        ]);
+
+        $response->assertOk();
+        $response->assertSee('Defect Identified');
+        $response->assertSee('Plumber');
+        $response->assertSee('Multi-Modal Match (Visual + Text)');
     }
 }
 

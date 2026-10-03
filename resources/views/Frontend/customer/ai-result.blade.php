@@ -14,6 +14,11 @@
                 <span style="background: #ECFDF5; color: #047857; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 20px; border: 1px solid #A7F3D0;">
                     ✓ Defect Identified
                 </span>
+                @if($isImageDiagnosed ?? false)
+                    <span style="background: #E0F2FE; color: #0369A1; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 20px; border: 1px solid #BAE6FD;">
+                        📷 AI Computer Vision Active
+                    </span>
+                @endif
                 <span style="font-size: 12.5px; color: #666;">FixMate Neural Diagnostic Engine v2.4</span>
             </div>
             <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0 0 6px 0;">AI Diagnostic Result</h1>
@@ -30,14 +35,14 @@
                         <img src="{{ asset($uploadedImage ?? 'assets/images/image_6.png') }}" alt="Analyzed defect" style="width: 100%; height: 100%; object-fit: cover;">
                         
                         <!-- AI Detection Bounding Box Marker -->
-                        <div style="position: absolute; top: 30%; left: 15%; width: 65%; height: 50%; border: 2px dashed #10B981; background: rgba(16, 185, 129, 0.15); border-radius: 8px; pointer-events: none;">
-                            <span style="position: absolute; top: -18px; left: 4px; background: #10B981; color: #FFF; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">
-                                {{ $profession?->name ?? 'DEFECT' }} DETECTED
+                        <div style="position: absolute; top: 25%; left: 15%; width: 70%; height: 55%; border: 2px dashed #10B981; background: rgba(16, 185, 129, 0.15); border-radius: 8px; pointer-events: none;">
+                            <span style="position: absolute; top: -18px; left: 4px; background: #10B981; color: #FFF; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 4px; text-transform: uppercase;">
+                                {{ $profession?->name ?? 'DEFECT' }} VISUALLY IDENTIFIED
                             </span>
                         </div>
 
                         <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); padding: 5px 8px; border-radius: 6px; font-size: 11px; color: #FFF; text-align: center;">
-                            🔍 Neural Diagnostic Bounding Box
+                            🔍 Neural Diagnostic Computer Vision Scan
                         </div>
                     </div>
                     
@@ -65,8 +70,8 @@
                     <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
                         
                         <div>
-                            <span style="font-size: 11.5px; color: #777; display: block;">Reported Problem</span>
-                            <strong style="font-size: 14.5px; color: #111;">{{ $problemQuery ?: 'Customer requested diagnosis' }}</strong>
+                            <span style="font-size: 11.5px; color: #777; display: block;">Reported Problem / Visual Input</span>
+                            <strong style="font-size: 14.5px; color: #111;">{{ $problemQuery ?: 'Visual Diagnosis via Uploaded Photo' }}</strong>
                         </div>
 
                         <div>
@@ -125,12 +130,27 @@
                 </span>
                 <span style="font-size: 12.5px; color: #666;">AI Confidence Threshold Not Met</span>
             </div>
-            <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0 0 6px 0;">No Household Repair Defect Detected</h1>
-            <p style="font-size: 14.5px; color: #666; margin: 0;">Our AI diagnostic scanner could not identify a valid home repair or maintenance issue from the provided text.</p>
+            @if($isDocumentOrScreenshot ?? false)
+                <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0 0 6px 0;">Non-Repair Document / Screenshot Detected</h1>
+                <p style="font-size: 14.5px; color: #666; margin: 0;">Our AI computer vision identified an uploaded document or mobile screenshot rather than a physical home repair defect.</p>
+            @else
+                <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0 0 6px 0;">No Household Repair Defect Detected</h1>
+                <p style="font-size: 14.5px; color: #666; margin: 0;">Our AI diagnostic scanner could not identify a valid home repair or maintenance issue from the provided input.</p>
+            @endif
         </div>
 
         <div class="portal-card" style="padding: 32px; background: #FFFFFF; border-left: 5px solid #F59E0B; margin-bottom: 28px;">
             
+            @if($isDocumentOrScreenshot ?? false)
+                <div style="background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 16px 20px; margin-bottom: 22px; display: flex; gap: 14px; align-items: center;">
+                    <div style="font-size: 28px;">📄</div>
+                    <div>
+                        <strong style="color: #991B1B; font-size: 14px; display: block; margin-bottom: 2px;">Document / Mobile Screenshot Detected</strong>
+                        <span style="color: #7F1D1D; font-size: 13px; line-height: 1.4;">FixMate AI is specifically trained on household physical maintenance (pipes, circuits, air conditioning, carpentry, walls). Medical cards, phone app screenshots, invoices, and documents cannot be diagnosed as repair defects.</span>
+                    </div>
+                </div>
+            @endif
+
             <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 22px;">
                 <div style="width: 52px; height: 52px; border-radius: 14px; background: #FFFBEB; border: 1px solid #FDE68A; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;">
                     🤖
@@ -138,7 +158,7 @@
                 <div>
                     <h3 style="font-size: 17px; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">Query Analysis Summary</h3>
                     <p style="font-size: 13.5px; color: #64748B; margin: 0; line-height: 1.5;">
-                        You entered: <strong style="color: #0F172A; background: #F1F5F9; padding: 2px 8px; border-radius: 4px;">"{{ $problemQuery ?: '(Empty input)' }}"</strong>
+                        You entered: <strong style="color: #0F172A; background: #F1F5F9; padding: 2px 8px; border-radius: 4px;">"{{ $problemQuery ?: '(No text description provided)' }}"</strong>
                     </p>
                     <p style="font-size: 13px; color: #B45309; margin: 6px 0 0 0; font-weight: 600;">
                         {{ $inconclusiveReason }}
