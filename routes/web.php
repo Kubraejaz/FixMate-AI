@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CommunityIssueController as AdminCommunityControl
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
+use App\Http\Controllers\Admin\HomepageController as AdminHomepageController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
@@ -401,6 +402,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/community/{issue}', [AdminCommunityController::class, 'update'])->name('community.update');
     Route::patch('/community/{issue}/toggle', [AdminCommunityController::class, 'toggle'])->name('community.toggle');
     Route::delete('/community/{issue}', [AdminCommunityController::class, 'destroy'])->name('community.destroy');
+
+    // Homepage CMS & Content Editor (Full CRUD for Hero, Testimonials, Steps)
+    Route::get('/homepage', [AdminHomepageController::class, 'index'])->name('homepage');
+    Route::post('/homepage/hero', [AdminHomepageController::class, 'updateHero'])->name('homepage.hero');
+    Route::post('/homepage/testimonials', [AdminHomepageController::class, 'storeTestimonial'])->name('homepage.testimonials.store');
+    Route::put('/homepage/testimonials/{testimonial}', [AdminHomepageController::class, 'updateTestimonial'])->name('homepage.testimonials.update');
+    Route::delete('/homepage/testimonials/{testimonial}', [AdminHomepageController::class, 'destroyTestimonial'])->name('homepage.testimonials.destroy');
+    Route::post('/homepage/steps', [AdminHomepageController::class, 'storeStep'])->name('homepage.steps.store');
+    Route::put('/homepage/steps/{step}', [AdminHomepageController::class, 'updateStep'])->name('homepage.steps.update');
+    Route::delete('/homepage/steps/{step}', [AdminHomepageController::class, 'destroyStep'])->name('homepage.steps.destroy');
 
 });
 

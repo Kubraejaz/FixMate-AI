@@ -42,6 +42,20 @@ class PublicPageController extends Controller
         $activeAlerts = $hasIssues ? \App\Models\CommunityIssue::where('status', 'alert_active')->count() : 0;
         $latestAlert = $hasIssues ? \App\Models\CommunityIssue::where('status', 'alert_active')->latest()->first() : null;
 
+        $hasSettings = \Illuminate\Support\Facades\Schema::hasTable('homepage_settings');
+        $hasTestimonials = \Illuminate\Support\Facades\Schema::hasTable('testimonials');
+        $hasSteps = \Illuminate\Support\Facades\Schema::hasTable('workflow_steps');
+
+        $settings = $hasSettings ? \App\Models\HomepageSetting::instance() : null;
+
+        $dbTestimonials = $hasTestimonials
+            ? \App\Models\Testimonial::where('is_featured', true)->orderBy('display_order')->get()
+            : collect();
+
+        $dbSteps = $hasSteps
+            ? \App\Models\WorkflowStep::where('is_active', true)->orderBy('step_number')->get()
+            : collect();
+
         $stats = [
             'total_technicians' => $totalTechs > 0 ? $totalTechs : 2400,
             'verified_technicians' => $verifiedTechs > 0 ? $verifiedTechs : 2150,
@@ -49,87 +63,106 @@ class PublicPageController extends Controller
             'completed_jobs' => '18,500+',
             'avg_rating' => '4.9',
             'avg_arrival_mins' => 24,
-            'warranty_days' => 30,
+            'warranty_days' => $settings?->warranty_days ?? 30,
             'active_alerts' => $activeAlerts,
         ];
 
-        // Dynamic Hero Configuration with real image assets
+        // Dynamic Hero Configuration with real image assets from CMS
         $hero = [
-            'badge' => 'AI Powered Home Service Platform',
-            'title_main' => 'Smart Home Services',
-            'title_highlight' => 'Simple',
-            'subtitle' => 'Describe your problem or upload defect photos. Let FixMate AI find verified technicians with transparent upfront pricing.',
-            'image' => asset('assets/images/image_8.png'),
-            'script_text' => 'Your Home Our Priority',
-            'trusted_tag' => 'Trusted Professionals for Your Home',
+            'badge' => $settings?->hero_badge ?? 'AI Powered Home Service Platform',
+            'title_main' => $settings?->hero_title_main ?? 'Smart Home Services',
+            'title_highlight' => $settings?->hero_title_highlight ?? 'Simple',
+            'subtitle' => $settings?->hero_subtitle ?? 'Describe your problem or upload defect photos. Let FixMate AI find verified technicians with transparent upfront pricing.',
+            'image' => asset($settings?->hero_image ?? 'assets/images/image_8.png'),
+            'script_text' => $settings?->hero_script_text ?? "Your Home\nOur Priority",
+            'trusted_tag' => $settings?->hero_trusted_tag ?? 'Trusted Professionals for Your Home',
+            'guarantee_title' => $settings?->guarantee_title ?? 'FixMate AI Guarantee',
+            'guarantee_subtitle' => $settings?->guarantee_subtitle ?? 'Trusted service. Verified professionals. 30-day warranty on all completed jobs.',
         ];
 
-        // Dynamic Workflow Steps
-        $workflowSteps = [
-            [
-                'step' => 1,
-                'icon' => '📷',
-                'title' => 'Describe Your Problem',
-                'desc' => 'Share details or upload defect photos.',
-                'badge_color' => '#FFC107',
-            ],
-            [
-                'step' => 2,
-                'icon' => '🤖',
-                'title' => 'AI Diagnostics',
-                'desc' => 'Instant computer vision defect assessment.',
-                'badge_color' => '#FFC107',
-            ],
-            [
-                'step' => 3,
-                'icon' => '🧑‍🔧',
-                'title' => 'Proximity Match',
-                'desc' => 'Dispatches top nearby verified specialists.',
-                'badge_color' => '#FFC107',
-            ],
-            [
-                'step' => 4,
-                'icon' => '📍',
-                'title' => 'Live Radar & Tracking',
-                'desc' => 'Monitor real-time technician arrival on map.',
-                'badge_color' => '#FFC107',
-            ],
-            [
-                'step' => 5,
-                'icon' => '✓',
-                'title' => 'Protected Escrow',
-                'desc' => 'Approve arrival OTP & pay with 30-day warranty.',
-                'badge_color' => '#10B981',
-            ],
-        ];
+        // Dynamic Workflow Steps from CMS or fallback
+        $workflowSteps = $dbSteps->isNotEmpty()
+            ? $dbSteps->map(fn ($s) => [
+                'step' => $s->step_number,
+                'icon' => $s->icon,
+                'title' => $s->title,
+                'desc' => $s->description,
+                'badge_color' => $s->badge_color,
+            ])
+            : collect([
+                [
+                    'step' => 1,
+                    'icon' => '📷',
+                    'title' => 'Describe Your Problem',
+                    'desc' => 'Share details or upload defect photos.',
+                    'badge_color' => '#FFC107',
+                ],
+                [
+                    'step' => 2,
+                    'icon' => '🤖',
+                    'title' => 'AI Diagnostics',
+                    'desc' => 'Instant computer vision defect assessment.',
+                    'badge_color' => '#FFC107',
+                ],
+                [
+                    'step' => 3,
+                    'icon' => '🧑‍🔧',
+                    'title' => 'Proximity Match',
+                    'desc' => 'Dispatches top nearby verified specialists.',
+                    'badge_color' => '#FFC107',
+                ],
+                [
+                    'step' => 4,
+                    'icon' => '📍',
+                    'title' => 'Live Radar & Tracking',
+                    'desc' => 'Monitor real-time technician arrival on map.',
+                    'badge_color' => '#FFC107',
+                ],
+                [
+                    'step' => 5,
+                    'icon' => '✓',
+                    'title' => 'Protected Escrow',
+                    'desc' => 'Approve arrival OTP & pay with 30-day warranty.',
+                    'badge_color' => '#10B981',
+                ],
+            ]);
 
-        // Dynamic Verified Homeowner Testimonials
-        $testimonials = [
-            [
-                'name' => 'Sara Ahmed',
-                'location' => 'Karachi — Clifton',
-                'trade' => 'Electrical Repair',
-                'rating' => 5,
-                'comment' => 'The AI scanner estimated Rs. 1,400 for our tripping breaker. Technician arrived in 22 minutes and solved the neutral short.',
-                'avatar' => asset('assets/images/image_2.png'),
-            ],
-            [
-                'name' => 'Dr. Kamran Malik',
-                'location' => 'Islamabad — F-7/2',
-                'trade' => 'Inverter AC Jet Wash',
-                'rating' => 5,
-                'comment' => 'Deep pressure jet wash fixed cooling issues in under an hour. Outstanding professional service and polite technician.',
-                'avatar' => asset('assets/images/image_3.png'),
-            ],
-            [
-                'name' => 'Bilal Farooq',
-                'location' => 'Lahore — Gulberg III',
-                'trade' => 'Plumbing Overhaul',
-                'rating' => 5,
-                'comment' => 'No overcharging or guesswork. Upfront pricing and arrival OTP made hiring a technician completely worry-free.',
-                'avatar' => asset('assets/images/image_4.png'),
-            ],
-        ];
+        // Dynamic Verified Homeowner Testimonials from CMS or fallback
+        $testimonials = $dbTestimonials->isNotEmpty()
+            ? $dbTestimonials->map(fn ($t) => [
+                'name' => $t->name,
+                'location' => $t->location,
+                'trade' => $t->trade,
+                'rating' => $t->rating,
+                'comment' => $t->comment,
+                'avatar' => $t->avatar_url,
+            ])
+            : collect([
+                [
+                    'name' => 'Sara Ahmed',
+                    'location' => 'Karachi — Clifton',
+                    'trade' => 'Electrical Repair',
+                    'rating' => 5,
+                    'comment' => 'The AI scanner estimated Rs. 1,400 for our tripping breaker. Technician arrived in 22 minutes and solved the neutral short.',
+                    'avatar' => asset('assets/images/image_2.png'),
+                ],
+                [
+                    'name' => 'Dr. Kamran Malik',
+                    'location' => 'Islamabad — F-7/2',
+                    'trade' => 'Inverter AC Jet Wash',
+                    'rating' => 5,
+                    'comment' => 'Deep pressure jet wash fixed cooling issues in under an hour. Outstanding professional service and polite technician.',
+                    'avatar' => asset('assets/images/image_3.png'),
+                ],
+                [
+                    'name' => 'Bilal Farooq',
+                    'location' => 'Lahore — Gulberg III',
+                    'trade' => 'Plumbing Overhaul',
+                    'rating' => 5,
+                    'comment' => 'No overcharging or guesswork. Upfront pricing and arrival OTP made hiring a technician completely worry-free.',
+                    'avatar' => asset('assets/images/image_4.png'),
+                ],
+            ]);
 
         return view('Frontend.public.home', compact(
             'professions',
