@@ -106,6 +106,8 @@
                 </div>
             </div>
         @endif
+
+        @if($booking->status !== 'in_progress')
             <!-- Handshake Arrival OTP Verification Card -->
             <div class="portal-card" style="padding: 32px; background: #FFFFFF; margin-bottom: 24px; border: 2px solid #FFCC00;">
                 <div style="text-align: center; max-width: 480px; margin: 0 auto;">
