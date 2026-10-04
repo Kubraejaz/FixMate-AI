@@ -10,16 +10,20 @@
         
         <!-- Header -->
         <div style="margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
                 <span style="background: #ECFDF5; color: #047857; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 20px; border: 1px solid #A7F3D0;">
                     ✓ Defect Identified
                 </span>
-                @if($isImageDiagnosed ?? false)
+                @if($isGeminiPowered ?? false)
+                    <span style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); color: #4338CA; font-size: 11.5px; font-weight: 800; padding: 3px 12px; border-radius: 20px; border: 1px solid #C7D2FE; display: inline-flex; align-items: center; gap: 5px;">
+                        <span>✨</span> Powered by Google Gemini AI
+                    </span>
+                @elseif($isImageDiagnosed ?? false)
                     <span style="background: #E0F2FE; color: #0369A1; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 20px; border: 1px solid #BAE6FD;">
                         📷 AI Computer Vision Active
                     </span>
                 @endif
-                <span style="font-size: 12.5px; color: #666;">FixMate Neural Diagnostic Engine v2.4</span>
+                <span style="font-size: 12.5px; color: #666;">FixMate Neural Diagnostic Engine</span>
             </div>
             <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0 0 6px 0;">AI Diagnostic Result</h1>
             <p style="font-size: 14.5px; color: #666; margin: 0;">Our AI has successfully classified your repair defect and estimated labor & parts requirements.</p>
@@ -84,6 +88,16 @@
                             <span style="font-size: 11.5px; color: #777; display: block;">Required Calibrated Instruments</span>
                             <span style="font-size: 13px; color: #475569;">{{ $matchedDefect['tools'] ?? 'Standard calibrated instruments' }}</span>
                         </div>
+
+                        @if(!empty($safetyAlert))
+                            <div style="background: #FEF2F2; border-left: 4px solid #DC2626; border-radius: 8px; padding: 12px 16px; margin: 4px 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                                    <span style="font-size: 14px;">⚠️</span>
+                                    <strong style="font-size: 12.5px; color: #991B1B; text-transform: uppercase; letter-spacing: 0.5px;">Immediate Safety Advisory</strong>
+                                </div>
+                                <p style="font-size: 12.5px; color: #7F1D1D; margin: 0; line-height: 1.45;">{{ $safetyAlert }}</p>
+                            </div>
+                        @endif
 
                         <!-- Cost Range -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: #FFFDF0; border: 1px solid #FEF08A; padding: 12px 16px; border-radius: 12px;">

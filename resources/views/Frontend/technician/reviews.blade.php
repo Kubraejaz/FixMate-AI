@@ -7,7 +7,7 @@
 <!-- Page Header -->
 <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px;">
     <div>
-        <h1 style="font-size: 26px; font-weight: 900; color: #111; margin-bottom: 4px; letter-spacing: -0.02em;">Customer Reviews &amp; Feedback</h1>
+        <h1 style="font-size: 26px; font-weight: 900; color: #111; margin-bottom: 4px; letter-spacing: -0.02em;">Customer Reviews & Feedback</h1>
         <p style="font-size: 14px; color: #666; margin: 0;">Verified ratings and testimonials received from customers upon job completion.</p>
     </div>
     <div style="display: flex; gap: 10px;">

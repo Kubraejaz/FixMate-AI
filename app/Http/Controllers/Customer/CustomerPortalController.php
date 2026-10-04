@@ -12,6 +12,7 @@ use App\Models\Profession;
 use App\Models\Professional;
 use App\Models\Review;
 use App\Models\User;
+use App\Services\GeminiAiService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -197,6 +198,95 @@ class CustomerPortalController extends Controller
             }
         } elseif (session('last_ai_photo') && ! $request->has('new_scan')) {
             $uploadedImage = session('last_ai_photo');
+        }
+
+        $isGeminiPowered = false;
+        $safetyAlert = null;
+        $inconclusiveReason = null;
+
+        // Try Live Google Gemini Vision & Multimodal Engine if configured and enabled
+        if (cache('gemini_enabled', true)) {
+            $geminiService = app(GeminiAiService::class);
+            if ($geminiService->isConfigured()) {
+                $geminiResult = $geminiService->diagnoseDefect($problemQuery, $uploadedImage);
+                if ($geminiResult['success']) {
+                    $gData = $geminiResult['data'];
+                    if (! $gData['is_repair_defect']) {
+                        $isRecognized = false;
+                        $isDocumentOrScreenshot = true;
+                        $inconclusiveReason = "Google Gemini AI analyzed your submission and determined it does not represent a valid household maintenance or repair defect.";
+                        $allProfessions = Profession::where('is_active', true)->get();
+                        $profession = Profession::where('slug', 'plumber')->first() ?? $allProfessions->first();
+                        $matchedDefect = [
+                            'title' => 'Non-Repair Object or Document Detected',
+                            'confidence' => $gData['confidence'] . '% AI Confidence',
+                            'summary' => $gData['summary'],
+                            'tools' => 'N/A',
+                            'repair_time' => 'N/A',
+                        ];
+                        $costEstimate = ['min' => 0, 'max' => 0, 'avg' => 0];
+
+                        return view('Frontend.customer.ai-result', compact(
+                            'profession',
+                            'matchedDefect',
+                            'costEstimate',
+                            'problemQuery',
+                            'uploadedImage',
+                            'isRecognized',
+                            'isImageDiagnosed',
+                            'isDocumentOrScreenshot',
+                            'inconclusiveReason',
+                            'allProfessions',
+                            'isGeminiPowered',
+                            'safetyAlert'
+                        ));
+                    }
+
+                    // Genuine defect detected by Gemini!
+                    $isRecognized = true;
+                    $isGeminiPowered = true;
+                    $isImageDiagnosed = ! empty($uploadedImage);
+                    $bestTradeSlug = $gData['trade_slug'];
+
+                    $profession = Profession::where('slug', $bestTradeSlug)->first();
+                    if (! $profession) {
+                        $profession = Profession::where('is_active', true)->first();
+                    }
+
+                    $allProfessions = Profession::where('is_active', true)->get();
+
+                    $matchedDefect = [
+                        'title' => $gData['defect_title'],
+                        'confidence' => $gData['confidence'] . '% Google Gemini Match',
+                        'tools' => $gData['tools'],
+                        'summary' => $gData['summary'],
+                        'repair_time' => $gData['repair_time'],
+                        'safety_alert' => $gData['safety_alert'],
+                    ];
+                    $safetyAlert = $gData['safety_alert'];
+
+                    $costEstimate = [
+                        'min' => $gData['cost_min'],
+                        'max' => $gData['cost_max'],
+                        'avg' => round(($gData['cost_min'] + $gData['cost_max']) / 2),
+                    ];
+
+                    return view('Frontend.customer.ai-result', compact(
+                        'profession',
+                        'matchedDefect',
+                        'costEstimate',
+                        'problemQuery',
+                        'uploadedImage',
+                        'isRecognized',
+                        'isImageDiagnosed',
+                        'isDocumentOrScreenshot',
+                        'inconclusiveReason',
+                        'allProfessions',
+                        'isGeminiPowered',
+                        'safetyAlert'
+                    ));
+                }
+            }
         }
 
         // Comprehensive Trade Keyword Dictionary
@@ -399,7 +489,9 @@ class CustomerPortalController extends Controller
             'isImageDiagnosed',
             'isDocumentOrScreenshot',
             'inconclusiveReason',
-            'allProfessions'
+            'allProfessions',
+            'isGeminiPowered',
+            'safetyAlert'
         ));
     }
 

@@ -17,13 +17,16 @@ class SettingsController extends Controller
     public function settings(): View
     {
         $settings = [
-            'platform_commission' => 12.0,
-            'otp_expiry_minutes' => 10,
-            'max_service_radius_km' => 25,
-            'maintenance_mode' => false,
-            'payout_frequency' => 'weekly',
-            'support_email' => 'support@fixmate.ai',
-            'support_phone' => '+92 300 1234567',
+            'platform_commission' => cache('platform_commission', 12.0),
+            'otp_expiry_minutes' => cache('otp_expiry_minutes', 10),
+            'max_service_radius_km' => cache('max_service_radius_km', 25),
+            'maintenance_mode' => cache('maintenance_mode', false),
+            'payout_frequency' => cache('payout_frequency', 'weekly'),
+            'support_email' => cache('support_email', 'support@fixmate.ai'),
+            'support_phone' => cache('support_phone', '+92 300 1234567'),
+            'gemini_api_key' => cache('gemini_api_key', config('services.gemini.api_key', env('GEMINI_API_KEY', ''))),
+            'gemini_model' => cache('gemini_model', config('services.gemini.model', env('GEMINI_MODEL', 'gemini-1.5-flash'))),
+            'gemini_enabled' => cache('gemini_enabled', true),
         ];
 
         return view('Frontend.admin.settings', compact('settings'));
@@ -34,7 +37,43 @@ class SettingsController extends Controller
      */
     public function updateSettings(Request $request): RedirectResponse
     {
+        $fields = [
+            'platform_commission',
+            'otp_expiry_minutes',
+            'max_service_radius_km',
+            'maintenance_mode',
+            'payout_frequency',
+            'support_email',
+            'support_phone',
+            'gemini_api_key',
+            'gemini_model',
+            'gemini_enabled',
+        ];
+
+        foreach ($fields as $field) {
+            if ($request->has($field)) {
+                cache()->forever($field, $request->input($field));
+            }
+        }
+
         return back()->with('success', 'Platform settings saved successfully.');
+    }
+
+    /**
+     * Test connection to Google Gemini API.
+     */
+    public function testGemini(Request $request): RedirectResponse
+    {
+        $apiKey = $request->input('gemini_api_key') ?: cache('gemini_api_key') ?: config('services.gemini.api_key');
+        
+        $gemini = app(\App\Services\GeminiAiService::class);
+        $result = $gemini->testConnection($apiKey);
+
+        if ($result['success']) {
+            return back()->with('success', $result['message']);
+        }
+
+        return back()->with('error', $result['message']);
     }
 
     /**

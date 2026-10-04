@@ -354,6 +354,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/payments', [AdminSettingsController::class, 'payments'])->name('payments');
     Route::get('/settings', [AdminSettingsController::class, 'settings'])->name('settings');
     Route::post('/settings', [AdminSettingsController::class, 'updateSettings'])->name('settings.update');
+    Route::post('/settings/test-gemini', [AdminSettingsController::class, 'testGemini'])->name('settings.test-gemini');
 
     // Contact Inquiries & Dispute Arbitration (Full CRUD)
     Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries');

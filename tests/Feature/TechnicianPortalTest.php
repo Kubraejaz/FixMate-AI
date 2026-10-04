@@ -475,7 +475,7 @@ class TechnicianPortalTest extends TestCase
             ->get(route('technician.reviews'));
 
         $response->assertOk();
-        $response->assertSee('Customer Reviews &amp; Feedback');
+        $response->assertSee('Customer Reviews & Feedback', false);
         $response->assertSee('No Customer Reviews Yet');
         $response->assertSee('0 Reviews Recorded');
         $response->assertSee('0.0');
