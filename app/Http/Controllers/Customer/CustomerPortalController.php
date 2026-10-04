@@ -738,6 +738,17 @@ class CustomerPortalController extends Controller
     }
 
     /**
+     * Live GPS tracking coordinates endpoint for dynamic polling.
+     */
+    public function trackingData(Booking $booking): \Illuminate\Http\JsonResponse
+    {
+        $this->authorizeBookingOwnership($booking);
+        $booking->load(['professional.user', 'profession']);
+
+        return response()->json($booking->getLiveTrackingPayload());
+    }
+
+    /**
      * Cancel an active booking.
      */
     public function cancelBooking(Request $request, Booking $booking): RedirectResponse

@@ -101,50 +101,49 @@
             <!-- Left: Map Representation & Pro Status Card -->
             <div style="display: flex; flex-direction: column; gap: 20px;">
                 
-                <!-- Map View Container with Interactive Marker Simulation -->
-                <div class="portal-card" style="padding: 0; overflow: hidden; background: #E5E7EB; position: relative; height: 340px; border-radius: 16px;">
-                    <!-- Simulated Live GPS Map Graphic -->
-                    <svg width="100%" height="100%" viewBox="0 0 600 340" style="display: block; background: #E5EBF0;">
-                        <!-- Map Roads -->
-                        <path d="M 0 100 Q 200 120 400 90 T 600 130" stroke="#FFFFFF" stroke-width="18" fill="none" />
-                        <path d="M 120 0 L 150 340" stroke="#FFFFFF" stroke-width="14" fill="none" />
-                        <path d="M 350 0 L 330 340" stroke="#FFFFFF" stroke-width="22" fill="none" />
-                        <path d="M 0 240 Q 250 220 600 260" stroke="#FFFFFF" stroke-width="16" fill="none" />
+                <!-- Interactive Real-Time Leaflet GPS Map Container -->
+                <div class="portal-card" style="padding: 0; overflow: hidden; background: #0F172A; position: relative; height: 380px; border-radius: 16px; border: 2px solid #FFCC00; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+                    
+                    <div id="liveTrackingMap" style="width: 100%; height: 100%; min-height: 380px; z-index: 1;"></div>
 
-                        <!-- Route Highlight Path (Gold / Orange route) -->
-                        <path d="M 180 80 Q 240 180 340 230" stroke="#FFCC00" stroke-width="6" stroke-dasharray="8 6" fill="none" />
-
-                        <!-- Technician Marker -->
-                        <g transform="translate(180, 80)">
-                            <circle cx="0" cy="0" r="18" fill="#111111" stroke="#FFCC00" stroke-width="3" />
-                            <text x="0" y="4" font-size="12" text-anchor="middle" fill="#FFCC00">🛵</text>
-                            <circle cx="0" cy="0" r="28" fill="none" stroke="#FFCC00" stroke-width="1.5" opacity="0.6">
-                                <animate attributeName="r" values="18;34" dur="1.5s" repeatCount="indefinite" />
-                                <animate attributeName="opacity" values="0.8;0" dur="1.5s" repeatCount="indefinite" />
-                            </circle>
-                        </g>
-
-                        <!-- Destination Marker (Customer Home) -->
-                        <g transform="translate(340, 230)">
-                            <circle cx="0" cy="0" r="16" fill="#10B981" stroke="#FFFFFF" stroke-width="3" />
-                            <text x="0" y="4" font-size="11" text-anchor="middle" fill="#FFFFFF">🏠</text>
-                        </g>
-                    </svg>
-
-                    <!-- Floating ETA Card over Map -->
-                    <div style="position: absolute; top: 16px; left: 16px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #FFF9E6; border: 1px solid #FFECB3; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    <!-- Floating Live ETA & Status Badge -->
+                    <div style="position: absolute; top: 16px; left: 16px; z-index: 999; background: rgba(255,255,255,0.96); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; border: 1px solid #E2E8F0;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: #FFF9E6; border: 1px solid #FFECB3; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                             ⏱️
                         </div>
                         <div>
-                            <span style="font-size: 11px; color: #666; font-weight: 700; text-transform: uppercase;">Estimated Arrival</span>
-                            <strong style="display: block; font-size: 15px; color: #111;">{{ $booking->service_time_slot }} <span style="color: #059669; font-size: 12px;">(Active)</span></strong>
+                            <span style="font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Live Dynamic ETA</span>
+                            <strong id="liveEtaText" style="display: block; font-size: 15px; color: #0F172A;">Loading ETA...</strong>
                         </div>
                     </div>
 
-                    <div style="position: absolute; bottom: 16px; right: 16px; background: #FFFFFF; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: #374151; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        Technician is ~2.1 km away
+                    <!-- Top Right: Live GPS Streaming Status -->
+                    <div style="position: absolute; top: 16px; right: 16px; z-index: 999; background: #065F46; color: #FFF; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 7px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid #10B981;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #34D399; display: inline-block; box-shadow: 0 0 8px #34D399;"></span>
+                        <span id="liveStatusText">LIVE GPS STREAMING</span>
                     </div>
+
+                    <!-- Bottom Controls: Distance Pill & Recenter Buttons -->
+                    <div style="position: absolute; bottom: 16px; left: 16px; z-index: 999; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <span id="liveDistanceBadge" style="background: #0F172A; color: #FFCC00; border: 1px solid #334155; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                            Calculating distance...
+                        </span>
+                        <button type="button" onclick="centerRoute()" style="background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            🎯 Fit Route
+                        </button>
+                        <button type="button" onclick="centerTechnician()" style="background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            🛵 Tech
+                        </button>
+                        <button type="button" onclick="centerDestination()" style="background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            🏠 Home
+                        </button>
+                    </div>
+
+                    <!-- Arrival Banner Alert (Hidden by default, triggered when arrived) -->
+                    <div id="arrivedAlertBanner" style="display: none; position: absolute; bottom: 16px; right: 16px; z-index: 999; background: #10B981; color: #FFFFFF; border-radius: 10px; padding: 8px 16px; font-size: 12.5px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.2); align-items: center; gap: 8px;">
+                        <span>✓</span> Technician has arrived at your gate!
+                    </div>
+
                 </div>
 
                 <!-- Technician Contact & Arrival OTP Card matching Mockup 1 -->
@@ -256,4 +255,160 @@
     @endif
 
 </div>
+
+@if($booking)
+<!-- Leaflet OpenStreetMap Assets -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<style>
+@keyframes radarPing {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes pulseGps {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const trackingEndpoint = "{{ route('customer.booking.tracking-data', $booking->id) }}";
+    let initialData = @json($booking->getLiveTrackingPayload());
+
+    let map = null;
+    let techMarker = null;
+    let destMarker = null;
+    let routeLine = null;
+
+    const techIcon = L.divIcon({
+        className: 'tech-marker-wrapper',
+        html: `<div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #0F172A; border: 3px solid #FFCC00; border-radius: 50%; box-shadow: 0 6px 18px rgba(0,0,0,0.35); font-size: 20px;">
+                    🛵
+                    <span style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #FFCC00; animation: radarPing 2s infinite ease-out; pointer-events: none;"></span>
+               </div>`,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22]
+    });
+
+    const destIcon = L.divIcon({
+        className: 'dest-marker-wrapper',
+        html: `<div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #10B981; border: 3px solid #FFFFFF; border-radius: 50%; box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4); font-size: 19px;">
+                    🏠
+               </div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+
+    function initMap(data) {
+        const techCoord = [data.technician.lat, data.technician.lng];
+        const destCoord = [data.destination.lat, data.destination.lng];
+
+        map = L.map('liveTrackingMap', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView(destCoord, 14);
+
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        techMarker = L.marker(techCoord, { icon: techIcon }).addTo(map)
+            .bindPopup(`<strong>${data.technician.name}</strong><br><span style="font-size:12px;color:#666;">En-route to your address</span>`);
+
+        destMarker = L.marker(destCoord, { icon: destIcon }).addTo(map)
+            .bindPopup(`<strong>Your Address</strong><br><span style="font-size:12px;color:#666;">${data.destination.address}</span>`);
+
+        routeLine = L.polyline([techCoord, destCoord], {
+            color: '#FFB800',
+            weight: 5,
+            opacity: 0.85,
+            dashArray: '8, 8',
+            lineCap: 'round'
+        }).addTo(map);
+
+        centerRoute();
+        updateUI(data);
+    }
+
+    window.centerRoute = function() {
+        if (!map || !techMarker || !destMarker) return;
+        const bounds = L.latLngBounds([techMarker.getLatLng(), destMarker.getLatLng()]);
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 });
+    };
+
+    window.centerTechnician = function() {
+        if (!map || !techMarker) return;
+        map.flyTo(techMarker.getLatLng(), 16);
+        techMarker.openPopup();
+    };
+
+    window.centerDestination = function() {
+        if (!map || !destMarker) return;
+        map.flyTo(destMarker.getLatLng(), 16);
+        destMarker.openPopup();
+    };
+
+    function updateUI(data) {
+        const etaText = document.getElementById('liveEtaText');
+        const distanceBadge = document.getElementById('liveDistanceBadge');
+        const arrivedBanner = document.getElementById('arrivedAlertBanner');
+
+        if (etaText) {
+            etaText.textContent = `~${data.eta_minutes} Mins (${data.distance_km} km away)`;
+        }
+
+        if (distanceBadge) {
+            distanceBadge.textContent = `📍 ${data.distance_km} km away • ${data.technician.updated_at}`;
+        }
+
+        if (arrivedBanner) {
+            if (data.is_arrived) {
+                arrivedBanner.style.display = 'flex';
+                document.getElementById('liveStatusText').textContent = 'TECHNICIAN ARRIVED';
+            } else {
+                arrivedBanner.style.display = 'none';
+            }
+        }
+    }
+
+    function pollLocation() {
+        fetch(trackingEndpoint, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const newTechCoord = [data.technician.lat, data.technician.lng];
+            const destCoord = [data.destination.lat, data.destination.lng];
+
+            if (techMarker) {
+                techMarker.setLatLng(newTechCoord);
+            }
+            if (routeLine) {
+                routeLine.setLatLngs([newTechCoord, destCoord]);
+            }
+
+            updateUI(data);
+        })
+        .catch(err => console.debug('Tracking poll:', err));
+    }
+
+    initMap(initialData);
+
+    // Dynamic continuous polling every 4 seconds
+    setInterval(pollLocation, 4000);
+});
+</script>
+@endif
+
 @endsection

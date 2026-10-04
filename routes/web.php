@@ -169,6 +169,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     // Live Tracking & Service State
     Route::get('/tracking', [CustomerPortalController::class, 'tracking'])->name('tracking');
     Route::get('/booking/{booking}/tracking', [CustomerPortalController::class, 'tracking'])->name('booking.tracking');
+    Route::get('/booking/{booking}/tracking-data', [CustomerPortalController::class, 'trackingData'])->name('booking.tracking-data');
 
     // Customer Bookings Management
     Route::get('/bookings', [CustomerPortalController::class, 'bookings'])->name('bookings');
@@ -249,6 +250,8 @@ Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:tech
 
     // Active Service Execution & Handshake OTP
     Route::get('/active-job', [TechnicianPortalController::class, 'activeJob'])->name('active-job');
+    Route::post('/active-job/{booking}/location', [TechnicianPortalController::class, 'updateLocation'])->name('active-job.location');
+    Route::post('/active-job/{booking}/simulate-step', [TechnicianPortalController::class, 'simulateStep'])->name('active-job.simulate-step');
     Route::post('/active-job/{booking}/verify-otp', [TechnicianPortalController::class, 'verifyOtp'])->name('active-job.verify-otp');
     Route::post('/active-job/{booking}/complete', [TechnicianPortalController::class, 'completeJob'])->name('active-job.complete');
 

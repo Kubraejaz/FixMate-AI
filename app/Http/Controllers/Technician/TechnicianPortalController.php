@@ -275,6 +275,71 @@ class TechnicianPortalController extends Controller
     }
 
     /**
+     * Broadcast live technician GPS coordinates from mobile phone.
+     */
+    public function updateLocation(Request $request, Booking $booking): \Illuminate\Http\JsonResponse
+    {
+        $pro = $this->getProfessional();
+
+        if ($booking->professional_id !== $pro->id) {
+            return response()->json(['error' => 'Unauthorized booking'], 403);
+        }
+
+        $validated = $request->validate([
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'eta_minutes' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $booking->update([
+            'technician_latitude' => $validated['latitude'],
+            'technician_longitude' => $validated['longitude'],
+            'tracking_eta_minutes' => $validated['eta_minutes'] ?? $booking->tracking_eta_minutes,
+            'location_updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $booking->getLiveTrackingPayload(),
+        ]);
+    }
+
+    /**
+     * Simulate movement 30% closer to customer destination (for demonstration & testing).
+     */
+    public function simulateStep(Request $request, Booking $booking): \Illuminate\Http\JsonResponse
+    {
+        $pro = $this->getProfessional();
+
+        if ($booking->professional_id !== $pro->id) {
+            return response()->json(['error' => 'Unauthorized booking'], 403);
+        }
+
+        $current = $booking->getLiveTrackingPayload();
+        $curTechLat = $current['technician']['lat'];
+        $curTechLng = $current['technician']['lng'];
+        $destLat = $current['destination']['lat'];
+        $destLng = $current['destination']['lng'];
+
+        // Move 30% closer towards destination
+        $stepFraction = 0.30;
+        $newLat = $curTechLat + (($destLat - $curTechLat) * $stepFraction);
+        $newLng = $curTechLng + (($destLng - $curTechLng) * $stepFraction);
+
+        $booking->update([
+            'technician_latitude' => $newLat,
+            'technician_longitude' => $newLng,
+            'location_updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Simulated GPS movement closer to destination.',
+            'data' => $booking->getLiveTrackingPayload(),
+        ]);
+    }
+
+    /**
      * Active Service Execution & Handshake OTP Screen
      */
     public function activeJob(Request $request): View

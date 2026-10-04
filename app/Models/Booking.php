@@ -23,6 +23,12 @@ class Booking extends Model
         'service_time_slot',
         'service_address',
         'city',
+        'technician_latitude',
+        'technician_longitude',
+        'destination_latitude',
+        'destination_longitude',
+        'tracking_eta_minutes',
+        'location_updated_at',
         'status',
         'arrival_otp',
         'base_price',
@@ -39,6 +45,12 @@ class Booking extends Model
             'service_date' => 'date',
             'base_price' => 'integer',
             'total_price' => 'integer',
+            'tracking_eta_minutes' => 'integer',
+            'technician_latitude' => 'float',
+            'technician_longitude' => 'float',
+            'destination_latitude' => 'float',
+            'destination_longitude' => 'float',
+            'location_updated_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
     }
@@ -116,5 +128,65 @@ class Booking extends Model
     public function getFormattedTotalAttribute(): string
     {
         return 'Rs. ' . number_format($this->total_price);
+    }
+
+    /**
+     * Get or calculate default destination and technician coordinates.
+     */
+    public function getLiveTrackingPayload(): array
+    {
+        // City coordinate anchor presets
+        $cityPresets = [
+            'karachi' => ['dest_lat' => 24.8716, 'dest_lng' => 67.0599, 'tech_lat' => 24.8530, 'tech_lng' => 67.0250],
+            'lahore' => ['dest_lat' => 31.5497, 'dest_lng' => 74.3436, 'tech_lat' => 31.5204, 'tech_lng' => 74.3210],
+            'islamabad' => ['dest_lat' => 33.7294, 'dest_lng' => 73.0931, 'tech_lat' => 33.6980, 'tech_lng' => 73.0450],
+            'rawalpindi' => ['dest_lat' => 33.5950, 'dest_lng' => 73.0550, 'tech_lat' => 33.5651, 'tech_lng' => 73.0169],
+        ];
+
+        $cityKey = strtolower(trim($this->city ?: 'karachi'));
+        $preset = $cityPresets[$cityKey] ?? $cityPresets['karachi'];
+
+        $destLat = $this->destination_latitude ?? $preset['dest_lat'];
+        $destLng = $this->destination_longitude ?? $preset['dest_lng'];
+
+        $techLat = $this->technician_latitude ?? $preset['tech_lat'];
+        $techLng = $this->technician_longitude ?? $preset['tech_lng'];
+
+        // Calculate real-time distance using Haversine
+        $dLat = deg2rad($destLat - $techLat);
+        $dLon = deg2rad($destLng - $techLng);
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($techLat)) * cos(deg2rad($destLat)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distanceKm = round(6371 * $c, 2);
+
+        // Approximate city traffic ETA (average speed 25 km/h)
+        $computedEta = max(2, (int) round(($distanceKm / 25) * 60));
+        $etaMinutes = $this->tracking_eta_minutes ?? $computedEta;
+
+        return [
+            'booking_id' => $this->id,
+            'booking_number' => $this->booking_number,
+            'status' => $this->status,
+            'status_label' => $this->status_label,
+            'technician' => [
+                'name' => $this->professional?->name ?? 'Verified FixMate Partner',
+                'profession' => $this->profession?->name ?? 'Technician',
+                'lat' => $techLat,
+                'lng' => $techLng,
+                'phone' => $this->professional?->phone ?? $this->professional?->user?->phone ?? '+92 300 1234567',
+                'rating' => $this->professional?->rating ?? '4.9',
+                'updated_at' => $this->location_updated_at ? $this->location_updated_at->diffForHumans() : 'Just now',
+            ],
+            'destination' => [
+                'address' => $this->service_address,
+                'city' => $this->city,
+                'lat' => $destLat,
+                'lng' => $destLng,
+            ],
+            'distance_km' => $distanceKm,
+            'eta_minutes' => $etaMinutes,
+            'arrival_otp' => $this->arrival_otp,
+            'is_arrived' => $distanceKm <= 0.08 || in_array($this->status, ['in_progress', 'completed']),
+        ];
     }
 }

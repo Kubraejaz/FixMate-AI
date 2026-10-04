@@ -61,7 +61,51 @@
             </div>
         </div>
 
-        @if($booking->status !== 'in_progress')
+        @if($booking->status === 'en_route')
+            <!-- Live GPS Geolocation Broadcaster Card -->
+            <div class="portal-card" style="padding: 24px; background: #0F172A; color: #FFFFFF; border-radius: 16px; margin-bottom: 24px; border: 2px solid #FFCC00; box-shadow: 0 10px 28px rgba(0,0,0,0.25);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(255,204,0,0.15); border: 2px solid #FFCC00; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                            🛵
+                        </div>
+                        <div>
+                            <strong style="font-size: 16px; display: block; color: #FFFFFF;">Live GPS Dispatch Active</strong>
+                            <span style="font-size: 12px; color: #94A3B8;">Broadcasting real-time coordinates to customer map</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: #065F46; color: #34D399; border: 1px solid #10B981; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+                            <span style="width: 7px; height: 7px; border-radius: 50%; background: #34D399; animation: pulseGps 1.5s infinite;"></span>
+                            GPS SYNC ON
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: rgba(255,255,255,0.06); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;">
+                    <div>
+                        <span style="font-size: 11px; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Customer Destination</span>
+                        <strong style="display: block; font-size: 13.5px; color: #F8FAFC; margin-top: 2px;">{{ $booking->service_address }}, {{ $booking->city }}</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Real-Time Status</span>
+                        <strong id="techGpsStatus" style="display: block; font-size: 13.5px; color: #FFCC00; margin-top: 2px;">
+                            Calculating Distance...
+                        </strong>
+                    </div>
+                </div>
+
+                <!-- Simulation & Actions Row -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <span style="font-size: 12px; color: #94A3B8;">
+                        💡 Testing without riding? Click below to simulate movement:
+                    </span>
+                    <button type="button" id="simulateGpsBtn" onclick="simulateStep()" style="background: #FFCC00; color: #000000; font-weight: 900; font-size: 12.5px; border: none; border-radius: 8px; padding: 9px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(255,204,0,0.3);">
+                        ⚡ Simulate Movement (30% Closer)
+                    </button>
+                </div>
+            </div>
+        @endif
             <!-- Handshake Arrival OTP Verification Card -->
             <div class="portal-card" style="padding: 32px; background: #FFFFFF; margin-bottom: 24px; border: 2px solid #FFCC00;">
                 <div style="text-align: center; max-width: 480px; margin: 0 auto;">
@@ -140,4 +184,102 @@
     @endif
 
 </div>
+
+@if($booking && $booking->status === 'en_route')
+<style>
+@keyframes pulseGps {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.85); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const locationEndpoint = "{{ route('technician.active-job.location', $booking->id) }}";
+    const simulateEndpoint = "{{ route('technician.active-job.simulate-step', $booking->id) }}";
+    const csrfToken = "{{ csrf_token() }}";
+    let initialData = @json($booking->getLiveTrackingPayload());
+
+    const statusEl = document.getElementById('techGpsStatus');
+    const simBtn = document.getElementById('simulateGpsBtn');
+
+    function updateStatusUI(data) {
+        if (statusEl) {
+            statusEl.textContent = `~${data.distance_km} km away • ETA ~${data.eta_minutes} min`;
+        }
+    }
+
+    updateStatusUI(initialData);
+
+    // 1. Mobile HTML5 Geolocation Broadcasting
+    if ("geolocation" in navigator) {
+        navigator.geolocation.watchPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                fetch(locationEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        latitude: lat,
+                        longitude: lng
+                    })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.data) {
+                        updateStatusUI(res.data);
+                    }
+                })
+                .catch(err => console.debug('GPS push:', err));
+            },
+            function(err) {
+                console.debug('Geolocation watch warning:', err.message);
+            },
+            { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+        );
+    }
+
+    // 2. Testing Simulation (Allows moving 30% closer with 1 click)
+    window.simulateStep = function() {
+        if (!simBtn) return;
+        simBtn.disabled = true;
+        simBtn.textContent = 'Updating...';
+
+        fetch(simulateEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(res => {
+            simBtn.disabled = false;
+            simBtn.textContent = '⚡ Simulate Movement (30% Closer)';
+            if (res.success && res.data) {
+                updateStatusUI(res.data);
+                if (typeof showToast === 'function') {
+                    showToast(`GPS Location Updated! You are now ~${res.data.distance_km} km from customer.`);
+                }
+            }
+        })
+        .catch(err => {
+            simBtn.disabled = false;
+            simBtn.textContent = '⚡ Simulate Movement (30% Closer)';
+            console.error('Simulate step error:', err);
+        });
+    };
+});
+</script>
+@endif
+
 @endsection
