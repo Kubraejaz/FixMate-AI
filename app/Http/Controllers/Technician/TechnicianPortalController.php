@@ -831,9 +831,52 @@ class TechnicianPortalController extends Controller
     }
 
     /**
+     * Real-time live chat polling stream for technician.
+     */
+    public function messagesStream(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+        $clientId = $request->input('client_id');
+        $afterId = (int) $request->input('after_id', 0);
+
+        if (! $clientId) {
+            return response()->json(['messages' => []]);
+        }
+
+        $query = Message::where(function ($q) use ($user, $clientId) {
+            $q->where('sender_id', $user->id)->where('receiver_id', $clientId);
+        })->orWhere(function ($q) use ($user, $clientId) {
+            $q->where('sender_id', $clientId)->where('receiver_id', $user->id);
+        });
+
+        if ($afterId > 0) {
+            $query->where('id', '>', $afterId);
+        }
+
+        $messages = $query->oldest()->get();
+
+        // Mark incoming messages as read
+        Message::where('sender_id', $clientId)
+            ->where('receiver_id', $user->id)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'messages' => $messages->map(fn($m) => [
+                'id' => $m->id,
+                'sender_id' => $m->sender_id,
+                'is_me' => $m->sender_id === $user->id,
+                'message' => $m->message,
+                'time' => $m->created_at->format('h:i A'),
+                'created_at' => $m->created_at->toISOString(),
+            ]),
+        ]);
+    }
+
+    /**
      * Send message from technician to customer
      */
-    public function sendMessage(Request $request): RedirectResponse
+    public function sendMessage(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'receiver_id' => ['required', 'exists:users,id'],
@@ -844,7 +887,7 @@ class TechnicianPortalController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        Message::create([
+        $msg = Message::create([
             'sender_id' => $user->id,
             'receiver_id' => $validated['receiver_id'],
             'booking_id' => $validated['booking_id'] ?? null,
@@ -859,6 +902,20 @@ class TechnicianPortalController extends Controller
             Str::limit($validated['message'], 100),
             route('customer.messages', ['tech' => $user->id])
         );
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => [
+                    'id' => $msg->id,
+                    'sender_id' => $msg->sender_id,
+                    'is_me' => true,
+                    'message' => $msg->message,
+                    'time' => $msg->created_at->format('h:i A'),
+                    'created_at' => $msg->created_at->toISOString(),
+                ],
+            ]);
+        }
 
         return back()->with('success', 'Message dispatched to customer.');
     }

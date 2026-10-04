@@ -177,6 +177,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
 
     // Messages & Communication
     Route::get('/messages', [CustomerPortalController::class, 'messages'])->name('messages');
+    Route::get('/messages/stream', [CustomerPortalController::class, 'messagesStream'])->name('messages.stream');
     Route::post('/messages', [CustomerPortalController::class, 'sendMessage'])->name('messages.send');
 
     // Ratings & Reviews
@@ -283,7 +284,9 @@ Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:tech
 
     // Direct Messages with Customers
     Route::get('/messages', [TechnicianPortalController::class, 'messages'])->name('messages');
+    Route::get('/messages/stream', [TechnicianPortalController::class, 'messagesStream'])->name('messages.stream');
     Route::post('/messages/send', [TechnicianPortalController::class, 'sendMessage'])->name('messages.send');
+    Route::post('/messages', [TechnicianPortalController::class, 'sendMessage']);
 
     // Dedicated Speedy Notifications Page
     Route::get('/notifications', [TechnicianPortalController::class, 'notifications'])->name('notifications');

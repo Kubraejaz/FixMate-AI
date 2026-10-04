@@ -105,7 +105,7 @@
                 <!-- Dynamic Chat Conversation from Database -->
                 @foreach($chatMessages as $msg)
                     @php $isMine = $msg->sender_id === auth()->id(); @endphp
-                    <div style="display: flex; gap: 10px; max-width: 75%; align-self: {{ $isMine ? 'flex-end' : 'flex-start' }};">
+                    <div class="chat-bubble-row" data-msg-id="{{ $msg->id }}" style="display: flex; gap: 10px; max-width: 75%; align-self: {{ $isMine ? 'flex-end' : 'flex-start' }};">
                         <div style="background: {{ $isMine ? '#FFB800' : '#FFFFFF' }}; color: #0F172A; border: {{ $isMine ? 'none' : '1px solid var(--border-color)' }}; padding: 10px 14px; border-radius: {{ $isMine ? '14px 14px 2px 14px' : '14px 14px 14px 2px' }}; font-size: 13.5px; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
                             <p style="margin: 0; white-space: pre-wrap;">{{ $msg->message }}</p>
                             <span style="display: block; font-size: 10px; color: {{ $isMine ? '#78350F' : '#94A3B8' }}; margin-top: 4px; text-align: right;">
@@ -118,14 +118,14 @@
             </div>
 
             <!-- Chat Input Bar -->
-            <form action="{{ route('customer.messages.send') }}" method="POST" style="padding: 14px 20px; background: #FFFFFF; border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center;">
+            <form id="chatSendForm" action="{{ route('customer.messages.send') }}" method="POST" style="padding: 14px 20px; background: #FFFFFF; border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center;">
                 @csrf
-                <input type="hidden" name="technician_id" value="{{ $selectedTech->id }}">
+                <input type="hidden" name="technician_id" id="chatTechId" value="{{ $selectedTech->id }}">
                 @if($activeBooking)
                     <input type="hidden" name="booking_id" value="{{ $activeBooking->id }}">
                 @endif
                 <input type="text" name="message" id="messageInput" placeholder="Type a message to {{ $selectedTech->name }}..." class="form-input" required autocomplete="off" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
-                <button type="submit" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer; border-radius: 8px;">
+                <button type="submit" id="chatSendBtn" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer; border-radius: 8px;">
                     Send
                 </button>
             </form>
@@ -191,7 +191,135 @@ document.addEventListener('DOMContentLoaded', function() {
         stream.scrollTop = stream.scrollHeight;
     }
 
-    // 2. Call Modal triggers
+    // Web Audio Chime for new incoming messages
+    function playChatChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        } catch (e) {}
+    }
+
+    // 2. Real-Time Asynchronous Chat Engine
+    const chatForm = document.getElementById('chatSendForm');
+    const msgInput = document.getElementById('messageInput');
+    const techName = "{{ $selectedTech->name ?? 'Technician' }}";
+    const streamUrl = "{{ route('customer.messages.stream') }}";
+    const techId = "{{ $selectedTech->id ?? '' }}";
+
+    // Track highest message ID rendered on screen
+    let lastMsgId = 0;
+    document.querySelectorAll('.chat-bubble-row').forEach(el => {
+        const id = parseInt(el.getAttribute('data-msg-id'), 10);
+        if (id > lastMsgId) lastMsgId = id;
+    });
+
+    function appendMessageBubble(msg, isMine) {
+        if (!stream) return;
+        const row = document.createElement('div');
+        row.className = 'chat-bubble-row';
+        row.setAttribute('data-msg-id', msg.id);
+        row.style.display = 'flex';
+        row.style.gap = '10px';
+        row.style.maxWidth = '75%';
+        row.style.alignSelf = isMine ? 'flex-end' : 'flex-start';
+
+        row.innerHTML = `
+            <div style="background: ${isMine ? '#FFB800' : '#FFFFFF'}; color: #0F172A; border: ${isMine ? 'none' : '1px solid var(--border-color)'}; padding: 10px 14px; border-radius: ${isMine ? '14px 14px 2px 14px' : '14px 14px 14px 2px'}; font-size: 13.5px; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(msg.message)}</p>
+                <span style="display: block; font-size: 10px; color: ${isMine ? '#78350F' : '#94A3B8'}; margin-top: 4px; text-align: right;">
+                    ${msg.time || 'Just now'} • ${isMine ? 'Sent' : techName}
+                </span>
+            </div>
+        `;
+        stream.appendChild(row);
+        stream.scrollTop = stream.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    if (chatForm && msgInput) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const text = msgInput.value.trim();
+            if (!text) return;
+
+            const sendBtn = document.getElementById('chatSendBtn');
+            const originalBtnText = sendBtn ? sendBtn.textContent : 'Send';
+            if (sendBtn) sendBtn.disabled = true;
+
+            const formData = new FormData(chatForm);
+
+            fetch(chatForm.action, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (sendBtn) sendBtn.disabled = false;
+                msgInput.value = '';
+                msgInput.focus();
+
+                if (res.success && res.message) {
+                    if (res.message.id > lastMsgId) {
+                        lastMsgId = res.message.id;
+                    }
+                    appendMessageBubble(res.message, true);
+                }
+            })
+            .catch(err => {
+                if (sendBtn) sendBtn.disabled = false;
+                // If network fails, submit standard form
+                chatForm.submit();
+            });
+        });
+    }
+
+    // Poll for incoming messages from technician every 3 seconds
+    if (techId && streamUrl) {
+        setInterval(function() {
+            fetch(`${streamUrl}?tech_id=${techId}&after_id=${lastMsgId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.messages && res.messages.length > 0) {
+                    let hasIncoming = false;
+                    res.messages.forEach(msg => {
+                        if (msg.id > lastMsgId) {
+                            lastMsgId = msg.id;
+                            appendMessageBubble(msg, msg.is_me);
+                            if (!msg.is_me) hasIncoming = true;
+                        }
+                    });
+                    if (hasIncoming) playChatChime();
+                }
+            })
+            .catch(err => console.debug('Chat poll:', err));
+        }, 3000);
+    }
+
+    // 3. Call Modal triggers
     const openBtn = document.getElementById('openCallModalBtn');
     const closeBtn = document.getElementById('closeCallModalBtn');
     const modal = document.getElementById('callModal');

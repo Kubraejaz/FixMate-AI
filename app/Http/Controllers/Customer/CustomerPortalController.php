@@ -984,9 +984,62 @@ class CustomerPortalController extends Controller
     }
 
     /**
+     * Real-time live chat polling stream for customer.
+     */
+    public function messagesStream(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+        $techId = $request->input('tech_id');
+        $afterId = (int) $request->input('after_id', 0);
+
+        if (! $techId) {
+            return response()->json(['messages' => []]);
+        }
+
+        $pro = is_numeric($techId)
+            ? Professional::find($techId)
+            : Professional::all()->first(fn($t) => strtolower(str_replace(' ', '-', $t->name)) === strtolower($techId));
+
+        if (! $pro || ! $pro->user_id) {
+            return response()->json(['messages' => []]);
+        }
+
+        $techUserId = $pro->user_id;
+
+        $query = Message::where(function ($q) use ($user, $techUserId) {
+            $q->where('sender_id', $user->id)->where('receiver_id', $techUserId);
+        })->orWhere(function ($q) use ($user, $techUserId) {
+            $q->where('sender_id', $techUserId)->where('receiver_id', $user->id);
+        });
+
+        if ($afterId > 0) {
+            $query->where('id', '>', $afterId);
+        }
+
+        $messages = $query->oldest()->get();
+
+        // Mark incoming messages as read
+        Message::where('sender_id', $techUserId)
+            ->where('receiver_id', $user->id)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'messages' => $messages->map(fn($m) => [
+                'id' => $m->id,
+                'sender_id' => $m->sender_id,
+                'is_me' => $m->sender_id === $user->id,
+                'message' => $m->message,
+                'time' => $m->created_at->format('h:i A'),
+                'created_at' => $m->created_at->toISOString(),
+            ]),
+        ]);
+    }
+
+    /**
      * Send direct message to technician.
      */
-    public function sendMessage(Request $request): RedirectResponse
+    public function sendMessage(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'technician_id' => ['required', 'exists:professionals,id'],
@@ -997,7 +1050,7 @@ class CustomerPortalController extends Controller
         $professional = Professional::findOrFail($validated['technician_id']);
         $receiverUserId = $professional->user_id;
 
-        Message::create([
+        $msg = Message::create([
             'sender_id' => auth()->id(),
             'receiver_id' => $receiverUserId,
             'booking_id' => $validated['booking_id'] ?? null,
@@ -1014,6 +1067,20 @@ class CustomerPortalController extends Controller
                 Str::limit($validated['message'], 100),
                 $chatUrl
             );
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => [
+                    'id' => $msg->id,
+                    'sender_id' => $msg->sender_id,
+                    'is_me' => true,
+                    'message' => $msg->message,
+                    'time' => $msg->created_at->format('h:i A'),
+                    'created_at' => $msg->created_at->toISOString(),
+                ],
+            ]);
         }
 
         return back()->with('success', 'Message dispatched to technician via SMS & App chat.');
