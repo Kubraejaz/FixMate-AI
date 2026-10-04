@@ -525,9 +525,40 @@ class CustomerPortalController extends Controller
                 $booking->professional->user_id,
                 'booking_assigned',
                 "New Booking Assigned: #{$booking->booking_number}",
-                "Customer booked {$booking->service_title} in {$booking->city}.",
-                route('technician.dashboard')
+                "Customer " . auth()->user()->name . " booked {$booking->service_title} in {$booking->city}.",
+                route('technician.jobs.details', $booking->booking_number)
             );
+
+            // Create initial chat message from customer to technician
+            Message::create([
+                'sender_id' => $booking->user_id,
+                'receiver_id' => $booking->professional->user_id,
+                'booking_id' => $booking->id,
+                'message' => "Hello! I have booked '{$booking->service_title}' scheduled for {$booking->service_date->format('M d, Y')} ({$booking->service_time_slot}) at {$booking->service_address}, {$booking->city}.",
+                'is_read' => false,
+            ]);
+
+            Notification::sendToUser(
+                $booking->professional->user_id,
+                'chat_message',
+                "New Booking Message from " . auth()->user()->name,
+                "Hello! I have booked '{$booking->service_title}' scheduled for {$booking->service_date->format('M d, Y')} ({$booking->service_time_slot}).",
+                route('technician.messages') . '?booking_id=' . $booking->id
+            );
+        } else {
+            // Open pool booking: Notify verified technicians of this profession
+            $matchingPros = Professional::where('profession_id', $booking->profession_id)->get();
+            foreach ($matchingPros as $pro) {
+                if ($pro->user_id) {
+                    Notification::sendToUser(
+                        $pro->user_id,
+                        'new_job_available',
+                        "New Available Job: #{$booking->booking_number}",
+                        "{$booking->service_title} in {$booking->city}. Tap to claim or view details.",
+                        route('technician.jobs.details', $booking->booking_number)
+                    );
+                }
+            }
         }
 
         Notification::notifyAdmins(
@@ -835,13 +866,14 @@ class CustomerPortalController extends Controller
 
         // Fetch real chat conversation
         $chatMessages = collect();
-        if ($selectedTech) {
-            $chatMessages = Message::where(function ($q) use ($user, $selectedTech) {
+        if ($selectedTech && $selectedTech->user_id) {
+            $techUserId = $selectedTech->user_id;
+            $chatMessages = Message::where(function ($q) use ($user, $techUserId) {
                 $q->where('sender_id', $user->id)
-                  ->where('professional_id', $selectedTech->id);
-            })->orWhere(function ($q) use ($user, $selectedTech) {
-                $q->where('receiver_id', $user->id)
-                  ->where('professional_id', $selectedTech->id);
+                  ->where('receiver_id', $techUserId);
+            })->orWhere(function ($q) use ($user, $techUserId) {
+                $q->where('sender_id', $techUserId)
+                  ->where('receiver_id', $user->id);
             })->oldest()->get();
         }
 
@@ -865,23 +897,75 @@ class CustomerPortalController extends Controller
         Message::create([
             'sender_id' => auth()->id(),
             'receiver_id' => $receiverUserId,
-            'professional_id' => $professional->id,
             'booking_id' => $validated['booking_id'] ?? null,
             'message' => trim($validated['message']),
             'is_read' => false,
         ]);
 
         if ($receiverUserId) {
+            $chatUrl = route('technician.messages') . (!empty($validated['booking_id']) ? '?booking_id=' . $validated['booking_id'] : '');
             Notification::sendToUser(
                 $receiverUserId,
                 'chat_message',
                 'New Message from ' . auth()->user()->name,
                 Str::limit($validated['message'], 100),
-                route('technician.dashboard')
+                $chatUrl
             );
         }
 
         return back()->with('success', 'Message dispatched to technician via SMS & App chat.');
+    }
+
+    /**
+     * Dedicated Customer Notifications Page
+     */
+    public function notifications(Request $request): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+        $filter = $request->input('filter', 'all');
+
+        $query = $user->notifications()->latest();
+
+        if ($filter === 'unread') {
+            $query->unread();
+        }
+
+        $notifications = $query->paginate(15)->withQueryString();
+        $unreadCount = $user->notifications()->unread()->count();
+
+        return view('Frontend.customer.notifications', compact('user', 'notifications', 'unreadCount', 'filter'));
+    }
+
+    /**
+     * Open single notification and redirect to destination.
+     */
+    public function openNotification(Notification $notification): RedirectResponse
+    {
+        if ($notification->user_id === auth()->id()) {
+            $notification->update(['is_read' => true]);
+        }
+
+        return redirect()->to($notification->link ?: route('customer.dashboard'));
+    }
+
+    /**
+     * Mark single notification as read
+     */
+    public function markSingleNotificationRead(Request $request, Notification $notification)
+    {
+        if ($notification->user_id === auth()->id()) {
+            $notification->update(['is_read' => true]);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'unread_count' => auth()->user()->notifications()->unread()->count(),
+            ]);
+        }
+
+        return back()->with('success', 'Notification marked as read.');
     }
 
     /**
@@ -914,7 +998,10 @@ class CustomerPortalController extends Controller
         auth()->user()->notifications()->where('is_read', false)->update(['is_read' => true]);
 
         if ($request->wantsJson()) {
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'unread_count' => 0,
+            ]);
         }
 
         return back()->with('success', 'All notifications marked as read.');

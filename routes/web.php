@@ -25,6 +25,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Customer\CustomerPortalController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\Technician\TechnicianPortalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -191,7 +192,11 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::get('/settings', [CustomerPortalController::class, 'settings'])->name('settings');
     Route::post('/settings/password', [CustomerPortalController::class, 'updatePassword'])->name('password.update');
     Route::post('/settings/notifications', [CustomerPortalController::class, 'updateNotificationSettings'])->name('settings.notifications');
+    Route::get('/notifications', [CustomerPortalController::class, 'notifications'])->name('notifications');
+    Route::get('/notifications/{notification}/open', [CustomerPortalController::class, 'openNotification'])->name('notifications.open');
+    Route::match(['patch', 'post'], '/notifications/{notification}/read', [CustomerPortalController::class, 'markSingleNotificationRead'])->name('notifications.single-read');
     Route::post('/notifications/read', [CustomerPortalController::class, 'markNotificationsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [CustomerPortalController::class, 'markNotificationsRead'])->name('notifications.read-all');
 
 });
 
@@ -234,68 +239,54 @@ Route::get('/chat', function () {
 Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:technician'])->group(function () {
     
     // Technician Dashboard
-    Route::get('/dashboard', function () {
-        return view('Frontend.technician.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [TechnicianPortalController::class, 'dashboard'])->name('dashboard');
 
     // Jobs & Dispatches
-    Route::get('/jobs', function () {
-        return view('Frontend.technician.jobs');
-    })->name('jobs');
-
-    Route::get('/jobs/{id}', function ($id = 'FM-10245') {
-        return view('Frontend.technician.job-details', ['jobId' => $id]);
-    })->name('jobs.details');
+    Route::get('/jobs', [TechnicianPortalController::class, 'jobs'])->name('jobs');
+    Route::get('/jobs/{id}', [TechnicianPortalController::class, 'jobDetails'])->name('jobs.details');
+    Route::post('/jobs/{booking}/accept', [TechnicianPortalController::class, 'acceptJob'])->name('jobs.accept');
+    Route::post('/jobs/{booking}/start-route', [TechnicianPortalController::class, 'startRoute'])->name('jobs.start-route');
 
     // Active Service Execution & Handshake OTP
-    Route::get('/active-job', function () {
-        return view('Frontend.technician.active-job');
-    })->name('active-job');
+    Route::get('/active-job', [TechnicianPortalController::class, 'activeJob'])->name('active-job');
+    Route::post('/active-job/{booking}/verify-otp', [TechnicianPortalController::class, 'verifyOtp'])->name('active-job.verify-otp');
+    Route::post('/active-job/{booking}/complete', [TechnicianPortalController::class, 'completeJob'])->name('active-job.complete');
 
     // KYC Verification Pipeline
-    Route::get('/verification', function () {
-        return view('Frontend.technician.verification');
-    })->name('verification');
+    Route::get('/verification', [TechnicianPortalController::class, 'verification'])->name('verification');
+    Route::post('/verification', [TechnicianPortalController::class, 'submitVerification'])->name('verification.submit');
 
     // Earnings & Payout Ledger
-    Route::get('/earnings', function () {
-        return view('Frontend.technician.earnings');
-    })->name('earnings');
-
-    Route::get('/payouts', function () {
-        return view('Frontend.technician.earnings');
-    })->name('payouts');
+    Route::get('/earnings', [TechnicianPortalController::class, 'earnings'])->name('earnings');
+    Route::get('/payouts', [TechnicianPortalController::class, 'earnings'])->name('payouts');
 
     // Schedule & Availability
-    Route::get('/schedule', function () {
-        return view('Frontend.technician.schedule');
-    })->name('schedule');
+    Route::get('/schedule', [TechnicianPortalController::class, 'schedule'])->name('schedule');
+    Route::get('/availability', [TechnicianPortalController::class, 'schedule'])->name('availability');
 
-    Route::get('/availability', function () {
-        return view('Frontend.technician.profile');
-    })->name('availability');
-
-    Route::get('/skills', function () {
-        return view('Frontend.technician.profile');
-    })->name('skills');
+    // Skills & Services
+    Route::get('/skills', [TechnicianPortalController::class, 'skills'])->name('skills');
+    Route::post('/skills', [TechnicianPortalController::class, 'updateSkills'])->name('skills.update');
 
     // Profile & Settings
-    Route::get('/profile', function () {
-        return view('Frontend.technician.profile');
-    })->name('profile');
-
-    Route::get('/settings', function () {
-        return view('Frontend.technician.profile');
-    })->name('settings');
+    Route::get('/profile', [TechnicianPortalController::class, 'profile'])->name('profile');
+    Route::post('/profile', [TechnicianPortalController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/settings', [TechnicianPortalController::class, 'profile'])->name('settings');
 
     // Customer Reviews
-    Route::get('/reviews', function () {
-        return view('Frontend.technician.reviews');
-    })->name('reviews');
+    Route::get('/reviews', [TechnicianPortalController::class, 'reviews'])->name('reviews');
+    Route::post('/reviews/{review}/reply', [TechnicianPortalController::class, 'replyReview'])->name('reviews.reply');
 
-    Route::get('/messages', function () {
-        return view('Frontend.technician.messages');
-    })->name('messages');
+
+    // Direct Messages with Customers
+    Route::get('/messages', [TechnicianPortalController::class, 'messages'])->name('messages');
+    Route::post('/messages/send', [TechnicianPortalController::class, 'sendMessage'])->name('messages.send');
+
+    // Dedicated Speedy Notifications Page
+    Route::get('/notifications', [TechnicianPortalController::class, 'notifications'])->name('notifications');
+    Route::get('/notifications/{notification}/open', [TechnicianPortalController::class, 'openNotification'])->name('notifications.open');
+    Route::match(['patch', 'post'], '/notifications/{notification}/read', [TechnicianPortalController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [TechnicianPortalController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
 
 });
 
@@ -319,6 +310,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Admin Dashboard
     Route::get('/', [AdminDashboardController::class, 'index']);
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // System Alerts & Dedicated Speedy Notifications
+    Route::get('/notifications', [AdminDashboardController::class, 'notifications'])->name('notifications');
+    Route::get('/notifications/{notification}/open', [AdminDashboardController::class, 'openNotification'])->name('notifications.open');
+    Route::match(['patch', 'post'], '/notifications/{notification}/read', [AdminDashboardController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [AdminDashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
 
     // Catalog & Category / Services Management (Full CRUD)
     Route::get('/categories', [ServiceController::class, 'index'])->name('categories');

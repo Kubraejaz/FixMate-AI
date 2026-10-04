@@ -53,6 +53,14 @@ class Notification extends Model
     }
 
     /**
+     * Alias for sendToUser.
+     */
+    public static function notifyUser(int $userId, string $type, string $title, string $message, ?string $link = null): self
+    {
+        return static::sendToUser($userId, $type, $title, $message, $link);
+    }
+
+    /**
      * Send notification to all admin users.
      */
     public static function notifyAdmins(string $type, string $title, string $message, ?string $link = null): void

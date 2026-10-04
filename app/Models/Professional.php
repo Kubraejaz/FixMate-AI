@@ -19,6 +19,17 @@ class Professional extends Model
         'experience',
         'cnic_number',
         'is_verified',
+        'verification_status',
+        'biometric_status',
+        'rejection_reason',
+        'cnic_front_path',
+        'cnic_back_path',
+        'biometric_selfie_path',
+        'police_certificate_path',
+        'trade_license_path',
+        'proof_of_address_path',
+        'emergency_contact_name',
+        'emergency_contact_phone',
     ];
 
     protected $hidden = [
@@ -31,6 +42,17 @@ class Professional extends Model
             'is_verified' => 'boolean',
             'cnic_number' => 'encrypted',
         ];
+    }
+
+    public function getDocumentUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        return asset('storage/' . ltrim($path, '/'));
     }
 
     public function user(): BelongsTo

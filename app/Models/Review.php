@@ -16,6 +16,8 @@ class Review extends Model
         'professional_id',
         'rating',
         'comment',
+        'technician_reply',
+        'technician_replied_at',
         'is_approved',
     ];
 
@@ -24,6 +26,7 @@ class Review extends Model
         return [
             'rating' => 'integer',
             'is_approved' => 'boolean',
+            'technician_replied_at' => 'datetime',
         ];
     }
 

@@ -525,5 +525,58 @@ class CustomerPortalTest extends TestCase
         $response->assertSee('Plumber');
         $response->assertSee('Multi-Modal Match (Visual + Text)');
     }
+
+    public function test_customer_can_view_notifications_page(): void
+    {
+        \App\Models\Notification::create([
+            'user_id' => $this->customer->id,
+            'type' => 'booking',
+            'title' => 'Technician Assigned',
+            'message' => 'Tariq Mehmood has accepted your booking.',
+            'link' => route('customer.bookings'),
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.notifications'));
+        $response->assertOk();
+        $response->assertSee('Notifications');
+        $response->assertSee('Technician Assigned');
+        $response->assertSee('Tariq Mehmood has accepted your booking.');
+    }
+
+    public function test_customer_can_open_notification_and_mark_read(): void
+    {
+        $notification = \App\Models\Notification::create([
+            'user_id' => $this->customer->id,
+            'type' => 'booking',
+            'title' => 'Job Completed',
+            'message' => 'Please release payment.',
+            'link' => route('customer.bookings'),
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.notifications.open', $notification->id));
+        $response->assertRedirect(route('customer.bookings'));
+
+        $this->assertTrue((bool) $notification->fresh()->is_read);
+    }
+
+    public function test_customer_can_mark_all_notifications_read(): void
+    {
+        \App\Models\Notification::create([
+            'user_id' => $this->customer->id,
+            'type' => 'booking',
+            'title' => 'Update 1',
+            'message' => 'First message',
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($this->customer)->post(route('customer.notifications.read-all'));
+        $response->assertRedirect();
+
+        $unreadCount = \App\Models\Notification::where('user_id', $this->customer->id)->where('is_read', false)->count();
+        $this->assertEquals(0, $unreadCount);
+    }
 }
+
 

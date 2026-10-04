@@ -922,7 +922,7 @@
                 <button type="button" id="adminNotifBtn" style="background: #FFFFFF; border: 1.5px solid var(--adm-border); width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;" title="Platform Verification Alerts">
                     <span style="font-size: 16px;">🔔</span>
                     @if($adminUnreadCount > 0)
-                        <span style="position: absolute; top: -4px; right: -4px; background: var(--adm-danger); color: #FFF; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span id="adminNotifBadge" style="position: absolute; top: -4px; right: -4px; background: var(--adm-danger); color: #FFF; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                             {{ $adminUnreadCount }}
                         </span>
                     @endif
@@ -930,17 +930,37 @@
 
                 <div id="adminNotifPanel" style="display: none; position: absolute; right: 0; top: 48px; width: 360px; background: #FFFFFF; border: 1px solid var(--adm-border); border-radius: 14px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12); z-index: 1000; overflow: hidden;">
                     <div style="padding: 12px 16px; background: var(--adm-ink); color: #FFF; display: flex; justify-content: space-between; align-items: center;">
-                        <strong style="font-size: 13px;">Platform Alerts ({{ $adminUnreadCount }} New)</strong>
-                        <span style="font-size: 11px; color: var(--adm-accent);">Verified KYC & Bookings</span>
+                        <strong style="font-size: 13px;">Platform Alerts (<span id="adminNotifCountText">{{ $adminUnreadCount }}</span> New)</strong>
+                        <form id="adminMarkAllForm" action="{{ route('admin.notifications.read-all') }}" method="POST" style="margin: 0;">
+                            @csrf
+                            <button type="submit" id="adminMarkAllBtn" style="background: none; border: none; color: var(--adm-accent); font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: underline;">
+                                Mark all read
+                            </button>
+                        </form>
                     </div>
-                    <div style="max-height: 320px; overflow-y: auto;">
+                    <div id="adminNotifList" style="max-height: 320px; overflow-y: auto;">
                         @forelse($adminNotifications as $an)
-                            <a href="{{ $an->link ?: url('/admin/technicians/verification') }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid var(--adm-border-soft); background: {{ $an->is_read ? '#FFF' : '#FFFDF0' }};">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                    <strong style="font-size: 12.5px; color: var(--adm-ink);">{{ $an->title }}</strong>
+                            @php
+                                $aIcon = match($an->type) {
+                                    'technician_registered', 'kyc_submitted', 'kyc_approved', 'kyc_rejected' => '🛡️',
+                                    'booking_dispatched', 'booking_created' => '⚡',
+                                    'escrow_held', 'payment' => '💰',
+                                    'inquiry_received', 'complaint_filed' => '💬',
+                                    default => '🔔',
+                                };
+                            @endphp
+                            <a href="{{ route('admin.notifications.open', $an->id) }}" class="admin-notif-item" data-id="{{ $an->id }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid var(--adm-border-soft); background: {{ $an->is_read ? '#FFF' : '#FFFDF0' }}; transition: background 0.15s ease;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 13px;">{{ $aIcon }}</span>
+                                        <strong style="font-size: 12.5px; color: var(--adm-ink);">{{ $an->title }}</strong>
+                                    </div>
                                     <span style="font-size: 10px; color: var(--adm-faint);">{{ $an->created_at->diffForHumans(null, true) }}</span>
                                 </div>
-                                <p style="font-size: 12px; color: var(--adm-body); margin: 0; line-height: 1.4;">{{ $an->message }}</p>
+                                <p style="font-size: 12px; color: var(--adm-body); margin: 3px 0 0 20px; line-height: 1.4;">{{ $an->message }}</p>
+                                @if(!$an->is_read)
+                                    <span class="unread-pill-admin" style="display: inline-block; margin-left: 20px; margin-top: 4px; font-size: 9.5px; font-weight: 800; color: #D97706; background: #FEF3C7; padding: 1px 6px; border-radius: 4px;">UNREAD</span>
+                                @endif
                             </a>
                         @empty
                             <div style="padding: 24px; text-align: center; color: var(--adm-muted); font-size: 12.5px;">
@@ -948,9 +968,12 @@
                             </div>
                         @endforelse
                     </div>
-                    <div style="padding: 10px 16px; background: var(--adm-bg); border-top: 1px solid var(--adm-border); text-align: center;">
-                        <a href="{{ route('admin.technicians.verification') }}" style="font-size: 12px; font-weight: 700; color: var(--adm-ink); text-decoration: none;">
-                            Go to KYC Verification Pipeline →
+                    <div style="padding: 10px 16px; background: var(--adm-bg); border-top: 1px solid var(--adm-border); display: flex; justify-content: space-between; align-items: center;">
+                        <a href="{{ route('admin.notifications') }}" style="font-size: 11.5px; font-weight: 800; color: #D97706; text-decoration: none;">
+                            🔔 View All Alerts
+                        </a>
+                        <a href="{{ route('admin.technicians.verification') }}" style="font-size: 11.5px; font-weight: 700; color: var(--adm-ink); text-decoration: none;">
+                            🛡️ Check KYC →
                         </a>
                     </div>
                 </div>
@@ -995,6 +1018,17 @@
                         <rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
                     </svg>
                     <span>Dashboard &amp; KPIs</span>
+                </a>
+
+                <a href="{{ route('admin.notifications') }}" class="adm-nav-link {{ Request::is('admin/notifications*') ? 'active' : '' }}">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>System Alerts</span>
+                    @if($adminUnreadCount > 0)
+                        <span class="count">{{ $adminUnreadCount }}</span>
+                    @endif
                 </a>
 
                 <a href="{{ url('/admin/analytics') }}" class="adm-nav-link {{ Request::is('admin/analytics*') ? 'active' : '' }}">
@@ -1203,6 +1237,38 @@
                 if (!adminNotifPanel.contains(e.target) && e.target !== adminNotifBtn) {
                     adminNotifPanel.style.display = 'none';
                 }
+            });
+        }
+
+        var adminMarkAllBtn = document.getElementById('adminMarkAllBtn');
+        if (adminMarkAllBtn) {
+            adminMarkAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch("{{ route('admin.notifications.read-all') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    var badge = document.getElementById('adminNotifBadge');
+                    if (badge) badge.remove();
+                    var countTxt = document.getElementById('adminNotifCountText');
+                    if (countTxt) countTxt.textContent = '0';
+                    document.querySelectorAll('.admin-notif-item').forEach(el => {
+                        el.style.background = '#FFFFFF';
+                    });
+                    document.querySelectorAll('.unread-pill-admin').forEach(el => {
+                        el.remove();
+                    });
+                    showToast('All platform notifications marked as read', true);
+                })
+                .catch(() => {
+                    document.getElementById('adminMarkAllForm').submit();
+                });
             });
         }
 

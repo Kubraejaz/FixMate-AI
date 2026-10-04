@@ -24,10 +24,31 @@ class TechnicianApplication extends Model
         'workshop_type',
         'tools_available',
         'documents_list',
+        'cnic_front_path',
+        'cnic_back_path',
+        'biometric_selfie_path',
+        'police_certificate_path',
+        'trade_license_path',
+        'proof_of_address_path',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'biometric_status',
+        'rejection_reason',
         'status',
         'admin_notes',
         'reviewed_at',
     ];
+
+    public function getDocumentUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        return asset('storage/' . ltrim($path, '/'));
+    }
 
     protected $casts = [
         'experience_years' => 'integer',

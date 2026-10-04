@@ -65,6 +65,8 @@ class TechnicianVerificationController extends Controller
     {
         $application->update([
             'status' => 'approved',
+            'biometric_status' => 'verified',
+            'rejection_reason' => null,
             'admin_notes' => $request->input('admin_notes', 'NADRA biometric and skill inspection completed successfully.'),
             'reviewed_at' => now(),
         ]);
@@ -73,7 +75,12 @@ class TechnicianVerificationController extends Controller
         $techUserId = $application->user_id;
         if ($application->user_id) {
             User::where('id', $application->user_id)->update(['is_verified' => true]);
-            Professional::where('user_id', $application->user_id)->update(['is_verified' => true]);
+            Professional::where('user_id', $application->user_id)->update([
+                'is_verified' => true,
+                'verification_status' => 'verified',
+                'biometric_status' => 'verified',
+                'rejection_reason' => null,
+            ]);
         } else {
             $matchedUser = User::where('email', $application->email)
                 ->orWhere('phone', $application->phone)
@@ -81,7 +88,12 @@ class TechnicianVerificationController extends Controller
 
             if ($matchedUser) {
                 $matchedUser->update(['is_verified' => true]);
-                Professional::where('user_id', $matchedUser->id)->update(['is_verified' => true]);
+                Professional::where('user_id', $matchedUser->id)->update([
+                    'is_verified' => true,
+                    'verification_status' => 'verified',
+                    'biometric_status' => 'verified',
+                    'rejection_reason' => null,
+                ]);
                 $application->update(['user_id' => $matchedUser->id]);
                 $techUserId = $matchedUser->id;
             }
@@ -92,7 +104,7 @@ class TechnicianVerificationController extends Controller
                 $techUserId,
                 'kyc_approved',
                 'Technician Credentials Approved! 🎉',
-                "Congratulations {$application->name}! Your FixMate technician profile is officially verified. You can now accept customer jobs and receive payouts.",
+                "Congratulations {$application->name}! Your FixMate technician profile and biometrics are officially verified. You can now accept customer jobs and receive payouts.",
                 route('technician.dashboard')
             );
         }
@@ -117,9 +129,13 @@ class TechnicianVerificationController extends Controller
             'reason' => ['required', 'string', 'max:1000'],
         ]);
 
+        $reason = $request->input('reason');
+
         $application->update([
             'status' => 'rejected',
-            'admin_notes' => $request->input('reason'),
+            'rejection_reason' => $reason,
+            'biometric_status' => 'rejected',
+            'admin_notes' => $reason,
             'reviewed_at' => now(),
         ]);
 
@@ -132,19 +148,27 @@ class TechnicianVerificationController extends Controller
         }
 
         if ($techUserId) {
+            User::where('id', $techUserId)->update(['is_verified' => false]);
+            Professional::where('user_id', $techUserId)->update([
+                'is_verified' => false,
+                'verification_status' => 'rejected',
+                'biometric_status' => 'rejected',
+                'rejection_reason' => $reason,
+            ]);
+
             \App\Models\Notification::sendToUser(
                 $techUserId,
                 'kyc_rejected',
-                'Verification Status Update',
-                "Your application #{$application->reference_no} requires revision: " . $request->input('reason'),
-                route('technician.profile')
+                'Verification Documents Need Revision ⚠️',
+                "Your application #{$application->reference_no} requires revision: {$reason}. Tap to view requirements & re-upload documents.",
+                route('technician.verification')
             );
         }
 
         \App\Models\Notification::notifyAdmins(
             'kyc_rejected_admin',
             'Technician Rejected: ' . $application->name,
-            "Application #{$application->reference_no} rejected: " . $request->input('reason'),
+            "Application #{$application->reference_no} rejected: {$reason}",
             route('admin.technicians.verification')
         );
 

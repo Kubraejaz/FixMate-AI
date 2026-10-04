@@ -1,145 +1,130 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Messages — FixMate AI')
+@section('title', 'Direct Customer Chat — FixMate AI Partner Portal')
 
 @section('content')
-<div style="height: 640px; display: grid; grid-template-columns: 280px 1fr; background: #FFFFFF; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden;">
+<div style="height: 660px; display: grid; grid-template-columns: 300px 1fr; background: #FFFFFF; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden;">
 
     <!-- Left Conversation List -->
     <div style="border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
         <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
-            <strong style="font-size: 16px; color: #111; display: block; margin-bottom: 8px;">Customer Messages</strong>
-            <input type="text" placeholder="Search customers..." class="form-input" style="padding: 7px 10px; font-size: 12.5px;">
+            <strong style="font-size: 16px; color: #111; display: block; margin-bottom: 4px;">Customer Conversations</strong>
+            <span style="font-size: 12px; color: #666;">Active Booking Customers ({{ $customers->count() }})</span>
         </div>
 
         <div style="overflow-y: auto; flex: 1;">
-
-            <!-- Conversation 1 (Ahmed Raza - Active) -->
-            <div style="padding: 14px 16px; border-bottom: 1px solid var(--border-color); background: #FFFDF0; cursor: pointer; display: flex; gap: 12px; align-items: center;">
-                <img src="{{ asset('assets/images/image_1.png') }}" alt="Ahmed Raza" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
-                <div style="flex: 1; min-width: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; gap: 8px;">
-                        <strong style="font-size: 13.5px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ahmed Raza</strong>
-                        <span style="font-size: 10px; color: #B45309; font-weight: 700;">2:35 PM</span>
+            @forelse($customers as $c)
+                @php
+                    $isSelected = $selectedCustomer && $selectedCustomer->id === $c->id;
+                    $lastMsg = \App\Models\Message::where(function($q) use ($user, $c) {
+                        $q->where('sender_id', $user->id)->where('receiver_id', $c->id);
+                    })->orWhere(function($q) use ($user, $c) {
+                        $q->where('sender_id', $c->id)->where('receiver_id', $user->id);
+                    })->latest()->first();
+                @endphp
+                <a href="{{ route('technician.messages', ['client_id' => $c->id]) }}" style="text-decoration: none; padding: 14px 16px; border-bottom: 1px solid var(--border-color); background: {{ $isSelected ? '#FFFDF0' : '#FFFFFF' }}; display: flex; gap: 12px; align-items: center; border-left: {{ $isSelected ? '4px solid #FFCC00' : '4px solid transparent' }};">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: #111; color: #FFCC00; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; flex-shrink: 0;">
+                        {{ strtoupper(substr($c->name, 0, 2)) }}
                     </div>
-                    <p style="font-size: 12px; color: #555; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Gate 2 is unlocked, ring the kitchen bell.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Conversation 2 (Sana Malik) -->
-            <div style="padding: 14px 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; gap: 12px; align-items: center;">
-                <img src="{{ asset('assets/images/image_3.png') }}" alt="Sana Malik" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
-                <div style="flex: 1; min-width: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; gap: 8px;">
-                        <strong style="font-size: 13.5px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sana Malik</strong>
-                        <span style="font-size: 10px; color: #888;">Yesterday</span>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; gap: 8px;">
+                            <strong style="font-size: 13.5px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $c->name }}</strong>
+                            @if($lastMsg)
+                                <span style="font-size: 10px; color: #888;">{{ $lastMsg->created_at->format('h:i A') }}</span>
+                            @endif
+                        </div>
+                        <p style="font-size: 12px; color: #555; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {{ $lastMsg ? $lastMsg->message : 'No messages yet' }}
+                        </p>
                     </div>
-                    <p style="font-size: 12px; color: #777; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Confirmed for tomorrow afternoon, AC service.
-                    </p>
+                </a>
+            @empty
+                <div style="padding: 30px 20px; text-align: center; color: #888; font-size: 13px;">
+                    <div style="font-size: 28px; margin-bottom: 6px;">💬</div>
+                    No active booking chats yet. When customers book your services, direct message threads will appear here.
                 </div>
-            </div>
-
-            <!-- Conversation 3 (Bilal Ahmed) -->
-            <div style="padding: 14px 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; gap: 12px; align-items: center;">
-                <img src="{{ asset('assets/images/image_5.png') }}" alt="Bilal Ahmed" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
-                <div style="flex: 1; min-width: 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; gap: 8px;">
-                        <strong style="font-size: 13.5px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bilal Ahmed</strong>
-                        <span style="font-size: 10px; color: #888;">Mon</span>
-                    </div>
-                    <p style="font-size: 12px; color: #777; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        Sent the revised quote for the wall repair.
-                    </p>
-                </div>
-            </div>
-
+            @endforelse
         </div>
     </div>
 
     <!-- Right Chat Area -->
     <div style="display: flex; flex-direction: column; background: #FAFAFA;">
-
-        <!-- Chat Header -->
-        <div style="padding: 14px 20px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-                <img src="{{ asset('assets/images/image_1.png') }}" alt="Ahmed Raza" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
-                <div style="min-width: 0;">
-                    <strong style="font-size: 14px; color: #111; display: block;">Ahmed Raza</strong>
-                    <span style="font-size: 11px; color: #10B981; font-weight: 700;">● Online &middot; Job FM-10245</span>
+        @if($selectedCustomer)
+            <!-- Chat Header -->
+            <div style="padding: 14px 20px; background: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #111; color: #FFCC00; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;">
+                        {{ strtoupper(substr($selectedCustomer->name, 0, 2)) }}
+                    </div>
+                    <div style="min-width: 0;">
+                        <strong style="font-size: 14.5px; color: #111; display: block;">{{ $selectedCustomer->name }}</strong>
+                        <span style="font-size: 11.5px; color: #10B981; font-weight: 700;">● Active Customer &bull; {{ $selectedCustomer->city ?? 'Karachi' }}</span>
+                    </div>
                 </div>
-            </div>
-            <div style="display: flex; gap: 8px; flex-shrink: 0;">
-                <a href="tel:03001234567" class="btn-outline" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                    </svg>
-                    Call
-                </a>
-                <a href="{{ url('/technician/active-job') }}" class="btn-yellow" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                    </svg>
-                    View Job
-                </a>
-            </div>
-        </div>
 
-        <!-- Job Context Strip -->
-        <div style="padding: 9px 20px; background: #FFFBEB; border-bottom: 1px solid #FDE68A; font-size: 12px; color: #92400E; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <span style="font-weight: 800;">FM-10245</span>
-            <span style="color: #D97706;">&bull;</span>
-            <span>Kitchen Sink Leak &mdash; P-trap Replacement</span>
-            <span style="color: #D97706;">&bull;</span>
-            <span>House 42-B, Street 18, Phase 6</span>
-        </div>
-
-        <!-- Chat Stream -->
-        <div style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;">
-
-            <!-- Message from Customer -->
-            <div style="display: flex; gap: 10px; max-width: 70%;">
-                <div style="background: #FFFFFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 14px 14px 14px 2px; font-size: 13.5px; color: #111; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    Assalam o Alaikum Ali bhai, are you still on the way? The leak got a little worse.
-                    <span style="display: block; font-size: 10px; color: #888; margin-top: 4px; text-align: right;">2:31 PM</span>
+                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                    @if($selectedCustomer->phone)
+                        <a href="tel:{{ $selectedCustomer->phone }}" class="btn-outline" style="padding: 6px 14px; font-size: 12px; text-decoration: none;">
+                            📞 Call Customer
+                        </a>
+                    @endif
+                    @if($activeBooking)
+                        <a href="{{ route('technician.jobs.details', $activeBooking->booking_number) }}" class="btn-yellow" style="padding: 6px 14px; font-size: 12px; text-decoration: none; font-weight: 800;">
+                            View Job #{{ $activeBooking->booking_number }} &rarr;
+                        </a>
+                    @endif
                 </div>
             </div>
 
-            <!-- Message from Technician (Me) -->
-            <div style="display: flex; gap: 10px; max-width: 70%; align-self: flex-end;">
-                <div style="background: #FFCC00; color: #111; font-weight: 500; padding: 12px 16px; border-radius: 14px 14px 2px 14px; font-size: 13.5px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
-                    Walaikum Assalam, yes I am 5 minutes away. I have the replacement P-trap and sealing rubber with me.
-                    <span style="display: block; font-size: 10px; color: #555; margin-top: 4px; text-align: right;">2:33 PM ✓✓</span>
+            <!-- Job Context Strip -->
+            @if($activeBooking)
+                <div style="padding: 9px 20px; background: #FFFBEB; border-bottom: 1px solid #FDE68A; font-size: 12px; color: #92400E; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="font-weight: 800;">#{{ $activeBooking->booking_number }}</span>
+                    <span>&bull;</span>
+                    <span>{{ $activeBooking->service_title }}</span>
+                    <span>&bull;</span>
+                    <span>📍 {{ $activeBooking->service_address }}</span>
                 </div>
+            @endif
+
+            <!-- Chat Stream -->
+            <div style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;">
+                @forelse($chatMessages as $msg)
+                    @php
+                        $isMe = $msg->sender_id === $user->id;
+                    @endphp
+                    <div style="display: flex; gap: 10px; max-width: 75%; align-self: {{ $isMe ? 'flex-end' : 'flex-start' }};">
+                        <div style="background: {{ $isMe ? '#FFCC00' : '#FFFFFF' }}; color: #111; padding: 12px 16px; border-radius: {{ $isMe ? '14px 14px 2px 14px' : '14px 14px 14px 2px' }}; border: {{ $isMe ? 'none' : '1px solid var(--border-color)' }}; font-size: 13.5px; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            {{ $msg->message }}
+                            <span style="display: block; font-size: 10px; color: {{ $isMe ? '#555' : '#888' }}; margin-top: 4px; text-align: right;">
+                                {{ $msg->created_at->format('h:i A') }} {{ $isMe ? '✓' : '' }}
+                            </span>
+                        </div>
+                    </div>
+                @empty
+                    <div style="padding: 40px; text-align: center; color: #888; font-size: 13.5px;">
+                        No messages exchanged yet with {{ $selectedCustomer->name }}. Send a greeting or update below!
+                    </div>
+                @endforelse
             </div>
 
-            <!-- Message from Customer -->
-            <div style="display: flex; gap: 10px; max-width: 70%;">
-                <div style="background: #FFFFFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 14px 14px 14px 2px; font-size: 13.5px; color: #111; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    Perfect. Gate 2 is unlocked, please ring the main kitchen doorbell.
-                    <span style="display: block; font-size: 10px; color: #888; margin-top: 4px; text-align: right;">2:35 PM</span>
-                </div>
+            <!-- Chat Input Bar -->
+            <form action="{{ route('technician.messages.send') }}" method="POST" style="padding: 14px 20px; background: #FFFFFF; border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center; margin: 0;">
+                @csrf
+                <input type="hidden" name="receiver_id" value="{{ $selectedCustomer->id }}">
+                @if($activeBooking)
+                    <input type="hidden" name="booking_id" value="{{ $activeBooking->id }}">
+                @endif
+                <input type="text" name="message" required placeholder="Type a message to {{ $selectedCustomer->name }}..." class="form-input" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
+                <button type="submit" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer;">
+                    Send
+                </button>
+            </form>
+        @else
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #888; font-size: 14px; text-align: center; padding: 20px;">
+                Select a customer conversation on the left to start chatting.
             </div>
-
-        </div>
-
-        <!-- Chat Input Bar -->
-        <div style="padding: 14px 20px; background: #FFFFFF; border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center;">
-            <button type="button" style="border: none; background: transparent; cursor: pointer; color: #666; display: inline-flex; align-items: center;" title="Attach photo" aria-label="Attach photo">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
-                </svg>
-            </button>
-            <input type="text" placeholder="Type a message to Ahmed Raza..." class="form-input" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
-            <button type="button" class="btn-yellow" style="padding: 10px 20px; font-size: 13.5px; font-weight: 800;">Send</button>
-        </div>
-
+        @endif
     </div>
 
 </div>

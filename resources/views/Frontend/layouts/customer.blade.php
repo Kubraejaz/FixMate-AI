@@ -61,24 +61,36 @@
                     </button>
 
                     <!-- Notification Dropdown Panel -->
-                    <div id="custNotifPanel" style="display: none; position: absolute; right: 0; top: 46px; width: 340px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden;">
+                    <div id="custNotifPanel" style="display: none; position: absolute; right: 0; top: 46px; width: 360px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden;">
                         <div style="padding: 12px 16px; background: #0F172A; color: #FFF; display: flex; justify-content: space-between; align-items: center;">
-                            <strong style="font-size: 13px;">Notifications ({{ $unreadNotificationsCount }} unread)</strong>
-                            <form action="{{ route('customer.notifications.read') }}" method="POST" style="margin: 0;">
+                            <strong style="font-size: 13px;">Notifications (<span id="custNotifCountText">{{ $unreadNotificationsCount }}</span> unread)</strong>
+                            <form id="custMarkAllForm" action="{{ route('customer.notifications.read') }}" method="POST" style="margin: 0;">
                                 @csrf
-                                <button type="submit" style="background: none; border: none; color: #FFB800; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: underline;">
+                                <button type="submit" id="custMarkAllBtn" style="background: none; border: none; color: #FFB800; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: underline;">
                                     Mark all read
                                 </button>
                             </form>
                         </div>
-                        <div style="max-height: 300px; overflow-y: auto;">
+                        <div id="custNotifList" style="max-height: 300px; overflow-y: auto;">
                             @forelse($unreadNotifications as $n)
-                                <a href="{{ $n->link ?: '#' }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid #F1F5F9; background: {{ $n->is_read ? '#FFFFFF' : '#FFFDF0' }};">
+                                <a href="{{ route('customer.notifications.open', $n->id) }}" class="cust-notif-item" data-id="{{ $n->id }}" style="text-decoration: none; display: block; padding: 12px 16px; border-bottom: 1px solid #F1F5F9; background: {{ $n->is_read ? '#FFFFFF' : '#FFFDF0' }}; transition: background 0.15s ease;">
                                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
-                                        <strong style="font-size: 12.5px; color: #0F172A;">{{ $n->title }}</strong>
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            @if($n->type === 'chat_message')
+                                                <span style="font-size: 13px;">💬</span>
+                                            @elseif(str_contains($n->type, 'booking'))
+                                                <span style="font-size: 13px;">⚡</span>
+                                            @else
+                                                <span style="font-size: 13px;">🔔</span>
+                                            @endif
+                                            <strong style="font-size: 12.5px; color: #0F172A;">{{ $n->title }}</strong>
+                                        </div>
                                         <span style="font-size: 10px; color: #94A3B8;">{{ $n->created_at->diffForHumans(null, true) }}</span>
                                     </div>
-                                    <p style="font-size: 12px; color: #475569; margin: 0; line-height: 1.4;">{{ $n->message }}</p>
+                                    <p style="font-size: 12px; color: #475569; margin: 4px 0 0 20px; line-height: 1.4;">{{ $n->message }}</p>
+                                    @if(!$n->is_read)
+                                        <span class="unread-pill-cust" style="display: inline-block; margin-left: 20px; margin-top: 4px; font-size: 10px; font-weight: 800; color: #D97706; background: #FEF3C7; padding: 1px 6px; border-radius: 4px;">UNREAD</span>
+                                    @endif
                                 </a>
                             @empty
                                 <div style="padding: 24px; text-align: center; color: #94A3B8; font-size: 12.5px;">
@@ -87,8 +99,9 @@
                                 </div>
                             @endforelse
                         </div>
-                        <div style="padding: 8px 16px; background: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-                            <a href="{{ route('customer.settings') }}" style="font-size: 11.5px; color: #475569; text-decoration: none; font-weight: 700;">⚙️ Notification Settings</a>
+                        <div style="padding: 8px 16px; background: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center; display: flex; justify-content: space-between; align-items: center;">
+                            <a href="{{ route('customer.notifications') }}" style="font-size: 11.5px; color: #D97706; text-decoration: none; font-weight: 800;">🔔 View All Alerts</a>
+                            <a href="{{ route('customer.messages') }}" style="font-size: 11.5px; color: #0284C7; text-decoration: none; font-weight: 700;">💬 Open Chat</a>
                         </div>
                     </div>
                 </div>
@@ -132,6 +145,12 @@
             <nav style="display: flex; flex-direction: column;">
                 <a href="{{ route('customer.dashboard') }}" class="portal-nav-link {{ Request::is('customer/dashboard*') ? 'active' : '' }}">
                     <span>🏠</span> <span>Dashboard</span>
+                </a>
+                <a href="{{ route('customer.notifications') }}" class="portal-nav-link {{ Request::is('customer/notifications*') ? 'active' : '' }}">
+                    <span>🔔</span> <span>Notifications</span>
+                    @if($unreadNotificationsCount > 0)
+                        <span style="margin-left: auto; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 10px;">{{ $unreadNotificationsCount }}</span>
+                    @endif
                 </a>
                 <a href="{{ route('customer.diagnose') }}" class="portal-nav-link {{ Request::is('customer/diagnose*') ? 'active' : '' }}">
                     <span>🔍</span> <span>AI Problem Diagnosis</span>
@@ -203,6 +222,38 @@
                 if (!notifPanel.contains(e.target) && e.target !== notifBtn) {
                     notifPanel.style.display = 'none';
                 }
+            });
+        }
+
+        const custMarkAllBtn = document.getElementById('custMarkAllBtn');
+        if (custMarkAllBtn) {
+            custMarkAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch("{{ route('customer.notifications.read') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    const badge = notifBtn.querySelector('span:nth-child(2)');
+                    if (badge) badge.remove();
+                    const countTxt = document.getElementById('custNotifCountText');
+                    if (countTxt) countTxt.textContent = '0';
+                    document.querySelectorAll('.cust-notif-item').forEach(el => {
+                        el.style.background = '#FFFFFF';
+                    });
+                    document.querySelectorAll('.unread-pill-cust').forEach(el => {
+                        el.remove();
+                    });
+                    showToast('All notifications marked as read', true);
+                })
+                .catch(() => {
+                    document.getElementById('custMarkAllForm').submit();
+                });
             });
         }
 

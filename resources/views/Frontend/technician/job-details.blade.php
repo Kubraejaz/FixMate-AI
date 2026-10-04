@@ -1,93 +1,118 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Job Details — Kitchen Sink Leakage (#FM-10245)')
+@section('title', 'Job #' . $booking->booking_number . ' Details — FixMate AI')
 
 @section('content')
 <div style="max-width: 860px; margin: 0 auto;">
     
-    <!-- Header with Back Link matching Mockup 2 & 3 -->
+    <!-- Header with Back Link -->
     <div style="margin-bottom: 20px;">
-        <a href="{{ url('/technician/jobs') }}" style="font-size: 13px; color: #666; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
+        <a href="{{ route('technician.jobs') }}" style="font-size: 13px; color: #666; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 4px;">
             ← Back to Job Requests
         </a>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0;">Job #FM-10245 Details</h1>
-            <span style="background: #FFF9E6; color: #B45309; border: 1px solid #FFECB3; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
-                Incoming Request
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h1 style="font-size: 26px; font-weight: 900; color: #111; margin: 0;">Job #{{ $booking->booking_number }} Details</h1>
+            <span style="background: {{ $booking->status === 'completed' ? '#ECFDF5' : '#FFF9E6' }}; color: {{ $booking->status === 'completed' ? '#047857' : '#B45309' }}; border: 1px solid #FFECB3; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
+                {{ $booking->status_label }}
             </span>
         </div>
     </div>
 
-    <!-- Main Job Card matching Mockup 2 & 3 -->
+    <!-- Main Job Card -->
     <div class="portal-card" style="padding: 28px; background: #FFFFFF; margin-bottom: 24px;">
         
         <!-- Customer Info Strip -->
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
             <div style="display: flex; align-items: center; gap: 14px;">
                 <div style="width: 50px; height: 50px; border-radius: 50%; background: #111; color: #FFCC00; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px;">
-                    AK
+                    {{ strtoupper(substr($booking->user?->name ?? 'C', 0, 2)) }}
                 </div>
                 <div>
-                    <h3 style="font-size: 17px; font-weight: 800; color: #111; margin: 0 0 2px 0;">Ahmed Khan</h3>
-                    <span style="font-size: 13px; color: #666;">Customer Rating: 5.0 ★ • Verified Homeowner</span>
+                    <h3 style="font-size: 17px; font-weight: 800; color: #111; margin: 0 0 2px 0;">{{ $booking->user?->name ?? 'Customer' }}</h3>
+                    <span style="font-size: 13px; color: #666;">📞 {{ $booking->user?->phone ?? 'Contact on arrival' }} &bull; Verified Homeowner</span>
                 </div>
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 12px; color: #777;">Scheduled Slot</span>
-                <strong style="display: block; font-size: 14px; color: #111;">Today • 2:30 PM - 3:30 PM</strong>
+                <strong style="display: block; font-size: 14px; color: #111;">{{ $booking->service_date->format('M d, Y') }} &bull; {{ $booking->service_time_slot }}</strong>
             </div>
         </div>
 
         <!-- Problem & AI Diagnosis Result -->
         <div style="margin-bottom: 24px;">
-            <span style="font-size: 11.5px; font-weight: 800; color: #B45309; text-transform: uppercase;">Problem Description & AI Scanner</span>
-            <h2 style="font-size: 20px; font-weight: 900; color: #111; margin: 4px 0 10px 0;">Kitchen Sink Leakage</h2>
+            <span style="font-size: 11.5px; font-weight: 800; color: #B45309; text-transform: uppercase;">Service Request</span>
+            <h2 style="font-size: 20px; font-weight: 900; color: #111; margin: 4px 0 10px 0;">{{ $booking->service_title }}</h2>
             <p style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 16px;">
-                "Water is leaking from the pipe under the cabinet whenever the tap is turned on. Need P-trap inspection and rubber seal replacement."
+                {{ $booking->problem_description ?: 'Customer requested standard inspection and maintenance for ' . ($booking->profession?->name ?? 'this trade') . '.' }}
             </p>
 
-            <div style="background: #FFFDF0; border: 1px solid #FEF08A; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+            <div style="background: #FFFDF0; border: 1px solid #FEF08A; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px;">
                 <div>
-                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">AI Classification</span>
-                    <strong style="display: block; font-size: 14px; color: #111;">Plumbing (P-trap)</strong>
+                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">Category</span>
+                    <strong style="display: block; font-size: 14px; color: #111;">{{ $booking->profession?->name ?? 'General Maintenance' }}</strong>
                 </div>
                 <div>
-                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">Confidence</span>
-                    <strong style="display: block; font-size: 14px; color: #047857;">92% Match</strong>
+                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">Total Booking Fee</span>
+                    <strong style="display: block; font-size: 14px; color: #111;">Rs. {{ number_format($booking->total_price) }}</strong>
                 </div>
                 <div>
-                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">Est. Compensation</span>
-                    <strong style="display: block; font-size: 15px; color: #111;">Rs. 500 – 800</strong>
+                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">Technician Payout (90%)</span>
+                    <strong style="display: block; font-size: 15px; color: #047857;">Rs. {{ number_format($techPayout) }}</strong>
+                </div>
+                <div>
+                    <span style="font-size: 11px; color: #777; text-transform: uppercase;">Escrow Status</span>
+                    <strong style="display: block; font-size: 14px; color: #B45309;">{{ ucfirst(str_replace('_', ' ', $booking->payment_status)) }}</strong>
                 </div>
             </div>
 
-            <!-- Uploaded Photos from User matching Mockup 2 & 3 -->
-            <span style="font-size: 12.5px; font-weight: 700; color: #374151; display: block; margin-bottom: 10px;">Customer Uploaded Photos:</span>
-            <div style="display: flex; gap: 14px;">
-                <div style="width: 140px; height: 110px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
-                    <img src="{{ asset('assets/images/image_6.png') }}" alt="Kitchen sink leak" style="width: 100%; height: 100%; object-fit: cover;">
+            <!-- Uploaded Photos from User -->
+            @if($booking->problem_image)
+                <span style="font-size: 12.5px; font-weight: 700; color: #374151; display: block; margin-bottom: 10px;">Customer Uploaded Problem Photo:</span>
+                <div style="display: flex; gap: 14px; margin-bottom: 16px;">
+                    <div style="width: 180px; height: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
+                        <img src="{{ asset($booking->problem_image) }}" alt="Problem" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
                 </div>
-                <div style="width: 140px; height: 110px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
-                    <img src="{{ asset('assets/images/image_7.png') }}" alt="Cabinet interior" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-            </div>
+            @endif
         </div>
 
         <!-- Location & Directions -->
         <div style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-bottom: 28px;">
-            <span style="font-size: 11.5px; font-weight: 800; color: #6B7280; text-transform: uppercase;">Service Address & Navigation</span>
-            <strong style="display: block; font-size: 15px; color: #111; margin: 4px 0 6px 0;">House 42-B, Street 18, Phase 6, DHA, Karachi</strong>
-            <p style="font-size: 13px; color: #666; margin: 0;">Instructions: "Gate is open, kitchen is on the right. Ring doorbell." (2.1 km away • approx 8 min ride)</p>
+            <span style="font-size: 11.5px; font-weight: 800; color: #6B7280; text-transform: uppercase;">Service Address & Location</span>
+            <strong style="display: block; font-size: 15px; color: #111; margin: 4px 0 6px 0;">
+                {{ $booking->service_address }}, {{ $booking->city }}
+            </strong>
         </div>
 
-        <!-- Action Row matching Mockup 2 & 3 -->
-        <div style="display: flex; gap: 14px;">
-            <a href="{{ url('/technician/jobs') }}" class="btn-outline" style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; border-color: #EF4444; color: #DC2626;">
-                Reject Job
+        <!-- Action Row -->
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <a href="{{ route('technician.messages', ['client_id' => $booking->user_id]) }}" class="btn-outline" style="padding: 12px 24px; font-size: 14px; text-decoration: none;">
+                💬 Chat With Customer
             </a>
-            <a href="{{ url('/technician/active-job') }}" class="btn-yellow" style="flex: 2; text-align: center; padding: 12px 0; font-size: 14.5px; font-weight: 900;">
-                Accept Job & Start Route →
-            </a>
+
+            @if($booking->status === 'pending')
+                <form action="{{ route('technician.jobs.accept', $booking->id) }}" method="POST" style="flex: 1; margin: 0;">
+                    @csrf
+                    <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px 0; font-size: 14.5px; font-weight: 900; border: none; cursor: pointer;">
+                        Accept Job & Dispatch Confirmation →
+                    </button>
+                </form>
+            @elseif($booking->status === 'confirmed')
+                <form action="{{ route('technician.jobs.start-route', $booking->id) }}" method="POST" style="flex: 1; margin: 0;">
+                    @csrf
+                    <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px 0; font-size: 14.5px; font-weight: 900; border: none; cursor: pointer;">
+                        Start Route (En Route) →
+                    </button>
+                </form>
+            @elseif(in_array($booking->status, ['en_route', 'in_progress']))
+                <a href="{{ route('technician.active-job') }}" class="btn-yellow" style="flex: 1; text-align: center; padding: 12px 0; font-size: 14.5px; font-weight: 900; text-decoration: none;">
+                    Go to Active Job Screen & Verify OTP →
+                </a>
+            @elseif($booking->status === 'completed')
+                <div style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 14px;">
+                    ✓ Service successfully completed. Payout released to wallet.
+                </div>
+            @endif
         </div>
 
     </div>

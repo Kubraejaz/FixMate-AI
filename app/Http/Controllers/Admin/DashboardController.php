@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CommunityIssue;
 use App\Models\ContactInquiry;
+use App\Models\Notification;
 use App\Models\Profession;
 use App\Models\Professional;
 use App\Models\TechnicianApplication;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -86,5 +89,76 @@ class DashboardController extends Controller
             'recentInquiries',
             'recentApplications'
         ));
+    }
+
+    /**
+     * Dedicated Platform Admin Notifications Page
+     */
+    public function notifications(Request $request): View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+        $filter = $request->input('filter', 'all');
+
+        $query = $user->notifications()->latest();
+
+        if ($filter === 'unread') {
+            $query->unread();
+        }
+
+        $notifications = $query->paginate(15)->withQueryString();
+        $unreadCount = $user->notifications()->unread()->count();
+
+        return view('Frontend.admin.notifications', compact('user', 'notifications', 'unreadCount', 'filter'));
+    }
+
+    /**
+     * Open single admin alert, mark read, and redirect to destination.
+     */
+    public function openNotification(Notification $notification): RedirectResponse
+    {
+        if ($notification->user_id === auth()->id()) {
+            $notification->update(['is_read' => true]);
+        }
+
+        return redirect()->to($notification->link ?: route('admin.dashboard'));
+    }
+
+    /**
+     * Mark single notification as read
+     */
+    public function markNotificationRead(Request $request, Notification $notification)
+    {
+        if ($notification->user_id === auth()->id()) {
+            $notification->update(['is_read' => true]);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'unread_count' => auth()->user()->notifications()->unread()->count(),
+            ]);
+        }
+
+        return back()->with('success', 'Notification marked as read.');
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsRead(Request $request)
+    {
+        /** @var User $user */
+        $user = auth()->user();
+        $user->notifications()->unread()->update(['is_read' => true]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'unread_count' => 0,
+            ]);
+        }
+
+        return back()->with('success', 'All system notifications marked as read.');
     }
 }
