@@ -54,21 +54,25 @@ class ServiceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
             'slug' => ['nullable', 'string', 'max:100', 'unique:professions,slug'],
             'icon' => ['nullable', 'string', 'max:50'],
-            'base_price' => ['nullable', 'integer', 'min:0'],
+            'base_price' => ['nullable', 'integer', 'min:0', 'max:500000'],
             'price_unit' => ['nullable', 'string', 'max:50'],
             'estimated_duration' => ['nullable', 'string', 'max:100'],
             'headline' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'string', 'max:255'],
-            'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:2048'],
+            'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
             'warranty_text' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
             'feature_points' => ['nullable'],
             'included_items' => ['nullable'],
             'excluded_items' => ['nullable'],
             'is_active' => ['nullable', 'boolean'],
+        ], [
+            'name.min' => 'Category name must be at least 2 characters long.',
+            'base_price.min' => 'Base price cannot be negative.',
+            'image_file.max' => 'Service image must not exceed 5MB.',
         ]);
 
         $slug = ! empty($validated['slug'])
@@ -129,21 +133,25 @@ class ServiceController extends Controller
     public function update(Request $request, Profession $service): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
             'slug' => ['required', 'string', 'max:100', 'unique:professions,slug,' . $service->id],
             'icon' => ['nullable', 'string', 'max:50'],
-            'base_price' => ['nullable', 'integer', 'min:0'],
+            'base_price' => ['nullable', 'integer', 'min:0', 'max:500000'],
             'price_unit' => ['nullable', 'string', 'max:50'],
             'estimated_duration' => ['nullable', 'string', 'max:100'],
             'headline' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'string', 'max:255'],
-            'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:2048'],
+            'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
             'warranty_text' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
             'feature_points' => ['nullable'],
             'included_items' => ['nullable'],
             'excluded_items' => ['nullable'],
             'is_active' => ['nullable', 'boolean'],
+        ], [
+            'name.min' => 'Category name must be at least 2 characters long.',
+            'base_price.min' => 'Base price cannot be negative.',
+            'image_file.max' => 'Service image must not exceed 5MB.',
         ]);
 
         $imagePath = $validated['image'] ?? $service->image;

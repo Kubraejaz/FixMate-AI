@@ -37,22 +37,26 @@ class SettingsController extends Controller
      */
     public function updateSettings(Request $request): RedirectResponse
     {
-        $fields = [
-            'platform_commission',
-            'otp_expiry_minutes',
-            'max_service_radius_km',
-            'maintenance_mode',
-            'payout_frequency',
-            'support_email',
-            'support_phone',
-            'gemini_api_key',
-            'gemini_model',
-            'gemini_enabled',
-        ];
+        $validated = $request->validate([
+            'platform_commission' => ['nullable', 'numeric', 'between:0,100'],
+            'otp_expiry_minutes' => ['nullable', 'integer', 'between:1,60'],
+            'max_service_radius_km' => ['nullable', 'numeric', 'between:1,200'],
+            'maintenance_mode' => ['nullable', 'boolean'],
+            'payout_frequency' => ['nullable', 'string', 'in:daily,weekly,bi-weekly,monthly'],
+            'support_email' => ['nullable', 'email', 'max:255'],
+            'support_phone' => ['nullable', 'string', 'max:30'],
+            'gemini_api_key' => ['nullable', 'string', 'max:255'],
+            'gemini_model' => ['nullable', 'string', 'max:100'],
+            'gemini_enabled' => ['nullable', 'boolean'],
+        ], [
+            'platform_commission.between' => 'Platform commission percentage must be between 0% and 100%.',
+            'otp_expiry_minutes.between' => 'OTP expiry duration must be between 1 and 60 minutes.',
+            'support_email.email' => 'Please enter a valid support email address.',
+        ]);
 
-        foreach ($fields as $field) {
-            if ($request->has($field)) {
-                cache()->forever($field, $request->input($field));
+        foreach ($validated as $field => $value) {
+            if ($value !== null) {
+                cache()->forever($field, $value);
             }
         }
 

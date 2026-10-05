@@ -108,15 +108,22 @@ class CommunityController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:3000'],
+            'title' => ['required', 'string', 'min:5', 'max:255'],
+            'description' => ['required', 'string', 'min:10', 'max:3000'],
             'category' => ['required', 'string', 'in:' . implode(',', array_keys(CommunityIssue::CATEGORIES))],
             'city' => ['required', 'string', 'in:' . implode(',', CommunityIssue::CITIES)],
-            'location' => ['required', 'string', 'max:255'],
-            'reporter_name' => ['required', 'string', 'max:150'],
+            'location' => ['required', 'string', 'min:3', 'max:255'],
+            'reporter_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
             'reporter_role' => ['nullable', 'string', 'max:50'],
-            'reporter_phone' => ['nullable', 'string', 'max:30'],
+            'reporter_phone' => ['nullable', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/'],
             'priority' => ['nullable', 'string', 'in:normal,high,critical'],
+        ], [
+            'title.min' => 'Hazard report title must be at least 5 characters long.',
+            'description.min' => 'Please provide at least 10 characters describing the issue.',
+            'reporter_name.regex' => 'Please provide a valid reporter name.',
+            'reporter_phone.regex' => 'Please enter a valid phone number.',
+            'category.in' => 'Please select a valid hazard category.',
+            'city.in' => 'Please select a supported city.',
         ]);
 
         do {

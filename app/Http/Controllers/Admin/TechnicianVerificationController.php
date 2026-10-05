@@ -63,11 +63,15 @@ class TechnicianVerificationController extends Controller
      */
     public function approve(Request $request, TechnicianApplication $application): RedirectResponse
     {
+        $validated = $request->validate([
+            'admin_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
         $application->update([
             'status' => 'approved',
             'biometric_status' => 'verified',
             'rejection_reason' => null,
-            'admin_notes' => $request->input('admin_notes', 'NADRA biometric and skill inspection completed successfully.'),
+            'admin_notes' => $validated['admin_notes'] ?? 'NADRA biometric and skill inspection completed successfully.',
             'reviewed_at' => now(),
         ]);
 
@@ -125,11 +129,13 @@ class TechnicianVerificationController extends Controller
      */
     public function reject(Request $request, TechnicianApplication $application): RedirectResponse
     {
-        $request->validate([
-            'reason' => ['required', 'string', 'max:1000'],
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'min:5', 'max:1000'],
+        ], [
+            'reason.min' => 'Please provide at least 5 characters explaining why the application is being rejected.',
         ]);
 
-        $reason = $request->input('reason');
+        $reason = trim($validated['reason']);
 
         $application->update([
             'status' => 'rejected',

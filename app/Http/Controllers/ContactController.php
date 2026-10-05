@@ -54,12 +54,17 @@ class ContactController extends Controller
     public function submit(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'department' => ['required', 'string', 'max:50'],
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:50'],
+            'department' => ['required', 'string', 'in:general,booking,emergency,escrow,technician,corporate,partnership'],
+            'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
+            'phone' => ['required', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/'],
             'email' => ['nullable', 'email', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
-            'message' => ['required', 'string', 'max:3000'],
+            'message' => ['required', 'string', 'min:10', 'max:3000'],
+        ], [
+            'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
+            'phone.regex' => 'Please enter a valid phone number.',
+            'message.min' => 'Inquiry message must be at least 10 characters long.',
+            'department.in' => 'Please select a valid support department.',
         ]);
 
         // Generate unique inquiry reference code

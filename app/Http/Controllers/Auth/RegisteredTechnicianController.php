@@ -16,15 +16,21 @@ class RegisteredTechnicianController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', 'max:20'],
-            'cnic' => ['required', 'string', 'max:20'],
-            'experience' => ['required', 'string', 'max:255'],
-            'trade' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'phone' => ['required', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/'],
+            'cnic' => ['required', 'string', 'max:20', 'regex:/^\d{5}-?\d{7}-?\d{1}$/'],
+            'experience' => ['required', 'string', 'max:50'],
+            'trade' => ['required', 'string', 'max:100'],
+            'password' => ['required', 'string', 'min:8', 'max:100', 'confirmed'],
         ], [
+            'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
+            'name.min' => 'Full name must be at least 2 characters long.',
             'email.unique' => 'An account already exists with this email.',
+            'phone.regex' => 'Please enter a valid mobile number (e.g. 03001234567 or +923001234567).',
+            'cnic.regex' => 'Please provide a valid 13-digit Pakistani CNIC number (e.g. 42101-1234567-1).',
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.confirmed' => 'The password confirmation does not match.',
         ]);
 
         $phone = OtpService::normalizePhone($data['phone']);

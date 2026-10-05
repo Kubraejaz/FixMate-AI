@@ -48,16 +48,21 @@ class BecomeTechnicianController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:25'],
+            'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
+            'phone' => ['required', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/'],
             'email' => ['required', 'email', 'max:255'],
-            'cnic_number' => ['required', 'string', 'max:25'],
+            'cnic_number' => ['required', 'string', 'max:25', 'regex:/^\d{5}-?\d{7}-?\d{1}$/'],
             'profession_id' => ['required', 'exists:professions,id'],
             'city' => ['required', 'string', 'max:100'],
-            'experience_years' => ['required', 'integer', 'min:0', 'max:50'],
+            'experience_years' => ['required', 'integer', 'between:0,50'],
             'workshop_type' => ['required', 'string', 'in:freelancer,independent_workshop,company_employed'],
             'tools_available' => ['required', 'string', 'in:has_own_tools,basic_tools,needs_tool_support'],
             'documents_list' => ['nullable', 'string', 'max:255'],
+        ], [
+            'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
+            'phone.regex' => 'Please enter a valid mobile contact number.',
+            'cnic_number.regex' => 'Please enter a valid 13-digit Pakistani CNIC number (e.g. 42101-1234567-1).',
+            'experience_years.between' => 'Experience years must be between 0 and 50.',
         ]);
 
         do {

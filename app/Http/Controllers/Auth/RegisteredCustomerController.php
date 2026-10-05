@@ -14,10 +14,15 @@ class RegisteredCustomerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
             'identifier' => ['required', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'city' => ['required', 'string', 'max:100'],
+            'password' => ['required', 'string', 'min:8', 'max:100', 'confirmed'],
+        ], [
+            'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
+            'name.min' => 'Your full name must be at least 2 characters long.',
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.confirmed' => 'The password confirmation does not match.',
         ]);
 
         $identifier = trim($data['identifier']);

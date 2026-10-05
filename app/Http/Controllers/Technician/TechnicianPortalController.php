@@ -369,6 +369,14 @@ class TechnicianPortalController extends Controller
             abort(403, 'Unauthorized booking operation.');
         }
 
+        $request->validate([
+            'otp' => ['nullable', 'string', 'max:10'],
+            'digit_1' => ['nullable', 'numeric'],
+            'digit_2' => ['nullable', 'numeric'],
+            'digit_3' => ['nullable', 'numeric'],
+            'digit_4' => ['nullable', 'numeric'],
+        ]);
+
         // Support single field 'otp' or separate digit fields
         $otp = $request->input('otp');
         if (! $otp && $request->filled('digit_1')) {
@@ -510,17 +518,21 @@ class TechnicianPortalController extends Controller
     public function submitVerification(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'cnic_number' => ['required', 'string', 'max:25'],
+            'cnic_number' => ['required', 'string', 'max:25', 'regex:/^\d{5}-?\d{7}-?\d{1}$/'],
             'experience' => ['nullable', 'string', 'max:50'],
             'city' => ['nullable', 'string', 'max:50'],
-            'emergency_contact_name' => ['nullable', 'string', 'max:100'],
-            'emergency_contact_phone' => ['nullable', 'string', 'max:25'],
-            'cnic_front' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
-            'cnic_back' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
-            'biometric_selfie' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
-            'police_certificate' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
-            'trade_license' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
-            'proof_of_address' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
+            'emergency_contact_name' => ['nullable', 'string', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
+            'emergency_contact_phone' => ['nullable', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/'],
+            'cnic_front' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'cnic_back' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'biometric_selfie' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'police_certificate' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'trade_license' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'proof_of_address' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+        ], [
+            'cnic_number.regex' => 'Please enter a valid 13-digit Pakistani CNIC number (e.g. 42101-1234567-1).',
+            'emergency_contact_name.regex' => 'Please enter a valid name for your emergency contact.',
+            'emergency_contact_phone.regex' => 'Please enter a valid emergency contact phone number.',
         ]);
 
         /** @var User $user */
@@ -1010,11 +1022,14 @@ class TechnicianPortalController extends Controller
     public function updateProfile(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'],
+            'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
+            'phone' => ['required', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/'],
             'city' => ['required', 'string', 'max:50'],
             'area' => ['nullable', 'string', 'max:100'],
             'experience' => ['nullable', 'string', 'max:50'],
+        ], [
+            'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
+            'phone.regex' => 'Please enter a valid mobile contact number.',
         ]);
 
         /** @var User $user */

@@ -113,6 +113,16 @@ class CustomerPortalController extends Controller
      */
     public function aiResult(Request $request): View
     {
+        $request->validate([
+            'defect_photo' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp,heic', 'max:10240'],
+            'issue' => ['nullable', 'string', 'max:2000'],
+            'q' => ['nullable', 'string', 'max:2000'],
+            'category' => ['nullable', 'string', 'max:100'],
+        ], [
+            'defect_photo.max' => 'Defect photo must not exceed 10MB in size.',
+            'defect_photo.image' => 'Uploaded file must be a valid image (JPEG, PNG, WEBP, or HEIC).',
+        ]);
+
         $categorySlug = $request->input('category', 'auto');
         $problemQuery = trim($request->input('issue', $request->input('q', '')));
 
@@ -564,10 +574,14 @@ class CustomerPortalController extends Controller
             'service_title' => ['nullable', 'string', 'max:150'],
             'service_date' => ['required', 'date', 'after_or_equal:today'],
             'service_time_slot' => ['required', 'string', 'max:100'],
-            'service_address' => ['required', 'string', 'max:255'],
+            'service_address' => ['required', 'string', 'min:5', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'problem_description' => ['nullable', 'string', 'max:1000'],
-            'problem_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'problem_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+        ], [
+            'service_date.after_or_equal' => 'Appointment date cannot be scheduled in the past.',
+            'service_address.min' => 'Please provide a complete street address with house/flat number.',
+            'problem_image.max' => 'Defect photo must not exceed 5MB.',
         ]);
 
         $profession = Profession::findOrFail($validated['profession_id']);
@@ -759,9 +773,13 @@ class CustomerPortalController extends Controller
             return back()->with('error', 'Completed bookings cannot be cancelled.');
         }
 
+        $validated = $request->validate([
+            'cancellation_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
         $booking->update([
             'status' => 'cancelled',
-            'cancellation_reason' => $request->input('cancellation_reason', 'Cancelled by customer'),
+            'cancellation_reason' => $validated['cancellation_reason'] ?? 'Cancelled by customer',
         ]);
 
         return back()->with('success', "Booking #{$booking->booking_number} has been cancelled.");
@@ -803,7 +821,10 @@ class CustomerPortalController extends Controller
 
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'between:1,5'],
-            'comment' => ['required', 'string', 'max:1000'],
+            'comment' => ['required', 'string', 'min:3', 'max:1000'],
+        ], [
+            'rating.between' => 'Rating must be between 1 and 5 stars.',
+            'comment.min' => 'Please provide at least 3 characters in your review.',
         ]);
 
         Review::create([
@@ -836,11 +857,14 @@ class CustomerPortalController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s\.\'-]+$/u'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email,' . $user->id],
-            'phone' => ['required', 'string', 'max:30', 'unique:users,phone,' . $user->id],
+            'phone' => ['required', 'string', 'max:25', 'regex:/^[0-9+\s\-]{10,25}$/', 'unique:users,phone,' . $user->id],
             'city' => ['nullable', 'string', 'max:100'],
             'area' => ['nullable', 'string', 'max:255'],
+        ], [
+            'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
+            'phone.regex' => 'Please enter a valid contact phone number.',
         ]);
 
         $user->update($validated);
@@ -897,8 +921,11 @@ class CustomerPortalController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'subject' => ['required', 'string', 'max:150'],
-            'message' => ['required', 'string', 'max:2000'],
+            'subject' => ['required', 'string', 'min:3', 'max:150'],
+            'message' => ['required', 'string', 'min:10', 'max:2000'],
+        ], [
+            'subject.min' => 'Dispute subject must be at least 3 characters long.',
+            'message.min' => 'Please provide at least 10 characters detailing your complaint.',
         ]);
 
         do {
@@ -1218,6 +1245,12 @@ class CustomerPortalController extends Controller
 
         $validated = $request->validate([
             'payment_method' => ['required', 'in:jazzcash,easypaisa,card,cash'],
+            'card_number' => ['nullable', 'string', 'max:30'],
+            'card_expiry' => ['nullable', 'string', 'max:10'],
+            'card_cvc' => ['nullable', 'string', 'max:10'],
+            'account_number' => ['nullable', 'string', 'max:30'],
+        ], [
+            'payment_method.in' => 'Please select a valid payment method (JazzCash, EasyPaisa, Debit/Credit Card, or Cash on Delivery).',
         ]);
 
         $status = $validated['payment_method'] === 'cash' ? 'cash_on_delivery' : 'escrow_held';
