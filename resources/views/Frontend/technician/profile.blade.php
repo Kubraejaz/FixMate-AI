@@ -68,13 +68,23 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 22px;">
-                <label class="form-label" style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 4px; display: block;">Experience Bio</label>
-                <input type="text" name="experience" value="{{ old('experience', $user->experience ?? $pro->experience) }}" class="form-input" style="padding: 10px 12px; font-size: 13.5px;">
+            <div style="margin-bottom: 18px;">
+                <label class="form-label" style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 4px; display: block;">Years of Experience</label>
+                <input type="text" name="experience" value="{{ old('experience', $user->experience ?? $pro->experience) }}" class="form-input" style="padding: 10px 12px; font-size: 13.5px;" placeholder="e.g. 5+ Years Practical Experience">
             </div>
 
-            <button type="submit" class="btn-yellow" style="padding: 11px 26px; font-size: 14px; font-weight: 800; border: none; cursor: pointer; border-radius: 8px;">
-                Save Profile Changes &rarr;
+            <div style="margin-bottom: 24px;">
+                <label class="form-label" style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 4px; display: block;">
+                    Technician Description &amp; Professional Bio
+                </label>
+                <textarea name="description" rows="4" class="form-input" style="padding: 12px; font-size: 13.5px; height: auto; resize: vertical; line-height: 1.5;" placeholder="Describe your trade background, expertise, specialized equipment, work ethics, and customer satisfaction guarantee...">{{ old('description', $user->description ?? $pro->description) }}</textarea>
+                <span style="font-size: 12px; color: #6B7280; margin-top: 4px; display: block;">
+                    This description appears on your technician dashboard and profile card to show customers your credibility and craftsmanship.
+                </span>
+            </div>
+
+            <button type="submit" class="btn-yellow" style="padding: 12px 28px; font-size: 14px; font-weight: 800; border: none; cursor: pointer; border-radius: 8px;">
+                Save Profile &amp; Description &rarr;
             </button>
         </form>
     </div>

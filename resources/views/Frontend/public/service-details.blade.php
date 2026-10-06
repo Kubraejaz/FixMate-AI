@@ -69,6 +69,24 @@
                 </p>
             </div>
 
+            <!-- Sub-Categories & Specializations -->
+            @if(!empty($profession->sub_categories_list))
+            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                    <h3 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0;">Sub-Categories &amp; Specialized Coverage</h3>
+                    <span style="font-size: 11.5px; font-weight: 700; color: #059669; background: #DCFCE7; padding: 3px 10px; border-radius: 12px;">{{ count($profession->sub_categories_list) }} Specializations</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px;">
+                    @foreach($profession->sub_categories_list as $subCat)
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #1E293B; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #FFB800; font-size: 14px;">🛠️</span>
+                            <span>{{ $subCat }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <!-- What's Included -->
             <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
                 <h3 style="font-size: 17px; font-weight: 800; color: #0F172A; margin: 0 0 16px 0;">What's Included in this Service</h3>

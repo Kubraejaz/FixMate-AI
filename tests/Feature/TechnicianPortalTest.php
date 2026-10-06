@@ -287,11 +287,13 @@ class TechnicianPortalTest extends TestCase
             ->post(route('technician.skills.update'), [
                 'profession_id' => $this->profession->id,
                 'experience' => '10 Years Master Craftsman',
+                'sub_categories' => ['Pipe Leakage & Repair', 'Water Tank Cleaning'],
             ]);
 
         $updateResponse->assertSessionHas('success');
         $this->professional->refresh();
         $this->assertEquals('10 Years Master Craftsman', $this->professional->experience);
+        $this->assertEquals(['Pipe Leakage & Repair', 'Water Tank Cleaning'], $this->professional->sub_categories);
     }
 
     public function test_technician_can_update_profile(): void
@@ -303,12 +305,21 @@ class TechnicianPortalTest extends TestCase
                 'city' => 'Lahore',
                 'area' => 'DHA Phase 5',
                 'experience' => '12 Years',
+                'description' => 'Certified Master Plumber specializing in residential piping and high pressure systems with 12+ years experience.',
             ]);
 
         $response->assertSessionHas('success');
         $this->technicianUser->refresh();
+        $this->professional->refresh();
         $this->assertEquals('Tariq Mehmood Pro', $this->technicianUser->name);
         $this->assertEquals('Lahore', $this->technicianUser->city);
+        $this->assertEquals('Certified Master Plumber specializing in residential piping and high pressure systems with 12+ years experience.', $this->technicianUser->description);
+        $this->assertEquals('Certified Master Plumber specializing in residential piping and high pressure systems with 12+ years experience.', $this->professional->description);
+
+        $dashResponse = $this->actingAs($this->technicianUser)->get(route('technician.dashboard'));
+        $dashResponse->assertOk();
+        $dashResponse->assertSee('Technician Description');
+        $dashResponse->assertSee('Certified Master Plumber');
     }
 
     public function test_technician_can_view_messages_and_send_reply(): void

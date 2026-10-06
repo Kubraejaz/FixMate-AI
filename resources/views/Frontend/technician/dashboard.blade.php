@@ -308,8 +308,37 @@
                     <strong style="font-size: 22px; color: #047857;">Rs. {{ number_format($todayEarnings + $pendingEscrow) }}</strong>
                 </div>
                 <a href="{{ route('technician.earnings') }}" class="btn-yellow" style="display: block; text-align: center; padding: 10px 0; font-size: 13.5px; font-weight: 800; text-decoration: none;">
-                    View Earnings Ledger & Withdrawals
+                    View Earnings Ledger &amp; Withdrawals
                 </a>
+            </div>
+
+            <!-- Technician Profile & Description Card -->
+            <div class="portal-card" style="padding: 20px; background: #FFFFFF;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">📝</span>
+                        <strong style="font-size: 14px; color: #111;">Technician Description</strong>
+                    </div>
+                    <a href="{{ route('technician.profile') }}" style="font-size: 11.5px; color: #B45309; font-weight: 800; text-decoration: underline;">Edit Bio</a>
+                </div>
+                @php
+                    $techDesc = $user->description ?: ($pro->description ?: '');
+                @endphp
+                @if($techDesc)
+                    <p style="font-size: 13px; color: #475569; margin: 0 0 10px 0; line-height: 1.5; font-style: italic; background: #F8FAFC; padding: 10px 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                        "{{ \Illuminate\Support\Str::limit($techDesc, 180) }}"
+                    </p>
+                @else
+                    <div style="background: #FFFDF0; border: 1px dashed #FDE68A; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: #92400E; display: block; line-height: 1.4;">
+                            No technician description added yet. Add a short bio to introduce your trade skills and attract customer bookings!
+                        </span>
+                    </div>
+                @endif
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: #64748B;">
+                    <span>Specialty: <strong>{{ $pro->profession?->name ?? 'General Specialist' }}</strong></span>
+                    <a href="{{ route('technician.profile') }}" class="btn-outline" style="padding: 4px 10px; font-size: 11px; text-decoration: none;">Update Profile</a>
+                </div>
             </div>
 
         </div>

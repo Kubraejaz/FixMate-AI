@@ -68,12 +68,39 @@
                         </div>
                     </div>
 
-                    <!-- Clean Bio -->
+                    <!-- Clean Bio & Description -->
                     <div style="border-top: 1px solid #F1F5F9; padding-top: 18px; margin-top: 22px;">
                         <h3 style="font-size: 15px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">About {{ $techFirstName }}</h3>
-                        <p style="font-size: 14px; color: #64748B; line-height: 1.65; margin: 0;">
-                            Certified {{ strtolower($profTitle) }} specialist with {{ $experience }} of residential experience across {{ $city }}. Equipped with professional trade tools, committed to upfront standardized labor tariffs, and backed by the FixMate {{ $warrantyText }} rework guarantee.
-                        </p>
+                        @php
+                            $techBio = $professional->description ?: ($professional->user?->description ?: null);
+                        @endphp
+                        @if($techBio)
+                            <p style="font-size: 14px; color: #475569; line-height: 1.65; margin: 0 0 14px 0;">
+                                {{ $techBio }}
+                            </p>
+                        @else
+                            <p style="font-size: 14px; color: #64748B; line-height: 1.65; margin: 0 0 14px 0;">
+                                Certified {{ strtolower($profTitle) }} specialist with {{ $experience }} of residential experience across {{ $city }}. Equipped with professional trade tools, committed to upfront standardized labor tariffs, and backed by the FixMate {{ $warrantyText }} rework guarantee.
+                            </p>
+                        @endif
+
+                        @php
+                            $savedSubCats = $professional->sub_categories ?: [];
+                        @endphp
+                        @if(!empty($savedSubCats))
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #E2E8F0;">
+                                <span style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                                    Specialized Sub-Categories:
+                                </span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    @foreach($savedSubCats as $sc)
+                                        <span style="font-size: 11.5px; font-weight: 600; color: #0F172A; background: #FFF9E6; border: 1px solid #FEF08A; padding: 3px 10px; border-radius: 6px;">
+                                            {{ $sc }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

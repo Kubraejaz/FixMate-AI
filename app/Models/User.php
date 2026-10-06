@@ -42,6 +42,7 @@ class User extends Authenticatable
         'is_active',
         'city',
         'area',
+        'description',
         'notification_settings',
         'contact_verified_at',
         'last_login_at',

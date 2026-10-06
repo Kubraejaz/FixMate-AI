@@ -15,6 +15,7 @@ class Profession extends Model
         'slug',
         'icon',
         'description',
+        'sub_categories',
         'is_active',
         'base_price',
         'price_unit',
@@ -32,9 +33,27 @@ class Profession extends Model
         return [
             'is_active' => 'boolean',
             'base_price' => 'integer',
+            'sub_categories' => 'array',
             'feature_points' => 'array',
             'included_items' => 'array',
             'excluded_items' => 'array',
+        ];
+    }
+
+    public function getSubCategoriesListAttribute(): array
+    {
+        if (is_array($this->sub_categories) && count($this->sub_categories) > 0) {
+            return $this->sub_categories;
+        }
+
+        if (is_array($this->feature_points) && count($this->feature_points) > 0) {
+            return $this->feature_points;
+        }
+
+        return [
+            'General Diagnostic & Assessment',
+            'Standard Part Installation & Servicing',
+            'Emergency Repair & Rework Guarantee',
         ];
     }
 

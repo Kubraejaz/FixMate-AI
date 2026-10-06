@@ -81,6 +81,8 @@ class HowItWorksTest extends TestCase
             'cnic_number' => '42101-1234567-1',
             'experience' => '8 years',
             'is_verified' => true,
+            'description' => 'Dedicated plumbing contractor specialized in geysers, pumps, and PVC installations.',
+            'sub_categories' => ['Pipe Leakage & Repair', 'Water Tank Cleaning'],
         ]);
 
         $response = $this->get('/technicians/' . $pro->id);
@@ -91,6 +93,43 @@ class HowItWorksTest extends TestCase
         $response->assertSee('Rs. 950');
         $response->assertSee('45-Day Rework Guarantee');
         $response->assertSee('Karachi — Clifton');
+        $response->assertSee('Dedicated plumbing contractor specialized in geysers, pumps, and PVC installations.');
+        $response->assertSee('Pipe Leakage &amp; Repair', false);
+    }
+
+    public function test_public_services_page_displays_categories_and_sub_categories(): void
+    {
+        Profession::create([
+            'name' => 'HVAC & AC Service',
+            'slug' => 'ac-service',
+            'base_price' => 1200,
+            'is_active' => true,
+            'sub_categories' => ['Split AC Deep Chemical Wash', 'Inverter Error Code Diagnostic'],
+        ]);
+
+        $response = $this->get(route('services'));
+        $response->assertStatus(200);
+        $response->assertSee('HVAC &amp; AC Service', false);
+        $response->assertSee('Split AC Deep Chemical Wash');
+        $response->assertSee('Inverter Error Code Diagnostic');
+    }
+
+    public function test_public_service_details_page_displays_sub_categories(): void
+    {
+        $prof = Profession::create([
+            'name' => 'Carpentry & Woodwork',
+            'slug' => 'carpentry',
+            'base_price' => 1000,
+            'is_active' => true,
+            'sub_categories' => ['Door Lock & Hinge Fix', 'Custom Cabinet Assembly'],
+        ]);
+
+        $response = $this->get(route('service-details', $prof->slug));
+        $response->assertStatus(200);
+        $response->assertSee('Carpentry &amp; Woodwork', false);
+        $response->assertSee('Sub-Categories &amp; Specialized Coverage', false);
+        $response->assertSee('Door Lock &amp; Hinge Fix', false);
+        $response->assertSee('Custom Cabinet Assembly');
     }
 
     public function test_privacy_and_terms_pages_display_dynamic_warranty_settings(): void

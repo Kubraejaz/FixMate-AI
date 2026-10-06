@@ -699,19 +699,31 @@ class TechnicianPortalController extends Controller
         $validated = $request->validate([
             'profession_id' => ['required', 'exists:professions,id'],
             'experience' => ['required', 'string', 'max:50'],
+            'sub_categories' => ['nullable', 'array'],
+            'sub_categories.*' => ['string', 'max:150'],
         ]);
 
         /** @var User $user */
         $user = auth()->user();
         $pro = $this->getProfessional();
 
-        $user->update(['profession_id' => $validated['profession_id']]);
-        $pro->update([
+        $user->update([
             'profession_id' => $validated['profession_id'],
             'experience' => $validated['experience'],
         ]);
 
-        return back()->with('success', 'Skills and trade specialty updated successfully.');
+        $proUpdates = [
+            'profession_id' => $validated['profession_id'],
+            'experience' => $validated['experience'],
+        ];
+
+        if ($request->has('sub_categories')) {
+            $proUpdates['sub_categories'] = $validated['sub_categories'];
+        }
+
+        $pro->update($proUpdates);
+
+        return back()->with('success', 'Skills, trade category, and sub-categories updated successfully.');
     }
 
     /**
@@ -1062,6 +1074,7 @@ class TechnicianPortalController extends Controller
             'city' => ['required', 'string', 'max:50'],
             'area' => ['nullable', 'string', 'max:100'],
             'experience' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string', 'max:2000'],
         ], [
             'name.regex' => 'Please provide a valid full name containing only letters, spaces, and periods.',
             'phone.regex' => 'Please enter a valid mobile contact number.',
@@ -1076,8 +1089,9 @@ class TechnicianPortalController extends Controller
             'name' => $validated['name'],
             'phone' => $validated['phone'],
             'experience' => $validated['experience'] ?? $pro->experience,
+            'description' => $validated['description'] ?? $pro->description,
         ]);
 
-        return back()->with('success', 'Profile and contact information updated successfully.');
+        return back()->with('success', 'Profile and technician description updated successfully.');
     }
 }

@@ -117,6 +117,22 @@
                         {{ $prof->description }}
                     </p>
 
+                    <!-- Sub-Categories Badges -->
+                    @if(!empty($prof->sub_categories_list))
+                        <div style="margin-bottom: 16px;">
+                            <span style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">
+                                Sub-Categories &amp; Scope:
+                            </span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                @foreach($prof->sub_categories_list as $subCat)
+                                    <span style="font-size: 11.5px; font-weight: 600; color: #1E293B; background: #F1F5F9; border: 1px solid #E2E8F0; padding: 3px 9px; border-radius: 6px;">
+                                        {{ $subCat }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Feature Bullet Points -->
                     @if(!empty($prof->feature_points) && is_array($prof->feature_points))
                         <div style="background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">

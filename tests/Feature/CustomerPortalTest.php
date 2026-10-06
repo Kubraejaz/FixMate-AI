@@ -577,12 +577,18 @@ class CustomerPortalTest extends TestCase
 
     public function test_customer_can_view_services_page_inside_portal(): void
     {
+        $this->profession->update([
+            'sub_categories' => ['Pipe Leakage & Repair', 'Sanitary Fittings & Taps'],
+        ]);
+
         $response = $this->actingAs($this->customer)->get(route('customer.services'));
 
         $response->assertStatus(200);
         $response->assertViewIs('Frontend.customer.services');
         $response->assertSee('All Services &amp; Trade Categories', false);
         $response->assertSee('Plumber');
+        $response->assertSee('Pipe Leakage &amp; Repair', false);
+        $response->assertSee('Sub-Categories &amp; Scope:', false);
     }
 
     public function test_customer_can_filter_services_by_search_and_category(): void
@@ -594,6 +600,7 @@ class CustomerPortalTest extends TestCase
                 'description' => 'Wiring and breakers',
                 'base_price' => 700,
                 'is_active' => true,
+                'sub_categories' => ['Short Circuit Repair', 'Ceiling Fan Installation'],
             ]
         );
 
@@ -601,6 +608,11 @@ class CustomerPortalTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Electrician');
+
+        // Search by sub category keyword
+        $responseSub = $this->actingAs($this->customer)->get(route('customer.services', ['search' => 'Ceiling Fan']));
+        $responseSub->assertStatus(200);
+        $responseSub->assertSee('Electrician');
 
         $responseCat = $this->actingAs($this->customer)->get(route('customer.services', ['category' => 'plumber']));
         $responseCat->assertStatus(200);

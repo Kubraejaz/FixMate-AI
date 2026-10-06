@@ -17,6 +17,8 @@ class Professional extends Model
         'email',
         'phone',
         'experience',
+        'description',
+        'sub_categories',
         'cnic_number',
         'is_verified',
         'verification_status',
@@ -40,6 +42,7 @@ class Professional extends Model
     {
         return [
             'is_verified' => 'boolean',
+            'sub_categories' => 'array',
             'cnic_number' => 'encrypted',
         ];
     }

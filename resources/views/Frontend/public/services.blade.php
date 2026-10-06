@@ -83,6 +83,22 @@
                                 {{ $prof->description ?? 'Reliable home repair and maintenance services by certified background-checked technicians.' }}
                             </p>
                             
+                            <!-- Sub-Categories & Specializations -->
+                            @if(!empty($prof->sub_categories_list))
+                                <div style="margin-bottom: 14px;">
+                                    <span style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                                        Sub-Categories &amp; Scope:
+                                    </span>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                        @foreach($prof->sub_categories_list as $subCat)
+                                            <span style="font-size: 11px; font-weight: 600; color: {{ $style['textColor'] }}; background: {{ $style['bg'] }}; border: 1px solid {{ $style['border'] }}; border-radius: 6px; padding: 2.5px 8px;">
+                                                {{ $subCat }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <!-- Dynamic Scope Points from Database -->
                             <div style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; padding: 12px 0; margin-bottom: 16px; font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
                                 @foreach($prof->feature_points_list as $pt)
