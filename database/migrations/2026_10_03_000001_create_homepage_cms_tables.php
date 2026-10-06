@@ -16,28 +16,28 @@ return new class extends Migration
         if (! Schema::hasTable('homepage_settings')) {
             Schema::create('homepage_settings', function (Blueprint $table) {
                 $table->id();
-                $table->string('hero_badge')->default('AI Powered Home Service Platform');
+                $table->string('hero_badge')->default('Verified On-Demand Home Service Platform');
                 $table->string('hero_title_main')->default('Smart Home Services');
                 $table->string('hero_title_highlight')->default('Simple');
                 $table->text('hero_subtitle');
                 $table->string('hero_image')->default('assets/images/image_8.png');
                 $table->string('hero_script_text')->default("Your Home\nOur Priority");
                 $table->string('hero_trusted_tag')->default('Trusted Professionals for Your Home');
-                $table->string('guarantee_title')->default('FixMate AI Guarantee');
+                $table->string('guarantee_title')->default('FixMate Guarantee');
                 $table->text('guarantee_subtitle');
                 $table->unsignedSmallInteger('warranty_days')->default(30);
                 $table->timestamps();
             });
 
             DB::table('homepage_settings')->insert([
-                'hero_badge' => 'AI Powered Home Service Platform',
+                'hero_badge' => 'Verified On-Demand Home Service Platform',
                 'hero_title_main' => 'Smart Home Services',
                 'hero_title_highlight' => 'Simple',
-                'hero_subtitle' => 'Describe your problem or upload defect photos. Let FixMate AI find verified technicians with transparent upfront pricing.',
+                'hero_subtitle' => 'Describe your problem or upload defect photos. Let FixMate find verified technicians with transparent upfront pricing.',
                 'hero_image' => 'assets/images/image_8.png',
                 'hero_script_text' => "Your Home\nOur Priority",
                 'hero_trusted_tag' => 'Trusted Professionals for Your Home',
-                'guarantee_title' => 'FixMate AI Guarantee',
+                'guarantee_title' => 'FixMate Guarantee',
                 'guarantee_subtitle' => 'Trusted service. Verified professionals. 30-day warranty on all completed jobs.',
                 'warranty_days' => 30,
                 'created_at' => now(),
@@ -66,7 +66,7 @@ return new class extends Migration
                     'location' => 'Karachi — Clifton',
                     'trade' => 'Electrical Repair',
                     'rating' => 5,
-                    'comment' => 'The AI scanner estimated Rs. 1,400 for our tripping breaker. Technician arrived in 22 minutes and solved the neutral short.',
+                    'comment' => 'The upfront estimate quoted Rs. 1,400 for our tripping breaker. Technician arrived in 22 minutes and solved the neutral short.',
                     'avatar' => 'assets/images/image_2.png',
                     'is_featured' => true,
                     'display_order' => 1,
@@ -126,9 +126,9 @@ return new class extends Migration
                 ],
                 [
                     'step_number' => 2,
-                    'icon' => '🤖',
-                    'title' => 'AI Diagnostics',
-                    'description' => 'Instant computer vision defect assessment.',
+                    'icon' => '🏷️',
+                    'title' => 'Upfront Tariff Pricing',
+                    'description' => 'Instant standard labor and parts cost estimate.',
                     'badge_color' => '#FFC107',
                     'is_active' => true,
                     'created_at' => now(),

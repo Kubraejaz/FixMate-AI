@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Become a Technician — FixMate AI')
+@section('title', 'Become a Technician — FixMate')
 @section('meta_desc', 'Join Pakistan\'s leading network of verified home maintenance professionals. Steady job dispatches, fast payouts, and professional growth.')
 
 @section('content')
@@ -13,7 +13,7 @@
         <div id="techRegCard" class="card-box" style="padding: 40px; box-shadow: var(--shadow-md);">
             <div style="text-align: center; margin-bottom: 24px;">
                 <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 16px; text-decoration: none;">
-                    <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 40px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
+                    <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 40px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
                 </a>
 
                 <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Become a Technician</h1>

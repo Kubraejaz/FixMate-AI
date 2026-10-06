@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Contact Us & FAQs — FixMate AI')
-@section('meta_desc', 'Get in touch with FixMate AI customer support or explore answers to frequently asked questions.')
+@section('title', 'Contact Us & FAQs — FixMate')
+@section('meta_desc', 'Get in touch with FixMate customer support or explore answers to frequently asked questions.')
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 70px; max-width: 960px;">
@@ -40,9 +40,9 @@
 
         <div style="display: flex; flex-direction: column; gap: 16px;">
             <div style="border-bottom: 1px solid #EEEEEE; padding-bottom: 14px;">
-                <h4 style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px;">How does the AI Problem Diagnostic work?</h4>
+                <h4 style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px;">How does booking a technician work?</h4>
                 <p style="font-size: 13.5px; color: #666; line-height: 1.5;">
-                    You upload a photo or describe the issue. Our computer vision AI identifies the fault, estimates the required parts and costs, and automatically matches certified technicians in your area.
+                    Browse our standardized service catalog or search for your required trade. Select an upfront price package or technician, choose your preferred time slot, and track your verified provider in real time.
                 </p>
             </div>
 

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.auth')
 
-@section('title', 'Technician Registration — FixMate AI Partner Network')
+@section('title', 'Technician Registration — FixMate Partner Network')
 
 @section('content')
 <div class="auth-form-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; box-shadow: var(--card-shadow); width: 100%; max-width: 1060px; display: grid; grid-template-columns: 1.4fr 0.6fr; overflow: hidden; margin: 20px 0;">
@@ -11,7 +11,7 @@
         <!-- Brand Header -->
         <div style="margin-bottom: 26px;">
             <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 42px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 42px; width: auto; object-fit: contain; display: block;">
             </a>
 
             <div style="display: inline-flex; align-items: center; gap: 7px; background: #FFFBEB; border: 1px solid #FDE68A; color: #B45309; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px;">
@@ -218,7 +218,7 @@
     <!-- Right Column: Visual Banner -->
     <div class="auth-side-banner" style="position: relative; background: #0F172A; display: flex; flex-direction: column; justify-content: flex-end; padding: 32px; overflow: hidden;">
 
-        <img src="{{ asset('assets/images/Cleaning_Professional.png') }}" alt="Verified FixMate AI technician" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%;">
+        <img src="{{ asset('assets/images/Cleaning_Professional.png') }}" alt="Verified FixMate technician" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%;">
 
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.45) 50%, rgba(15, 23, 42, 0.95) 100%);"></div>
 

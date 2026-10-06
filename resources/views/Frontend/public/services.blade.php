@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'All Services & Upfront Pricing — FixMate AI')
+@section('title', 'All Services & Upfront Pricing — FixMate')
 @section('meta_desc', 'Explore verified home repair and maintenance services in Pakistan. Transparent pricing for Plumbing, Electrical, AC, Carpentry, Painting, and Cleaning.')
 
 @section('content')
@@ -19,11 +19,11 @@
                 No roadside negotiations or surprise invoices. Book licensed tradespeople with fixed transparent pricing, live tracking, and 60-day rework warranty.
             </p>
 
-            <!-- Problem Quick Search & AI Scan Bar -->
+            <!-- Action Bar -->
             <div style="margin-top: 24px; display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                <a href="{{ url('/customer/diagnose') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14px; padding: 11px 24px; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(255, 184, 0, 0.35);">
-                    <span>📸</span>
-                    <span>Diagnose Problem with AI Vision</span>
+                <a href="{{ route('technicians') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14px; padding: 11px 24px; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(255, 184, 0, 0.35);">
+                    <span>👷</span>
+                    <span>Find Local Technicians</span>
                 </a>
                 <a href="#price-guide" style="background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; font-weight: 700; font-size: 14px; padding: 11px 22px; border-radius: 50px; text-decoration: none;">
                     View Standard Price Guide ↓
@@ -56,6 +56,9 @@
                     'painter' => ['bg' => '#FFEDD5', 'border' => '#FDBA74', 'textColor' => '#C2410C'],
                     'carpenter' => ['bg' => '#F3E8FF', 'border' => '#D8B4FE', 'textColor' => '#7E22CE'],
                     'home-appliances' => ['bg' => '#CCFBF1', 'border' => '#99F6E4', 'textColor' => '#0F766E'],
+                    'solar-ups' => ['bg' => '#FEF3C7', 'border' => '#FDE68A', 'textColor' => '#D97706'],
+                    'handyman-masonry' => ['bg' => '#F1F5F9', 'border' => '#CBD5E1', 'textColor' => '#334155'],
+                    'pest-control' => ['bg' => '#ECFDF5', 'border' => '#A7F3D0', 'textColor' => '#047857'],
                 ];
             @endphp
 
@@ -162,7 +165,7 @@
         </div>
     </section>
 
-    <!-- The FixMate AI Quality Standards Strip -->
+    <!-- The FixMate Quality Standards Strip -->
     <section style="padding: 50px 0; background: #FFFFFF;">
         <div class="container">
             <div style="background: #FFFDF0; border: 2px solid #FEF08A; border-radius: 20px; padding: 36px;">
@@ -171,7 +174,7 @@
                         <span style="font-size: 12px; font-weight: 800; color: #92400E; text-transform: uppercase;">THE FIXMATE PROMISE</span>
                         <h3 style="font-size: 26px; font-weight: 900; color: #0F172A; margin: 4px 0 12px 0;">Never Worry About Unreliable Handymen Again</h3>
                         <p style="font-size: 14.5px; color: #475569; line-height: 1.6; margin: 0 0 20px 0;">
-                            In conventional local markets, finding an electrician or plumber means uncertain pricing, no background checks, and zero warranty when things break again. FixMate AI redesigns the entire experience with accountability.
+                            In conventional local markets, finding an electrician or plumber means uncertain pricing, no background checks, and zero warranty when things break again. FixMate redesigns the entire experience with accountability.
                         </p>
                         <div style="display: flex; gap: 12px;">
                             <a href="{{ url('/how-it-works') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 13.5px; padding: 10px 22px; border-radius: 50px; text-decoration: none;">

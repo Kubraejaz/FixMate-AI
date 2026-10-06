@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.auth')
 
-@section('title', 'Set New Password — FixMate AI')
+@section('title', 'Set New Password — FixMate')
 
 @section('content')
 <div class="auth-form-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; box-shadow: var(--card-shadow); width: 100%; max-width: 960px; min-height: 560px; display: grid; grid-template-columns: 1.15fr 0.85fr; overflow: hidden; margin: 20px 0;">
@@ -11,11 +11,11 @@
         <!-- Brand Header matching Login page -->
         <div style="margin-bottom: 24px;">
             <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 42px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 42px; width: auto; object-fit: contain; display: block;">
             </a>
 
             <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 6px;">Set New Password</h1>
-            <p style="font-size: 14px; color: #64748B; margin: 0; line-height: 1.5;">Create a strong, secure password for your FixMate AI account ({{ $maskedIdentifier }}).</p>
+            <p style="font-size: 14px; color: #64748B; margin: 0; line-height: 1.5;">Create a strong, secure password for your FixMate account ({{ $maskedIdentifier }}).</p>
         </div>
 
         @if ($errors->any())

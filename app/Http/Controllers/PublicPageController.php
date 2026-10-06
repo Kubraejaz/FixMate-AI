@@ -69,14 +69,14 @@ class PublicPageController extends Controller
 
         // Dynamic Hero Configuration with real image assets from CMS
         $hero = [
-            'badge' => $settings?->hero_badge ?? 'AI Powered Home Service Platform',
+            'badge' => $settings?->hero_badge ?? 'Verified On-Demand Home Service Platform',
             'title_main' => $settings?->hero_title_main ?? 'Smart Home Services',
             'title_highlight' => $settings?->hero_title_highlight ?? 'Simple',
-            'subtitle' => $settings?->hero_subtitle ?? 'Describe your problem or upload defect photos. Let FixMate AI find verified technicians with transparent upfront pricing.',
+            'subtitle' => $settings?->hero_subtitle ?? 'Describe your problem or upload defect photos. Let FixMate find verified technicians with transparent upfront pricing.',
             'image' => asset($settings?->hero_image ?? 'assets/images/image_8.png'),
             'script_text' => $settings?->hero_script_text ?? "Your Home\nOur Priority",
             'trusted_tag' => $settings?->hero_trusted_tag ?? 'Trusted Professionals for Your Home',
-            'guarantee_title' => $settings?->guarantee_title ?? 'FixMate AI Guarantee',
+            'guarantee_title' => $settings?->guarantee_title ?? 'FixMate Guarantee',
             'guarantee_subtitle' => $settings?->guarantee_subtitle ?? 'Trusted service. Verified professionals. 30-day warranty on all completed jobs.',
         ];
 
@@ -99,9 +99,9 @@ class PublicPageController extends Controller
                 ],
                 [
                     'step' => 2,
-                    'icon' => '🤖',
-                    'title' => 'AI Diagnostics',
-                    'desc' => 'Instant computer vision defect assessment.',
+                    'icon' => '🏷️',
+                    'title' => 'Upfront Tariff Pricing',
+                    'desc' => 'Instant standard labor and parts cost estimate.',
                     'badge_color' => '#FFC107',
                 ],
                 [

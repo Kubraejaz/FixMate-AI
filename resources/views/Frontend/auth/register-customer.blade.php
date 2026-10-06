@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.auth')
 
-@section('title', 'Customer Registration — FixMate AI')
+@section('title', 'Customer Registration — FixMate')
 
 @section('content')
 <div class="auth-form-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; box-shadow: var(--card-shadow); width: 100%; max-width: 1000px; display: grid; grid-template-columns: 1.25fr 0.75fr; overflow: hidden; margin: 20px 0;">
@@ -11,7 +11,7 @@
         <!-- Brand Header -->
         <div style="margin-bottom: 26px;">
             <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 20px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 42px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 42px; width: auto; object-fit: contain; display: block;">
             </a>
 
             <div style="display: inline-flex; align-items: center; gap: 7px; background: #EFF6FF; border: 1px solid #DBEAFE; color: #2563EB; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px;">
@@ -22,7 +22,7 @@
             </div>
 
             <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; margin-bottom: 6px;">Create your account</h1>
-            <p style="font-size: 14px; color: #64748B; margin: 0;">Diagnose defects with AI and book verified technicians in minutes.</p>
+            <p style="font-size: 14px; color: #64748B; margin: 0;">Book verified technicians and get transparent upfront pricing in minutes.</p>
         </div>
 
         <!-- Registration Form -->
@@ -181,7 +181,7 @@
                             <path d="M20 6L9 17l-5-5"></path>
                         </svg>
                     </span>
-                    <span>Snap a photo and get an AI diagnosis with a cost estimate</span>
+                    <span>Browse transparent service categories with upfront cost estimates</span>
                 </div>
                 <div class="auth-feature">
                     <span class="tick">

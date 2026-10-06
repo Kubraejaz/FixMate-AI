@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'KYC &amp; Biometric Document Verification — FixMate AI Partner Portal')
+@section('title', 'KYC &amp; Biometric Document Verification — FixMate Partner Portal')
 
 @section('content')
 <div style="max-width: 900px; margin: 0 auto; padding-bottom: 40px;">

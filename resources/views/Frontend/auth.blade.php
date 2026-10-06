@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Sign In & Dynamic Role Selection — FixMate AI')
-@section('meta_desc', 'Sign in to FixMate AI as Customer or Service Provider. Supports Google OAuth, Phone OTP, and email credentials.')
+@section('title', 'Sign In & Dynamic Role Selection — FixMate')
+@section('meta_desc', 'Sign in to FixMate as Customer or Service Provider. Supports Google OAuth, Phone OTP, and email credentials.')
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 80px; display: flex; justify-content: center;">
@@ -11,9 +11,9 @@
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 24px;">
             <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 14px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 48px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 48px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
             </a>
-            <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Welcome to FixMate AI</h1>
+            <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Welcome to FixMate</h1>
             <p class="text-secondary" style="font-size: 13.5px;">Intelligent Home Repairs & Verified Pro Dispatch</p>
         </div>
 
@@ -93,7 +93,7 @@
 
         <!-- Terms Footer -->
         <p style="text-align: center; font-size: 11.5px; color: #777; line-height: 1.5;">
-            By signing in you agree to FixMate AI's <a href="#" style="text-decoration: underline;">Terms of Escrow</a> and <a href="#" style="text-decoration: underline;">Privacy Policy</a>. Protected with TLS 1.3 & Supabase Auth.
+            By signing in you agree to FixMate's <a href="{{ url('/terms') }}" style="text-decoration: underline;">Terms of Escrow</a> and <a href="{{ url('/privacy-policy') }}" style="text-decoration: underline;">Privacy Policy</a>.
         </p>
 
     </div>

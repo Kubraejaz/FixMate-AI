@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Login — FixMate AI')
-@section('meta_desc', 'Sign in to your FixMate AI account to manage bookings, track technicians, and view repair history.')
+@section('title', 'Login — FixMate')
+@section('meta_desc', 'Sign in to your FixMate account to manage bookings, track technicians, and view repair history.')
 
 @section('content')
 <div class="container" style="padding-top: 40px; padding-bottom: 70px; display: flex; justify-content: center;">
@@ -13,7 +13,7 @@
         <div style="padding: 44px 40px;">
             <!-- Brand Logo -->
             <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 24px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 38px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 38px; width: auto; object-fit: contain; display: block;">
             </a>
 
             <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Welcome Back</h1>

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Encrypted In-App Chat & Masked Calling — FixMate AI')
+@section('title', 'Encrypted In-App Chat & Masked Calling — FixMate')
 @section('meta_desc', 'Communicate securely with your assigned technician with in-app chat, photo sharing, and privacy-protecting masked call relay.')
 
 @section('content')

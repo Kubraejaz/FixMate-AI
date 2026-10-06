@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'FAQs & Knowledge Base — FixMate AI Admin')
+@section('title', 'FAQs & Knowledge Base — FixMate Admin')
 
 @section('content')
 

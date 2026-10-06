@@ -30,7 +30,7 @@
     ];
 @endphp
 
-@section('title', $profName . ' Services & Upfront Pricing — FixMate AI')
+@section('title', $profName . ' Services & Upfront Pricing — FixMate')
 @section('meta_desc', $desc)
 
 @section('content')
@@ -179,9 +179,9 @@
                         Book This Service Now →
                     </a>
                     
-                    <a href="{{ url('/customer/diagnose?q=' . urlencode($profession->slug ?? 'repair')) }}" style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; text-align: center; font-weight: 700; font-size: 13.5px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <span>📸</span>
-                        <span>Diagnose Problem with AI First</span>
+                    <a href="{{ url('/technicians?profession=' . ($profession->slug ?? '')) }}" style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; text-align: center; font-weight: 700; font-size: 13.5px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>👷</span>
+                        <span>View Verified Technicians</span>
                     </a>
                 </div>
 

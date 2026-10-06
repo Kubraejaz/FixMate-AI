@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Contact Us — FixMate AI | 24/7 Home Repair & Dispatch Desk')
-@section('meta_desc', 'Contact FixMate AI for emergency home repairs, technician onboarding, billing assistance, or corporate property maintenance in Pakistan.')
+@section('title', 'Contact Us — FixMate | 24/7 Home Repair & Dispatch Desk')
+@section('meta_desc', 'Contact FixMate for emergency home repairs, technician onboarding, billing assistance, or corporate property maintenance in Pakistan.')
 
 @section('content')
 <div style="background: #FFFFFF; min-height: 80vh;">
@@ -58,7 +58,7 @@
                     <span style="font-size: 11px; font-weight: 800; color: #92400E; text-transform: uppercase; display: block; margin-bottom: 4px;">Technician Desk</span>
                     <strong style="font-size: 16px; color: #0F172A; display: block; margin-bottom: 6px;">Partner Operations</strong>
                     <p style="font-size: 13px; color: #64748B; margin: 0 0 12px 0; line-height: 1.5;">NADRA biometric verification, wallet withdrawals, and skill testing.</p>
-                    <a href="mailto:partners@fixmate.ai" style="font-size: 13.5px; font-weight: 800; color: #B45309; text-decoration: none; display: block;">partners@fixmate.ai &rarr;</a>
+                    <a href="mailto:partners@fixmate.pk" style="font-size: 13.5px; font-weight: 800; color: #B45309; text-decoration: none; display: block;">partners@fixmate.pk &rarr;</a>
                     <span style="font-size: 11px; color: #94A3B8; display: block; margin-top: 4px;">Mon – Sat • 9 AM – 6 PM</span>
                 </div>
 
@@ -70,7 +70,7 @@
                     <span style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; display: block; margin-bottom: 4px;">Commercial AMC</span>
                     <strong style="font-size: 16px; color: #0F172A; display: block; margin-bottom: 6px;">Corporate Facilities</strong>
                     <p style="font-size: 13px; color: #64748B; margin: 0 0 12px 0; line-height: 1.5;">Property managers, commercial offices, schools, and housing societies.</p>
-                    <a href="mailto:corporate@fixmate.ai" style="font-size: 13.5px; font-weight: 800; color: #15803D; text-decoration: none; display: block;">corporate@fixmate.ai &rarr;</a>
+                    <a href="mailto:corporate@fixmate.pk" style="font-size: 13.5px; font-weight: 800; color: #15803D; text-decoration: none; display: block;">corporate@fixmate.pk &rarr;</a>
                     <span style="font-size: 11px; color: #94A3B8; display: block; margin-top: 4px;">Dedicated Account Manager</span>
                 </div>
 
@@ -242,7 +242,7 @@
                 <div>
                     <h2 style="font-size: 22px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Our Regional Hubs</h2>
                     <p style="font-size: 14px; color: #64748B; line-height: 1.6; margin: 0 0 24px 0;">
-                        FixMate AI operates local operations and technician dispatch hubs across Pakistan's major metropolitan centers.
+                        FixMate operates local operations and technician dispatch hubs across Pakistan's major metropolitan centers.
                     </p>
 
                     <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px;">
@@ -256,7 +256,7 @@
                             <p style="font-size: 13px; color: #64748B; margin: 0 0 6px 0; line-height: 1.4;">
                                 Level 4, Evacuee Trust Complex, F-5/1, Agha Khan Road, Islamabad
                             </p>
-                            <span style="font-size: 12.5px; color: #0F172A; font-weight: 600;">Direct: +92 51 8899220 • contact.isb@fixmate.ai</span>
+                            <span style="font-size: 12.5px; color: #0F172A; font-weight: 600;">Direct: +92 51 8899220 • contact.isb@fixmate.pk</span>
                         </div>
 
                         <!-- Lahore Hub -->
@@ -268,7 +268,7 @@
                             <p style="font-size: 13px; color: #64748B; margin: 0 0 6px 0; line-height: 1.4;">
                                 9th Floor, Arfa Software Technology Park, Ferozepur Road, Lahore
                             </p>
-                            <span style="font-size: 12.5px; color: #0F172A; font-weight: 600;">Direct: +92 42 3598110 • contact.lhr@fixmate.ai</span>
+                            <span style="font-size: 12.5px; color: #0F172A; font-weight: 600;">Direct: +92 42 3598110 • contact.lhr@fixmate.pk</span>
                         </div>
 
                         <!-- Karachi Hub -->
@@ -280,7 +280,7 @@
                             <p style="font-size: 13px; color: #64748B; margin: 0 0 6px 0; line-height: 1.4;">
                                 Suite 604, Emerald Tower, Do Talwar, Clifton Block 5, Karachi
                             </p>
-                            <span style="font-size: 12.5px; color: #0F172A; font-weight: 600;">Direct: +92 21 3582490 • contact.khi@fixmate.ai</span>
+                            <span style="font-size: 12.5px; color: #0F172A; font-weight: 600;">Direct: +92 21 3582490 • contact.khi@fixmate.pk</span>
                         </div>
 
                     </div>

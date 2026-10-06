@@ -13,25 +13,25 @@ class FaqSeeder extends Seeder
     public function run(): void
     {
         $faqs = [
-            // AI Diagnosis & Pricing
+            // Pricing & Booking
             [
-                'question' => 'How does the AI defect diagnosis work from a photo?',
-                'answer' => 'Our proprietary computer vision models were trained on over 250,000 localized domestic repair images across Pakistan. When you upload a snapshot of a dripping pipe, burnt socket, or malfunctioning AC condenser, our model identifies the defective component, determines severity, estimates required replacement parts, and suggests standard labor hours.',
-                'category' => 'ai_diagnosis',
+                'question' => 'How do upfront pricing and repair estimates work?',
+                'answer' => 'Every trade on FixMate follows a standardized tariff guide. When you describe your repair issue and select a trade, you receive transparent baseline estimates for inspection, visiting fee, and standard labor before confirming your booking.',
+                'category' => 'pricing_booking',
                 'sort_order' => 1,
                 'is_active' => true,
             ],
             [
-                'question' => 'What happens if the actual problem is different from the AI estimate?',
-                'answer' => 'The AI price provides a transparent baseline. Once the technician arrives and physically inspects the fixture, if concealed damage exists (e.g. broken pipe inside a wall cavity), the technician submits a revised quote through the app with photos. You must digitally approve any price change before additional work commences.',
-                'category' => 'ai_diagnosis',
+                'question' => 'Can I upload photos of the damaged fixture for the technician?',
+                'answer' => 'Yes! When submitting a service request, you can attach photos of the leaking pipe, damaged switch, or appliance fault so the assigned technician can review the damage and arrive prepared with the right tools and replacement parts.',
+                'category' => 'pricing_booking',
                 'sort_order' => 2,
                 'is_active' => true,
             ],
             [
                 'question' => 'Are there any hidden diagnosis or traveling fees?',
                 'answer' => 'No hidden fees. Every job includes transparent line-item pricing: standard inspection/visiting fee, estimated labor charge, and optional materials. If you proceed with the suggested repair, the visiting fee is automatically adjusted toward your total repair bill.',
-                'category' => 'ai_diagnosis',
+                'category' => 'pricing_booking',
                 'sort_order' => 3,
                 'is_active' => true,
             ],

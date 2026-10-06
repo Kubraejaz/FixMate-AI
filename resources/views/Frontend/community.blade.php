@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Neighborhood Community Issues Forum — FixMate AI')
+@section('title', 'Neighborhood Community Issues Forum — FixMate')
 @section('meta_desc', 'Public neighborhood issue reporting and validation. Upvote local infrastructure issues, report street hazards, and track municipal contractor fixes.')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Technician Dashboard — FixMate AI Partner Portal')
+@section('title', 'Technician Dashboard — FixMate Partner Portal')
 
 @section('content')
 <div>

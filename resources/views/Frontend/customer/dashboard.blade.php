@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'Customer Dashboard — FixMate AI')
+@section('title', 'Customer Dashboard — FixMate')
 
 @section('content')
 <div>
@@ -111,21 +111,6 @@
         </div>
     </div>
 
-    <!-- Quick "Describe Your Problem" AI Banner -->
-    <div style="background: #FFF9E6; border: 1px solid #FFECB3; border-radius: 16px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
-        <div style="display: flex; align-items: center; gap: 18px;">
-            <div style="width: 52px; height: 52px; border-radius: 14px; background: #FFCC00; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                🔍
-            </div>
-            <div>
-                <strong style="display: block; font-size: 17px; color: #111; margin-bottom: 4px;">Describe Your Problem With AI</strong>
-                <span style="font-size: 13px; color: #666;">Upload photos or defect descriptions. Our AI will analyze the root cause and estimate repair costs.</span>
-            </div>
-        </div>
-        <a href="{{ route('customer.diagnose') }}" class="btn-yellow" style="padding: 11px 26px; font-size: 13.5px; font-weight: 800; text-decoration: none; border-radius: 8px;">
-            Start AI Scanner
-        </a>
-    </div>
 
     <!-- Local Civic Alerts if available in customer city -->
     @if($cityAlerts->isNotEmpty())

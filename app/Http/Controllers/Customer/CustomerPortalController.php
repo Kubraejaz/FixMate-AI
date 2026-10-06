@@ -98,6 +98,39 @@ class CustomerPortalController extends Controller
     }
 
     /**
+     * Customer Portal — All Services & Categories.
+     */
+    public function services(Request $request): View
+    {
+        $search = trim((string) $request->input('search', ''));
+        $selectedCategory = (string) $request->input('category', '');
+
+        $query = Profession::where('is_active', true)->withCount('professionals');
+
+        if ($selectedCategory !== '' && $selectedCategory !== 'all') {
+            $query->where('slug', $selectedCategory);
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('headline', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $professions = $query->orderBy('name')->get();
+        $allCategories = Profession::where('is_active', true)->orderBy('name')->get();
+
+        return view('Frontend.customer.services', compact(
+            'professions',
+            'allCategories',
+            'search',
+            'selectedCategory'
+        ));
+    }
+
+    /**
      * AI Defect Diagnosis Scanner.
      */
     public function diagnose(Request $request): View
@@ -214,91 +247,6 @@ class CustomerPortalController extends Controller
         $safetyAlert = null;
         $inconclusiveReason = null;
 
-        // Try Live Google Gemini Vision & Multimodal Engine if configured and enabled
-        if (cache('gemini_enabled', true)) {
-            $geminiService = app(GeminiAiService::class);
-            if ($geminiService->isConfigured()) {
-                $geminiResult = $geminiService->diagnoseDefect($problemQuery, $uploadedImage);
-                if ($geminiResult['success']) {
-                    $gData = $geminiResult['data'];
-                    if (! $gData['is_repair_defect']) {
-                        $isRecognized = false;
-                        $isDocumentOrScreenshot = true;
-                        $inconclusiveReason = "Google Gemini AI analyzed your submission and determined it does not represent a valid household maintenance or repair defect.";
-                        $allProfessions = Profession::where('is_active', true)->get();
-                        $profession = Profession::where('slug', 'plumber')->first() ?? $allProfessions->first();
-                        $matchedDefect = [
-                            'title' => 'Non-Repair Object or Document Detected',
-                            'confidence' => $gData['confidence'] . '% AI Confidence',
-                            'summary' => $gData['summary'],
-                            'tools' => 'N/A',
-                            'repair_time' => 'N/A',
-                        ];
-                        $costEstimate = ['min' => 0, 'max' => 0, 'avg' => 0];
-
-                        return view('Frontend.customer.ai-result', compact(
-                            'profession',
-                            'matchedDefect',
-                            'costEstimate',
-                            'problemQuery',
-                            'uploadedImage',
-                            'isRecognized',
-                            'isImageDiagnosed',
-                            'isDocumentOrScreenshot',
-                            'inconclusiveReason',
-                            'allProfessions',
-                            'isGeminiPowered',
-                            'safetyAlert'
-                        ));
-                    }
-
-                    // Genuine defect detected by Gemini!
-                    $isRecognized = true;
-                    $isGeminiPowered = true;
-                    $isImageDiagnosed = ! empty($uploadedImage);
-                    $bestTradeSlug = $gData['trade_slug'];
-
-                    $profession = Profession::where('slug', $bestTradeSlug)->first();
-                    if (! $profession) {
-                        $profession = Profession::where('is_active', true)->first();
-                    }
-
-                    $allProfessions = Profession::where('is_active', true)->get();
-
-                    $matchedDefect = [
-                        'title' => $gData['defect_title'],
-                        'confidence' => $gData['confidence'] . '% Google Gemini Match',
-                        'tools' => $gData['tools'],
-                        'summary' => $gData['summary'],
-                        'repair_time' => $gData['repair_time'],
-                        'safety_alert' => $gData['safety_alert'],
-                    ];
-                    $safetyAlert = $gData['safety_alert'];
-
-                    $costEstimate = [
-                        'min' => $gData['cost_min'],
-                        'max' => $gData['cost_max'],
-                        'avg' => round(($gData['cost_min'] + $gData['cost_max']) / 2),
-                    ];
-
-                    return view('Frontend.customer.ai-result', compact(
-                        'profession',
-                        'matchedDefect',
-                        'costEstimate',
-                        'problemQuery',
-                        'uploadedImage',
-                        'isRecognized',
-                        'isImageDiagnosed',
-                        'isDocumentOrScreenshot',
-                        'inconclusiveReason',
-                        'allProfessions',
-                        'isGeminiPowered',
-                        'safetyAlert'
-                    ));
-                }
-            }
-        }
-
         // Comprehensive Trade Keyword Dictionary
         $tradeKeywords = [
             'ac-refrigeration' => [
@@ -341,55 +289,55 @@ class CustomerPortalController extends Controller
             ],
         ];
 
-        // Specific defect diagnosis profiles
+        // Specific trade service profiles
         $defectProfiles = [
             'ac-refrigeration' => [
-                'title' => 'Compressor Overheat & Refrigerant Gas Depletion',
-                'confidence' => '96% Match',
+                'title' => 'Compressor Inspection & Refrigerant Gas Verification',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'R410A Digital Manifold Gauge, Ammeter Clamp, Electronic Halogen Leak Detector',
-                'summary' => 'AI detected high thermal load on condenser fins and loss of cooling cycle pressure.',
+                'summary' => 'Technician will inspect thermal load, condenser fins, and cooling cycle pressure.',
                 'repair_time' => '45 - 60 Mins',
             ],
             'electrician' => [
-                'title' => 'Circuit Breaker Overload & Terminal Sparking',
-                'confidence' => '98% Match',
+                'title' => 'Circuit Breaker Inspection & Terminal Wiring Check',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'Non-Contact Voltage Tester, Digital Multimeter, Insulated 1000V Screwdrivers',
-                'summary' => 'AI detected risk of wire insulation burning and irregular current leakage across phase wires.',
+                'summary' => 'Technician will inspect circuit integrity, terminal tightness, and phase balance.',
                 'repair_time' => '30 - 45 Mins',
             ],
             'plumber' => [
-                'title' => 'High-Pressure Pipe Joint Leak & Gasket Wear',
-                'confidence' => '95% Match',
+                'title' => 'High-Pressure Pipe Joint Inspection & Gasket Replacement',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'Ultrasonic Acoustic Leak Detector, Slip-Joint Pliers, PTFE Teflon Thread Sealant',
-                'summary' => 'AI detected hydrostatic pressure loss and joint seal degradation under continuous water flow.',
+                'summary' => 'Technician will inspect hydrostatic pressure, joints, and seal integrity under water flow.',
                 'repair_time' => '40 - 60 Mins',
             ],
             'carpenter' => [
-                'title' => 'Sagging Door Hinge & Mortise Latch Misalignment',
-                'confidence' => '94% Match',
+                'title' => 'Door Hinge Alignment & Mortise Latch Adjustment',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'Electric Wood Planer, High-Speed Router, Heavy-Duty Mortise Chisel Set',
-                'summary' => 'AI detected structural tilt on door hinges causing friction against door frame.',
+                'summary' => 'Technician will inspect door hinge wear, strike plates, and frame clearance.',
                 'repair_time' => '45 - 75 Mins',
             ],
             'painter' => [
-                'title' => 'Sub-Surface Moisture Seepage & Paint Delamination',
-                'confidence' => '97% Match',
+                'title' => 'Moisture Assessment & Surface Wall Treatment',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'Digital Pinless Moisture Meter, Chemical Elastomeric Waterproof Sealer, Carbide Scraper',
-                'summary' => 'AI detected wall efflorescence and moisture trapped behind the acrylic coating layer.',
+                'summary' => 'Technician will check wall moisture levels, scrape peeling layers, and prime damaged surfaces.',
                 'repair_time' => '1 - 2 Hours',
             ],
             'home-appliances' => [
-                'title' => 'Drain Pump Impeller Blockage & Motor Stalling',
-                'confidence' => '95% Match',
+                'title' => 'Drain Pump Impeller & Motor Inspection',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'Capacitance & Motor Continuity Tester, Metric Socket Wrench Set, Clamp Pliers',
-                'summary' => 'AI detected mechanical obstruction preventing rotational drainage cycle.',
+                'summary' => 'Technician will inspect drainage cycle mechanics and motor operation.',
                 'repair_time' => '45 - 60 Mins',
             ],
             'deep-cleaning' => [
-                'title' => 'Deep Fabric Fiber Bio-Contamination & Grime Buildup',
-                'confidence' => '98% Match',
+                'title' => 'Deep Surface Sanitization & Specialized Extraction',
+                'confidence' => 'Recommended Trade Match',
                 'tools' => 'High-Temperature Steam Extraction Machine, Anti-Bacterial Sanitizing Agent, Orbital Brush',
-                'summary' => 'AI detected heavy particulate accumulation and organic staining in upholstery fibers.',
+                'summary' => 'Technician will provide high-power particulate extraction and upholstery sanitation.',
                 'repair_time' => '1 - 3 Hours',
             ],
         ];
@@ -468,18 +416,13 @@ class CustomerPortalController extends Controller
             'repair_time' => '45 Mins',
         ];
 
-        // Enrich defect details if computer vision diagnosed the photo
+        // Enrich defect details if photo attached
         if ($isImageDiagnosed) {
-            if ($highestScore > 0 && $imageDetectedTrade === $bestTradeSlug) {
-                $matchedDefect['confidence'] = '99% Multi-Modal Match (Visual + Text)';
-                $matchedDefect['summary'] = 'Dual AI verification confirmed: Computer vision defect recognition matches your reported symptoms.';
-            } else {
-                $matchedDefect['confidence'] = ($imageConfidence ?: 95) . '% Computer Vision Match';
-                if ($imageDefectName) {
-                    $matchedDefect['title'] = $imageDefectName;
-                }
-                $matchedDefect['summary'] = 'FixMate AI Neural Computer Vision scanned the uploaded photo and identified visual structural defects corresponding to ' . ($profession?->name ?? 'repair specialty') . '.';
+            $matchedDefect['confidence'] = 'Trade Matched with Attached Photo';
+            if ($imageDefectName) {
+                $matchedDefect['title'] = $imageDefectName;
             }
+            $matchedDefect['summary'] = 'Your attached defect photo will be shared with the assigned ' . ($profession?->name ?? 'tradesperson') . ' so they arrive prepared with appropriate parts and tools.';
         }
 
         $baseRate = $profession?->base_price ?? 750;

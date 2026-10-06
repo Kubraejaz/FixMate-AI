@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Terms & Conditions — FixMate AI')
+@section('title', 'Terms & Conditions — FixMate')
 
 @section('content')
 <div class="site-wrapper" style="background: #FAFAFA; min-height: 80vh; padding: 50px 0 70px 0;">
@@ -20,13 +20,13 @@
 
             <div style="font-size: 14.5px; color: #4B5563; line-height: 1.8; display: flex; flex-direction: column; gap: 22px;">
                 <p>
-                    By registering an account or initiating a service booking on FixMate AI, you agree to comply with the platform terms and consumer protection policies stated below.
+                    By registering an account or initiating a service booking on FixMate, you agree to comply with the platform terms and consumer protection policies stated below.
                 </p>
 
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">1. Verified Service Provider Relationship</h3>
                     <p style="margin: 0;">
-                        Tradespeople operating on FixMate AI are background-screened independent technicians. FixMate AI validates NADRA CNIC biometric records and provides AI diagnostic benchmarks, real-time schedule tracking, and escrow payment intermediation.
+                        Tradespeople operating on FixMate are background-screened independent technicians. FixMate validates NADRA CNIC biometric records and provides standardized labor tariffs, real-time schedule tracking, and escrow payment intermediation.
                     </p>
                 </div>
 
@@ -47,7 +47,7 @@
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">4. {{ $settings?->warranty_days ?? 30 }}-Day Workmanship Guarantee</h3>
                     <p style="margin: 0;">
-                        All services completed through FixMate AI are protected by our <strong>{{ $settings?->warranty_days ?? 30 }}-day re-work warranty</strong>. If a repair fails or leaks recur within the warranty period, a supervisor technician will be re-dispatched at zero diagnostic charge.
+                        All services completed through FixMate are protected by our <strong>{{ $settings?->warranty_days ?? 30 }}-day re-work warranty</strong>. If a repair fails or leaks recur within the warranty period, a supervisor technician will be re-dispatched at zero diagnostic charge.
                     </p>
                 </div>
 

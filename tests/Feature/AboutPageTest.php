@@ -17,7 +17,7 @@ class AboutPageTest extends TestCase
         $response = $this->get(route('about'));
 
         $response->assertStatus(200);
-        $response->assertSee('About FixMate AI');
+        $response->assertSee('FixMate');
         $response->assertSee('Transforming Home Maintenance with');
         $response->assertSee('Completed Jobs');
         $response->assertSee('Verified Technicians');

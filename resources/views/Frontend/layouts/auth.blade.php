@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FixMate AI - Smart Home Services Authentication">
-    <title>@yield('title', 'Authentication — FixMate AI')</title>
+    <meta name="description" content="FixMate - Trusted Home Services Authentication">
+    <title>@yield('title', 'Authentication — FixMate')</title>
     
     <!-- Application Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
@@ -450,7 +450,7 @@
     <!-- Minimal Header -->
     <header class="auth-topbar">
         <a href="{{ url('/') }}" class="auth-brand" style="text-decoration: none;">
-            <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 38px; width: auto; object-fit: contain; display: block;">
+            <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 38px; width: auto; object-fit: contain; display: block;">
         </a>
 
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -472,7 +472,7 @@
     <!-- Minimal Footer -->
     <footer class="auth-footer">
         <div>
-            <span>&copy; 2026 FixMate AI Platform. All rights reserved.</span>
+            <span>&copy; 2026 FixMate. All rights reserved.</span>
             <span>•</span>
             <a href="{{ url('/privacy-policy') }}">Privacy</a>
             <span>•</span>

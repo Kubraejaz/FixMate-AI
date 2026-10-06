@@ -27,10 +27,10 @@ class Faq extends Model
      * Map of available categories with label, icon, and description.
      */
     public const CATEGORIES = [
-        'ai_diagnosis' => [
-            'label' => 'AI Diagnosis & Pricing',
-            'icon' => '🤖',
-            'description' => 'Computer vision defect detection, upfront pricing, and repair quotes.',
+        'pricing_booking' => [
+            'label' => 'Service Pricing & Booking',
+            'icon' => '🏷️',
+            'description' => 'Upfront pricing tariff, problem description, photos, and repair quotes.',
         ],
         'trust_safety' => [
             'label' => 'Trust, Safety & Arrival OTP',

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Weekly Schedule & Calendar — FixMate AI Partner Portal')
+@section('title', 'Weekly Schedule & Calendar — FixMate Partner Portal')
 
 @section('content')
 <div style="max-width: 860px; margin: 0 auto;">

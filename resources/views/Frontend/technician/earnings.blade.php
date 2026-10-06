@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Earnings & Payouts Ledger — FixMate AI Partner Portal')
+@section('title', 'Earnings & Payouts Ledger — FixMate Partner Portal')
 
 @section('content')
 <div style="max-width: 860px; margin: 0 auto;">

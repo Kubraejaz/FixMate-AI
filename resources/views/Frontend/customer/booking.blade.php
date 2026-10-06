@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'Schedule Service Booking — FixMate AI')
+@section('title', 'Schedule Service Booking — FixMate')
 
 @section('content')
 <div style="max-width: 880px; margin: 0 auto;">

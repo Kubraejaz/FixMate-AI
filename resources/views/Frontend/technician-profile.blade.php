@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Ali Khan (Verified Plumber) — FixMate AI')
+@section('title', 'Ali Khan (Verified Plumber) — FixMate')
 @section('meta_desc', 'Ali Khan: 5 years experience, 247 completed jobs, 4.8 rating. Verified Master Plumber serving Karachi.')
 
 @section('content')

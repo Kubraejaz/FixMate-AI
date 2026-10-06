@@ -10,11 +10,11 @@
     $warrantyText = $professional->profession?->warranty_text ?? (($settings?->warranty_days ?? 30) . '-Day Warranty');
     $experience = $professional->experience ?? '5+ years';
     $city = $professional->user?->city ?? 'Islamabad / Rawalpindi';
-    $isVerified = $professional->is_verified ?? true;
+    $isVerified = (bool) ($professional->is_verified ?? false);
 @endphp
 
-@section('title', $techName . ' (' . $profTitle . ') — FixMate AI Verified Profile')
-@section('meta_desc', 'View verified background, credentials, and book ' . $techName . ', certified ' . $profTitle . ' on FixMate AI.')
+@section('title', $techName . ' (' . $profTitle . ') — FixMate Verified Profile')
+@section('meta_desc', 'View verified background, credentials, and book ' . $techName . ', certified ' . $profTitle . ' on FixMate.')
 
 @section('content')
 <div style="background: #FFFFFF; min-height: 85vh; padding: 36px 0 60px 0;">
@@ -25,9 +25,15 @@
             <a href="{{ url('/technicians') }}" style="color: #64748B; font-size: 13.5px; text-decoration: none; display: flex; align-items: center; gap: 6px; font-weight: 600;">
                 <span>←</span> <span>Back to Technicians Directory</span>
             </a>
-            <span style="font-size: 12px; color: #059669; font-weight: 700; background: #DCFCE7; padding: 3px 10px; border-radius: 12px;">
-                ● Active on Radar • Online Now
-            </span>
+            @if($professional && $professional->isOnline())
+                <span style="font-size: 12px; color: #059669; font-weight: 700; background: #DCFCE7; padding: 3px 10px; border-radius: 12px;">
+                    ● Active on Radar • Online Now
+                </span>
+            @else
+                <span style="font-size: 12px; color: #64748B; font-weight: 700; background: #F1F5F9; padding: 3px 10px; border-radius: 12px;">
+                    ○ Currently Off Duty • Next Slot Tomorrow
+                </span>
+            @endif
         </div>
 
         <div style="display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 32px; align-items: flex-start;">
@@ -66,7 +72,7 @@
                     <div style="border-top: 1px solid #F1F5F9; padding-top: 18px; margin-top: 22px;">
                         <h3 style="font-size: 15px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">About {{ $techFirstName }}</h3>
                         <p style="font-size: 14px; color: #64748B; line-height: 1.65; margin: 0;">
-                            Certified {{ strtolower($profTitle) }} specialist with {{ $experience }} of residential experience across {{ $city }}. Equipped with specialized diagnostic tools, committed to upfront standardized labor tariffs, and backed by the FixMate {{ $warrantyText }} rework guarantee.
+                            Certified {{ strtolower($profTitle) }} specialist with {{ $experience }} of residential experience across {{ $city }}. Equipped with professional trade tools, committed to upfront standardized labor tariffs, and backed by the FixMate {{ $warrantyText }} rework guarantee.
                         </p>
                     </div>
                 </div>
@@ -179,9 +185,9 @@
                         Book {{ $techFirstName }} Now →
                     </a>
 
-                    <a href="{{ url('/customer/diagnose?q=' . urlencode($profSlug)) }}" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 13px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <span>📸</span>
-                        <span>Diagnose Issue with AI Vision First</span>
+                    <a href="{{ url('/services') }}" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 13px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>🛠️</span>
+                        <span>View All Services</span>
                     </a>
 
                     <div style="margin-top: 14px; text-align: center; font-size: 11.5px; color: #64748B;">

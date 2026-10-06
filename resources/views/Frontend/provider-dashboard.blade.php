@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Provider Business Portal & Payout Ledger — FixMate AI')
+@section('title', 'Provider Business Portal & Payout Ledger — FixMate')
 @section('meta_desc', 'Provider dashboard for verified technicians. Manage live dispatch requests, schedule, KYC certifications, and direct bank escrow payouts.')
 
 @section('content')
@@ -50,7 +50,7 @@
             <div>
                 <span style="font-size: 11px; color: #777; display: block;">JOB TYPE</span>
                 <h4 style="font-size: 16px; font-weight: 800; color: #111;">P-Trap Slip Joint Leak</h4>
-                <p style="font-size: 13px; color: #555;">AI Diagnosis: Medium Urgency</p>
+                <p style="font-size: 13px; color: #555;">Urgency: Standard Service</p>
             </div>
             <div>
                 <span style="font-size: 11px; color: #777; display: block;">LOCATION</span>

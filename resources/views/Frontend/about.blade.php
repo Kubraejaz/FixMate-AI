@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'About Us — FixMate AI | Smart Solutions for a Better Home')
-@section('meta_desc', 'Learn how FixMate AI connects homeowners with verified professionals across Pakistan through intelligent AI diagnostics and trust.')
+@section('title', 'About Us — FixMate | Smart Solutions for a Better Home')
+@section('meta_desc', 'Learn how FixMate connects homeowners with verified professionals across Pakistan through trusted service standards and transparent pricing.')
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 70px;">
@@ -16,7 +16,7 @@
                 Smart Solutions for a Better Home
             </h1>
             <p style="font-size: 15px; color: #666; line-height: 1.7; margin-bottom: 24px;">
-                FixMate AI is an intelligent home service platform that connects you with verified professionals for all your home maintenance needs. We use AI to understand your problem, find the right solution, and match you with the best technician — fast.
+                FixMate is a trusted home service platform that connects you with verified professionals for all your home maintenance needs. We help you find the right solution, upfront pricing, and match you with the best technician — fast.
             </p>
 
             <!-- 3 Pill Values -->
@@ -27,9 +27,9 @@
                     <span style="font-size: 11.5px; color: #777;">Verified Professionals</span>
                 </div>
                 <div style="background: #FFFDF0; border: 1px solid #FFECB3; border-radius: 16px; padding: 16px; text-align: center;">
-                    <div style="font-size: 22px; margin-bottom: 4px;">🧠</div>
-                    <strong style="font-size: 14px; color: #111; display: block;">Smart</strong>
-                    <span style="font-size: 11.5px; color: #777;">AI-Powered Matching</span>
+                    <div style="font-size: 22px; margin-bottom: 4px;">🏷️</div>
+                    <strong style="font-size: 14px; color: #111; display: block;">Transparent</strong>
+                    <span style="font-size: 11.5px; color: #777;">Standardized Pricing</span>
                 </div>
                 <div style="background: #FAFAFA; border: 1px solid #EEEEEE; border-radius: 16px; padding: 16px; text-align: center;">
                     <div style="font-size: 22px; margin-bottom: 4px;">⏱️</div>
@@ -63,7 +63,7 @@
             </div>
             <h3 style="font-size: 20px; font-weight: 800; color: #111; margin-bottom: 10px;">Our Vision</h3>
             <p style="font-size: 14.5px; color: #666; line-height: 1.6;">
-                To become the most trusted and intelligent home service platform in Pakistan and beyond, setting new standards for transparent escrow payments, rapid technician dispatch, and digital work verification.
+                To become the most trusted home service platform in Pakistan and beyond, setting new standards for transparent escrow payments, rapid technician dispatch, and digital work verification.
             </p>
         </div>
     </div>
@@ -72,11 +72,11 @@
     <div class="become-tech-banner">
         <div>
             <h3 style="font-size: 22px; font-weight: 800; color: #111; margin-bottom: 6px;">Need a home fix today?</h3>
-            <p style="font-size: 14px; color: #666; margin-bottom: 16px;">Let our AI diagnostic engine identify your issue in seconds.</p>
-            <a href="{{ url('/describe-problem') }}" class="btn-yellow">Describe Your Problem</a>
+            <p style="font-size: 14px; color: #666; margin-bottom: 16px;">Browse our full catalog of home repair and maintenance services.</p>
+            <a href="{{ url('/services') }}" class="btn-yellow">Browse All Services</a>
         </div>
         <div style="display: flex; gap: 10px;">
-            <a href="{{ url('/services') }}" class="btn-outline">Browse All Services</a>
+            <a href="{{ route('technicians') }}" class="btn-outline">Find Technicians</a>
         </div>
     </div>
 

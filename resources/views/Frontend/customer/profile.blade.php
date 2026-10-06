@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'My Profile & Saved Addresses — FixMate AI')
+@section('title', 'My Profile & Saved Addresses — FixMate')
 
 @section('content')
 <div style="max-width: 820px; margin: 0 auto;">

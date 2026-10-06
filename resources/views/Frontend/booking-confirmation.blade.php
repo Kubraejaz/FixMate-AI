@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Booking Confirmed — FixMate AI')
+@section('title', 'Booking Confirmed — FixMate')
 @section('meta_desc', 'Your booking #FM-10245 has been confirmed. Technician Ali Khan has accepted the dispatch.')
 
 @section('content')

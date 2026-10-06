@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Book Master Plumbing Service — FixMate AI')
+@section('title', 'Book Master Plumbing Service — FixMate')
 @section('meta_desc', 'Schedule guaranteed P-Trap & Pipe Leak Repair with verified technician Alex Rivera. Real-time GPS tracking and 100% escrow protection.')
 
 @section('content')

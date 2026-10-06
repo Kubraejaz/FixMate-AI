@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <title>@yield('title', 'Customer Portal — FixMate AI')</title>
+    <title>@yield('title', 'Customer Portal — FixMate')</title>
     <!-- Application Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
@@ -24,7 +24,7 @@
         <div class="container site-nav">
             <!-- Brand Logo with Portal Badge -->
             <a href="{{ url('/customer/dashboard') }}" class="brand-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 38px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 38px; width: auto; object-fit: contain; display: block;">
                 <span style="color: #047857; font-weight: 800; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 2px 7px; border-radius: 6px; font-size: 11px;">Customer</span>
             </a>
 
@@ -40,9 +40,9 @@
 
             <!-- Customer Header Action Items -->
             <div style="display: flex; align-items: center; gap: 14px;">
-                <!-- Fast AI Diagnosis Trigger -->
-                <a href="{{ route('customer.diagnose') }}" class="btn-yellow" style="font-size: 13px; padding: 8px 16px; text-decoration: none;">
-                    <span>+ Describe Problem</span>
+                <!-- Service Categories Trigger -->
+                <a href="{{ route('customer.services') }}" class="btn-yellow" style="font-size: 13px; padding: 8px 16px; text-decoration: none;">
+                    <span>Browse All Services</span>
                 </a>
 
                 <!-- Notifications Bell with live unread badge -->
@@ -152,8 +152,8 @@
                         <span style="margin-left: auto; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 10px;">{{ $unreadNotificationsCount }}</span>
                     @endif
                 </a>
-                <a href="{{ route('customer.diagnose') }}" class="portal-nav-link {{ Request::is('customer/diagnose*') ? 'active' : '' }}">
-                    <span>🔍</span> <span>AI Problem Diagnosis</span>
+                <a href="{{ route('customer.services') }}" class="portal-nav-link {{ Request::is('customer/services*') ? 'active' : '' }}">
+                    <span>🛠️</span> <span>All Services &amp; Categories</span>
                 </a>
                 <a href="{{ route('customer.technicians') }}" class="portal-nav-link {{ Request::is('customer/technicians*') ? 'active' : '' }}">
                     <span>👷</span> <span>Find Technicians</span>

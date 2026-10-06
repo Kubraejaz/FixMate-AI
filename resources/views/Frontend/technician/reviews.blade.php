@@ -1,7 +1,7 @@
 
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Customer Reviews & Reputation — FixMate AI Partner Portal')
+@section('title', 'Customer Reviews & Reputation — FixMate Partner Portal')
 
 @section('content')
 
@@ -110,7 +110,7 @@
         <div class="portal-card" style="padding: 24px; background: #FFFFFF;">
             <strong style="font-size: 15px; color: #111; display: block; margin-bottom: 6px;">Quality Performance Standards</strong>
             <p style="font-size: 12.5px; color: #666; margin: 0 0 16px; line-height: 1.5;">
-                FixMate AI monitors customer satisfaction scores to boost your placement in nearby instant dispatches.
+                FixMate monitors customer satisfaction scores to boost your placement in nearby instant dispatches.
             </p>
 
             <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -238,7 +238,7 @@
                 <div style="font-size: 42px; margin-bottom: 12px;">⭐</div>
                 <h3 style="font-size: 19px; font-weight: 900; color: #111; margin: 0 0 8px 0;">No Customer Reviews Yet</h3>
                 <p style="font-size: 14px; color: #666; max-width: 480px; margin: 0 auto 22px auto; line-height: 1.6;">
-                    As you accept and complete service dispatches on FixMate AI, customer feedback and ratings will appear here dynamically in real-time.
+                    As you accept and complete service dispatches on FixMate, customer feedback and ratings will appear here dynamically in real-time.
                 </p>
                 <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <a href="{{ route('technician.jobs') }}" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; text-decoration: none; border-radius: 8px;">

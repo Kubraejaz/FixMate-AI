@@ -63,6 +63,9 @@ class Profession extends Model
             'appliances' => '🧺',
             'cctv-smart-security' => '📹',
             'solar-specialist' => '☀️',
+            'solar-ups' => '☀️',
+            'handyman-masonry' => '🔨',
+            'pest-control' => '🛡️',
         ];
 
         if (! empty($this->icon) && mb_strlen($this->icon, 'UTF-8') <= 4) {

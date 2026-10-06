@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'Select Payment & Escrow Method — FixMate AI')
+@section('title', 'Select Payment & Escrow Method — FixMate')
 
 @section('content')
 <div style="max-width: 820px; margin: 0 auto;">

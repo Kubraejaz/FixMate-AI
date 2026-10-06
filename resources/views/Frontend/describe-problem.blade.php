@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Describe Your Problem — FixMate AI')
-@section('meta_desc', 'Tell us what is wrong and upload a photo. FixMate AI will diagnose the issue and match you with the right verified technician.')
+@section('title', 'Describe Your Problem — FixMate')
+@section('meta_desc', 'Tell us what is wrong and upload a photo. FixMate will match you with the right verified technician with upfront pricing.')
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 70px; display: flex; justify-content: center;">

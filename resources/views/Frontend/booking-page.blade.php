@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Booking Details — FixMate AI')
+@section('title', 'Booking Details — FixMate')
 @section('meta_desc', 'Confirm booking details with verified technician Ali Khan. Escrow protected with upfront pricing.')
 
 @section('content')

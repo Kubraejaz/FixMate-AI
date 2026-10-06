@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Our Services — FixMate AI')
+@section('title', 'Our Services — FixMate')
 @section('meta_desc', 'Wide range of verified home services: Plumbing, Electrical, AC Repair, Cleaning, Carpentry, Painting, Appliance Repair, and WiFi Networking.')
 
 @section('content')
@@ -108,11 +108,11 @@
     <!-- Yellow Callout Banner (Exact from Mockup 1) -->
     <div style="background: #FFFDF0; border: 1px solid #FFECB3; border-radius: 20px; padding: 26px 36px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 48px;">
         <div>
-            <h3 style="font-size: 18px; font-weight: 800; color: #111; margin-bottom: 4px;">Not sure what you need?</h3>
-            <p style="font-size: 14px; color: #666;">Describe your problem and let our AI find the right service and technician.</p>
+            <h3 style="font-size: 18px; font-weight: 800; color: #111; margin-bottom: 4px;">Looking for a verified specialist?</h3>
+            <p style="font-size: 14px; color: #666;">Browse our full trade directory or connect directly with top-rated local professionals.</p>
         </div>
-        <a href="{{ url('/describe-problem') }}" class="btn-yellow" style="padding: 12px 24px; font-size: 14px;">
-            Describe Problem
+        <a href="{{ route('technicians') }}" class="btn-yellow" style="padding: 12px 24px; font-size: 14px; text-decoration: none;">
+            Find Technicians
         </a>
     </div>
 

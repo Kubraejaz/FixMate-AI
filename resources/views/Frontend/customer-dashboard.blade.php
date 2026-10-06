@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Customer Dashboard — FixMate AI')
-@section('meta_desc', 'Track your active requests, upcoming bookings, and recent maintenance services on FixMate AI.')
+@section('title', 'Customer Dashboard — FixMate')
+@section('meta_desc', 'Track your active requests, upcoming bookings, and recent maintenance services on FixMate.')
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 70px;">

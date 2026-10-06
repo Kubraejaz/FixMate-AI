@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Direct Customer Chat — FixMate AI Partner Portal')
+@section('title', 'Direct Customer Chat — FixMate Partner Portal')
 
 @section('content')
 <div style="height: 660px; display: grid; grid-template-columns: 300px 1fr; background: #FFFFFF; border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden;">

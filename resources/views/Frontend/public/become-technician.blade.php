@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Become a Technician Partner — FixMate AI | Grow Your Trade Earnings')
+@section('title', 'Become a Technician Partner — FixMate | Grow Your Trade Earnings')
 @section('meta_desc', 'Join Pakistan’s premier certified trade technician network. Enjoy guaranteed prompt payouts, local jobs dispatched to your phone, and zero registration fees.')
 
 @section('content')
@@ -13,7 +13,7 @@
                 <div>
                     <div style="display: inline-flex; align-items: center; gap: 8px; background: #FFF9E6; border: 1px solid #FEF08A; padding: 6px 16px; border-radius: 50px; margin-bottom: 16px;">
                         <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #FFB800;"></span>
-                        <span style="font-size: 12.5px; font-weight: 800; color: #92400E; letter-spacing: 0.05em; text-transform: uppercase;">FixMate AI Partner Network</span>
+                        <span style="font-size: 12.5px; font-weight: 800; color: #92400E; letter-spacing: 0.05em; text-transform: uppercase;">FixMate Partner Network</span>
                     </div>
                     <h1 style="font-size: 42px; font-weight: 900; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.03em; line-height: 1.18;">
                         Work On Your Schedule. <br><span style="color: #FFB800;">Earn Up to Rs 140,000+ /Mo</span>
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div style="text-align: center; position: relative;">
-                    <img src="{{ asset('assets/images/Cleaning_Professional.png') }}" alt="FixMate AI Technician Partner" style="height: 400px; width: auto; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.12));">
+                    <img src="{{ asset('assets/images/Cleaning_Professional.png') }}" alt="FixMate Technician Partner" style="height: 400px; width: auto; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.12));">
                 </div>
             </div>
         </div>
@@ -280,7 +280,7 @@
                                 Submit Application &amp; Connect with Inspector →
                             </button>
                             <p style="text-align: center; font-size: 12px; color: #64748B; margin-top: 12px;">
-                                By submitting, you consent to identity verification via NADRA and FixMate AI safety standards.
+                                By submitting, you consent to identity verification via NADRA and FixMate safety standards.
                             </p>
                         </div>
 

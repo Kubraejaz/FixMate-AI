@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'How It Works — FixMate AI | Smart Home Services')
-@section('meta_desc', 'Discover how FixMate AI works: from instant computer vision defect diagnosis and upfront cost estimation to verified technician dispatch and protected escrow payments.')
+@section('title', 'How It Works — FixMate | On-Demand Home Services')
+@section('meta_desc', 'Discover how FixMate works: from transparent upfront cost estimation and problem description to verified technician dispatch and protected escrow payments.')
 
 @section('content')
 <div style="background: #FFFFFF; min-height: 80vh;">
@@ -14,10 +14,10 @@
                 <span style="font-size: 12.5px; font-weight: 800; color: #92400E; letter-spacing: 0.05em; text-transform: uppercase;">Step-by-Step Experience</span>
             </div>
             <h1 style="font-size: 42px; font-weight: 900; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.03em; line-height: 1.15;">
-                How <span style="color: #FFB800;">FixMate AI</span> Works
+                How <span style="color: #FFB800;">FixMate</span> Works
             </h1>
             <p style="font-size: 16.5px; color: #64748B; margin: 0 auto 28px auto; line-height: 1.7; max-width: 680px;">
-                From taking a quick photo on your phone to completed repair with guaranteed warranty. Here is how our intelligent platform protects your home, your time, and your money.
+                From describing what needs fixing or uploading a defect photo to completed repair with guaranteed warranty. Here is how our transparent platform protects your home, your time, and your money.
             </p>
 
             <!-- Dynamic Platform Trust Badges -->
@@ -38,7 +38,7 @@
         </div>
     </section>
 
-    <!-- Interactive AI Diagnostics & Cost Estimator Simulator -->
+    <!-- Upfront Pricing & Cost Estimator Simulator -->
     <section style="padding: 50px 0 30px 0; background: #FFFFFF;">
         <div class="container" style="max-width: 1040px;">
             <div style="background: #0F172A; border-radius: 24px; padding: 40px; color: #FFFFFF; box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.25);">
@@ -171,10 +171,10 @@
                     <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 30px 36px; display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center;">
                         <div style="width: 56px; height: 56px; border-radius: 16px; background: #FFF9E6; border: 2px solid #FEF08A; color: #0F172A; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center;">01</div>
                         <div>
-                            <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Describe the Problem or Upload Photo</h3>
-                            <p style="font-size: 14.5px; color: #64748B; margin: 0;">Upload defect photos or describe the issue. Our AI assists in categorizing the fault.</p>
+                            <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">Select Service or Describe Issue</h3>
+                            <p style="font-size: 14.5px; color: #64748B; margin: 0;">Select your service category or upload photos of the defect for your technician.</p>
                         </div>
-                        <div style="font-size: 26px;">📸</div>
+                        <div style="font-size: 26px;">🛠️</div>
                     </div>
                 @endif
 
@@ -183,13 +183,13 @@
         </div>
     </section>
 
-    <!-- Comparison Table: Traditional vs FixMate AI -->
+    <!-- Comparison Table: Traditional vs FixMate -->
     <section style="padding: 60px 0; background: #F8FAFC; border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;">
         <div class="container" style="max-width: 960px;">
             <div style="text-align: center; margin-bottom: 40px;">
-                <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Why Choose FixMate AI</span>
-                <h2 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">Traditional Market vs. FixMate AI</h2>
-                <p style="font-size: 15px; color: #64748B; margin: 0;">See how our technology transforms roadside guesswork into accountable, transparent home service.</p>
+                <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Why Choose FixMate</span>
+                <h2 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">Traditional Market vs. FixMate</h2>
+                <p style="font-size: 15px; color: #64748B; margin: 0;">See how our platform transforms roadside guesswork into accountable, transparent home service.</p>
             </div>
 
             <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.03);">
@@ -198,7 +198,7 @@
                         <tr style="border-bottom: 1.5px solid #E2E8F0; background: #F8FAFC;">
                             <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #0F172A; width: 34%;">Feature / Standard</th>
                             <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #DC2626; width: 33%;">Traditional Roadside Pro</th>
-                            <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #059669; width: 33%; background: #F0FDF4;">FixMate AI Platform</th>
+                            <th style="padding: 18px 24px; font-size: 13.5px; font-weight: 800; color: #059669; width: 33%; background: #F0FDF4;">FixMate Platform</th>
                         </tr>
                     </thead>
                     <tbody style="font-size: 14px; color: #334155;">
@@ -242,7 +242,7 @@
                     Ready for a Better Home Repair Experience?
                 </h2>
                 <p style="font-size: 15px; color: #94A3B8; margin: 0 auto 24px auto; max-width: 540px; line-height: 1.6;">
-                    Upload an image or describe your issue. Our AI diagnosis engine matches you with verified pros in your neighborhood.
+                    Choose your service category or browse verified tradespeople in your neighborhood with upfront guaranteed rates.
                 </p>
                 <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
                     <a href="{{ route('services') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 13px 28px; border-radius: 10px; text-decoration: none;">

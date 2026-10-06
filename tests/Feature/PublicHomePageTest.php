@@ -18,13 +18,13 @@ class PublicHomePageTest extends TestCase
         $response = $this->get(route('home'));
 
         $response->assertStatus(200);
-        $response->assertSee('AI Powered Home Service Platform');
+        $response->assertSee('Verified On-Demand Home Service Platform');
         $response->assertSee('Smart Home Services');
         $response->assertSee('Popular Services');
-        $response->assertSee('How FixMate AI Works');
+        $response->assertSee('How FixMate Works');
         $response->assertSee('Featured Technicians');
         $response->assertSee('What Homeowners Say');
-        $response->assertSee('FixMate AI Guarantee');
+        $response->assertSee('FixMate Guarantee');
     }
 
     public function test_home_page_renders_active_professions_and_featured_technicians(): void

@@ -37,7 +37,7 @@ class HowItWorksTest extends TestCase
         $response = $this->get(route('how-it-works'));
 
         $response->assertStatus(200);
-        $response->assertSee('FixMate AI');
+        $response->assertSee('FixMate');
         $response->assertSee('Certified Electrician');
         $response->assertSee('Custom AI Defect Upload');
         $response->assertSee('Try Our Upfront Pricing Engine');
@@ -55,7 +55,7 @@ class HowItWorksTest extends TestCase
         $response = $this->get(route('about'));
 
         $response->assertStatus(200);
-        $response->assertSee('About FixMate AI');
+        $response->assertSee('FixMate');
         $response->assertSee('Master Plumber');
         $response->assertSee('Certified Trade Disciplines');
     }

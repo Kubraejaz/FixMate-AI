@@ -32,7 +32,7 @@ class AdminPortalTest extends TestCase
         $response->assertSee('Dashboard & Overview');
         $response->assertSee('Total Customers');
         $response->assertSee('Technicians Pool');
-        $response->assertSee('AI Diagnostics Accuracy');
+        $response->assertSee('Service Quality &amp; Escrow Health', false);
     }
 
     public function test_admin_can_view_and_toggle_customers(): void
@@ -105,11 +105,10 @@ class AdminPortalTest extends TestCase
     {
         $responseAnalytics = $this->actingAs($this->admin)->get(route('admin.analytics'));
         $responseAnalytics->assertStatus(200);
-        $responseAnalytics->assertSee('Recommendation & AI Matching Analytics');
+        $responseAnalytics->assertSee('Trade Demand &amp; Growth Analytics', false);
 
         $responseScans = $this->actingAs($this->admin)->get(route('admin.ai-diagnostics'));
-        $responseScans->assertStatus(200);
-        $responseScans->assertSee('AI Diagnostic Logs & Neural Computer Vision');
+        $responseScans->assertRedirect(route('admin.analytics'));
     }
 
     public function test_admin_can_view_payments_and_settings(): void

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'My Bookings — FixMate AI')
+@section('title', 'My Bookings — FixMate')
 
 @section('content')
 <div>

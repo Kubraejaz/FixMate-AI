@@ -447,8 +447,8 @@ class CustomerPortalTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('AC &amp; Refrigeration', false);
-        $response->assertSee('Defect Identified');
-        $response->assertSee('Compressor Overheat');
+        $response->assertSee('Service Matched');
+        $response->assertSee('Compressor Inspection');
     }
 
     public function test_ai_diagnose_correctly_flags_irrelevant_content_as_inconclusive(): void
@@ -459,9 +459,8 @@ class CustomerPortalTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('No Household Repair Defect Detected');
-        $response->assertSee('Inconclusive Analysis');
-        $response->assertDontSee('Defect Identified');
+        $response->assertSee('Please Select a Service Category');
+        $response->assertDontSee('Service Matched');
     }
 
     public function test_ai_diagnose_classifies_uploaded_repair_image_even_without_text(): void
@@ -480,10 +479,9 @@ class CustomerPortalTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('Defect Identified');
+        $response->assertSee('Service Matched');
         $response->assertSee('Plumber');
-        $response->assertSee('AI Computer Vision Active');
-        $response->assertSee('Pipe Joint Leak &amp; Water Drainage Defect', false);
+        $response->assertSee('Attached Photo for Technician');
     }
 
     public function test_ai_diagnose_rejects_document_screenshot_image_when_text_is_irrelevant(): void
@@ -501,9 +499,8 @@ class CustomerPortalTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('Non-Repair Document / Screenshot Detected');
-        $response->assertSee('Inconclusive Analysis');
-        $response->assertDontSee('Defect Identified');
+        $response->assertSee('Please Select a Service Category');
+        $response->assertDontSee('Service Matched');
     }
 
     public function test_ai_diagnose_supports_multi_modal_image_and_text_agreement(): void
@@ -521,9 +518,9 @@ class CustomerPortalTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertSee('Defect Identified');
+        $response->assertSee('Service Matched');
         $response->assertSee('Plumber');
-        $response->assertSee('Multi-Modal Match (Visual + Text)');
+        $response->assertSee('Attached Photo for Technician');
     }
 
     public function test_customer_can_view_notifications_page(): void
@@ -576,6 +573,44 @@ class CustomerPortalTest extends TestCase
 
         $unreadCount = \App\Models\Notification::where('user_id', $this->customer->id)->where('is_read', false)->count();
         $this->assertEquals(0, $unreadCount);
+    }
+
+    public function test_customer_can_view_services_page_inside_portal(): void
+    {
+        $response = $this->actingAs($this->customer)->get(route('customer.services'));
+
+        $response->assertStatus(200);
+        $response->assertViewIs('Frontend.customer.services');
+        $response->assertSee('All Services &amp; Trade Categories', false);
+        $response->assertSee('Plumber');
+    }
+
+    public function test_customer_can_filter_services_by_search_and_category(): void
+    {
+        Profession::firstOrCreate(
+            ['slug' => 'electrician'],
+            [
+                'name' => 'Electrician',
+                'description' => 'Wiring and breakers',
+                'base_price' => 700,
+                'is_active' => true,
+            ]
+        );
+
+        $response = $this->actingAs($this->customer)->get(route('customer.services', ['search' => 'Wiring']));
+
+        $response->assertStatus(200);
+        $response->assertSee('Electrician');
+
+        $responseCat = $this->actingAs($this->customer)->get(route('customer.services', ['category' => 'plumber']));
+        $responseCat->assertStatus(200);
+        $responseCat->assertSee('Plumber');
+    }
+
+    public function test_guest_is_redirected_to_login_when_accessing_customer_services(): void
+    {
+        $response = $this->get(route('customer.services'));
+        $response->assertRedirect(route('login'));
     }
 }
 

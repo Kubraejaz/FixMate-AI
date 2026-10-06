@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Job #' . $booking->booking_number . ' Details — FixMate AI')
+@section('title', 'Job #' . $booking->booking_number . ' Details — FixMate')
 
 @section('content')
 <div style="max-width: 860px; margin: 0 auto;">
@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <!-- Problem & AI Diagnosis Result -->
+        <!-- Problem & Service Request Details -->
         <div style="margin-bottom: 24px;">
             <span style="font-size: 11.5px; font-weight: 800; color: #B45309; text-transform: uppercase;">Service Request</span>
             <h2 style="font-size: 20px; font-weight: 900; color: #111; margin: 4px 0 10px 0;">{{ $booking->service_title }}</h2>

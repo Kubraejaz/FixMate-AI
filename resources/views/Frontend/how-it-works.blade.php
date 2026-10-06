@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'How It Works — FixMate AI | 4 Simple Steps')
-@section('meta_desc', 'Learn how FixMate AI works: describe your problem, get instant AI analysis, match with top-rated technicians, and track your service in real time.')
+@section('title', 'How It Works — FixMate | 4 Simple Steps')
+@section('meta_desc', 'Learn how FixMate works: select your service, view upfront standardized pricing, match with top-rated technicians, and track your service in real time.')
 
 @section('content')
 <div class="container" style="padding-top: 36px; padding-bottom: 70px;">
@@ -37,9 +37,9 @@
                 2
             </div>
             <div>
-                <h3 style="font-size: 18px; font-weight: 800; color: #111; margin-bottom: 4px;">AI Analysis</h3>
+                <h3 style="font-size: 18px; font-weight: 800; color: #111; margin-bottom: 4px;">Upfront Pricing</h3>
                 <p style="font-size: 14px; color: #666; line-height: 1.5;">
-                    Our computer vision neural network identifies the root issue, estimates required parts and labor costs, and specifies the required trade skill.
+                    Review transparent standardized labor rates and estimated job duration with zero roadside bargaining.
                 </p>
             </div>
         </div>
@@ -79,10 +79,10 @@
                 Smarter. Faster. More Reliable.
             </h3>
             <p style="font-size: 14.5px; color: #666; margin-bottom: 18px;">
-                FixMate AI — Your Home, Our Priority.
+                FixMate — Your Home, Our Priority.
             </p>
-            <a href="{{ url('/describe-problem') }}" class="btn-yellow">
-                Start AI Problem Scan
+            <a href="{{ url('/services') }}" class="btn-yellow">
+                Browse All Services
             </a>
         </div>
         <div style="max-width: 220px; border-radius: 16px; overflow: hidden; border: 2px solid #FFF;">

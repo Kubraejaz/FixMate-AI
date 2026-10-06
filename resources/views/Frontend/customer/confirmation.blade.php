@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'Booking Confirmed #' . $booking->booking_number . ' — FixMate AI')
+@section('title', 'Booking Confirmed #' . $booking->booking_number . ' — FixMate')
 
 @section('content')
 <div style="max-width: 680px; margin: 0 auto; text-align: center;">
@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <span style="font-size: 11.5px; color: #777;">Assigned Technician</span>
-                    <strong style="display: block; font-size: 15px; color: #111;">{{ $booking->professional ? $booking->professional->name . ' (' . ($booking->profession->name ?? 'Pro') . ')' : 'FixMate AI Auto-Dispatch' }}</strong>
+                    <strong style="display: block; font-size: 15px; color: #111;">{{ $booking->professional ? $booking->professional->name . ' (' . ($booking->profession->name ?? 'Pro') . ')' : 'FixMate Standard Dispatch' }}</strong>
                 </div>
                 <div>
                     <span style="font-size: 11.5px; color: #777;">Service</span>

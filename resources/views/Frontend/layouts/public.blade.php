@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <title>@yield('title', 'FixMate AI — Smart Home Services Made Simple')</title>
-    <meta name="description" content="@yield('meta_desc', 'AI-powered home service platform connecting you with verified professionals in Pakistan.')">
+    <title>@yield('title', 'FixMate — Trusted Home Services Made Simple')</title>
+    <meta name="description" content="@yield('meta_desc', 'On-demand home service platform connecting you with verified professionals in Pakistan.')">
     <!-- Application Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
@@ -196,8 +196,8 @@
         <div class="header-custom-inner" style="max-width: 1360px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; height: 74px;">
             
             <!-- Brand Logo with Application Logo.png -->
-            <a href="{{ url('/') }}" class="brand-logo-wrap" style="display: flex; align-items: center; text-decoration: none; flex-shrink: 0;" title="FixMate AI">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 42px; width: auto; object-fit: contain; display: block;">
+            <a href="{{ url('/') }}" class="brand-logo-wrap" style="display: flex; align-items: center; text-decoration: none; flex-shrink: 0;" title="FixMate">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 42px; width: auto; object-fit: contain; display: block;">
             </a>
 
             <!-- Centered Desktop Nav Menu with Yellow Active Bar matching mockup -->
@@ -378,10 +378,10 @@
             <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px;">
                 <div>
                     <a href="{{ url('/') }}" style="display: inline-block; background: #FFFFFF; padding: 6px 14px; border-radius: 10px; margin-bottom: 16px; text-decoration: none;">
-                        <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 34px; width: auto; object-fit: contain; display: block;">
+                        <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 34px; width: auto; object-fit: contain; display: block;">
                     </a>
                     <p style="font-size: 13.5px; line-height: 1.6; color: #94A3B8; max-width: 300px; margin-bottom: 16px;">
-                        Smart diagnosis. Right technician. Hassle free. AI-powered home service platform connecting Pakistani homeowners with verified trade experts.
+                        Transparent pricing. Right technician. Hassle free. On-demand home service platform connecting Pakistani homeowners with verified trade experts.
                     </p>
                     <div style="display: flex; gap: 10px;">
                         <a href="{{ url('/customer/dashboard') }}" style="font-size: 11px; background: #1E293B; color: #F1F5F9; padding: 4px 10px; border-radius: 6px; text-decoration: none;">Customer Portal</a>
@@ -423,7 +423,7 @@
             </div>
 
             <div style="border-top: 1px solid #1E293B; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: #64748B;">
-                <div>© 2026 FixMate AI. All rights reserved.</div>
+                <div>© 2026 FixMate. All rights reserved.</div>
                 <div style="display: flex; gap: 16px;">
                     <span>English (Pakistan)</span>
                     <span>•</span>

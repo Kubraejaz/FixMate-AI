@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'System Alerts & Notifications — FixMate AI Admin')
+@section('title', 'System Alerts & Notifications — FixMate Admin')
 
 @section('content')
 

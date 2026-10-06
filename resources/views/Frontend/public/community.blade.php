@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Community Issues & Civic Maintenance — FixMate AI')
+@section('title', 'Community Issues & Civic Maintenance — FixMate')
 @section('meta_desc', 'Report and track neighborhood maintenance issues like water pipeline leaks, sparking power lines, and broken streetlights across Pakistan.')
 
 @section('content')
@@ -16,7 +16,7 @@
                 Neighborhood Maintenance Feed
             </h1>
             <p style="font-size: 15.5px; color: #64748B; margin: 0; line-height: 1.6;">
-                FixMate AI enables residents to report, upvote, and coordinate rapid technician squad dispatch for communal hazards like main line water leaks, transformer sparking, and street dark zones.
+                FixMate enables residents to report, upvote, and coordinate rapid technician squad dispatch for communal hazards like main line water leaks, transformer sparking, and street dark zones.
             </p>
         </div>
     </section>

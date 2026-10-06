@@ -1,10 +1,10 @@
 @extends('Frontend.layouts.public')
-
-@section('title', 'FixMate AI — Smart Home Services Made Simple')
-
+ 
+@section('title', 'FixMate — Trusted Home Services Made Simple')
+ 
 @section('content')
 <div>
-
+ 
     <!-- Hero Section matching user's exact mockup image with dynamic content -->
     <section style="background: #FFFFFF; padding: 40px 0 60px 0; overflow: hidden; position: relative;">
         <div class="container">
@@ -15,7 +15,7 @@
                     <!-- Pill Tag -->
                     <div style="display: inline-flex; align-items: center; gap: 8px; background: #FFF9E6; border: 1px solid #FEF08A; padding: 6px 14px; border-radius: 50px; margin-bottom: 20px;">
                         <span style="color: #FFB800; font-size: 14px;">✨</span>
-                        <span style="font-size: 13px; font-weight: 700; color: #92400E;">{{ $hero['badge'] ?? 'AI Powered Home Service Platform' }}</span>
+                        <span style="font-size: 13px; font-weight: 700; color: #92400E;">{{ $hero['badge'] ?? 'Verified On-Demand Home Service Platform' }}</span>
                     </div>
 
                     <!-- Main Headline matching mockup -->
@@ -25,33 +25,32 @@
 
                     <!-- Description -->
                     <p style="font-size: 16px; line-height: 1.6; color: #64748B; margin: 0 0 32px 0; max-width: 530px;">
-                        {{ $hero['subtitle'] ?? 'Describe your problem, and let FixMate AI find the right technician. Fast, reliable and hassle-free home services — all in one place.' }}
+                        {{ $hero['subtitle'] ?? 'Describe your problem or choose a trade, and let FixMate find verified technicians with transparent upfront pricing.' }}
                     </p>
 
-                    <!-- Problem Input Bar matching mockup -->
-                    <form action="{{ url('/customer/diagnose') }}" method="GET" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 50px; box-shadow: 0 12px 30px rgba(0,0,0,0.06); padding: 8px 10px 8px 22px; display: flex; align-items: center; gap: 12px; max-width: 580px; margin-bottom: 36px;">
+                    <!-- Service Search Bar -->
+                    <form action="{{ url('/services') }}" method="GET" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 50px; box-shadow: 0 12px 30px rgba(0,0,0,0.06); padding: 8px 10px 8px 22px; display: flex; align-items: center; gap: 12px; max-width: 580px; margin-bottom: 36px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.3">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" name="q" placeholder='Describe your problem (e.g. "leaking tap" or "AC not working")' style="flex: 1; border: none; outline: none; font-size: 14.5px; color: #1E293B; font-family: inherit; font-weight: 500;">
+                        <input type="text" name="search" placeholder='Search services (e.g. "plumbing", "AC repair", "electrician")' style="flex: 1; border: none; outline: none; font-size: 14.5px; color: #1E293B; font-family: inherit; font-weight: 500;">
                         <button type="submit" style="background: #FFC107; border: none; outline: none; padding: 12px 26px; border-radius: 50px; font-size: 14px; font-weight: 800; color: #0F172A; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.35);">
-                            <span>✨</span>
-                            <span>Get Started</span>
+                            <span>Find Service</span>
                         </button>
                     </form>
 
                     <!-- 4 Value Props Row matching mockup -->
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
                         
-                        <!-- AI Diagnosis -->
+                        <!-- Upfront Pricing -->
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 40px; height: 40px; border-radius: 50%; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                                🛡️
+                                🏷️
                             </div>
                             <div style="line-height: 1.2;">
-                                <strong style="display: block; font-size: 13.5px; color: #0F172A;">AI Diagnosis</strong>
-                                <span style="font-size: 11px; color: #64748B;">Instant cost assessment</span>
+                                <strong style="display: block; font-size: 13.5px; color: #0F172A;">Upfront Rates</strong>
+                                <span style="font-size: 11px; color: #64748B;">Instant cost estimate</span>
                             </div>
                         </div>
 
@@ -187,14 +186,14 @@
         </div>
     </section>
 
-    <!-- How FixMate AI Works Section matching user's exact mockup with dynamic steps -->
+    <!-- How FixMate Works Section matching user's exact mockup with dynamic steps -->
     <section style="background: #FFFFFF; padding: 48px 0;">
         <div class="container">
             
             <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
                 <div>
-                    <h2 style="font-size: 26px; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">How FixMate AI Works</h2>
-                    <p style="font-size: 14px; color: #64748B; margin: 0;">Get your home service done in just a few simple steps with upfront AI pricing.</p>
+                    <h2 style="font-size: 26px; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">How FixMate Works</h2>
+                    <p style="font-size: 14px; color: #64748B; margin: 0;">Get your home service done in just a few simple steps with upfront transparent pricing.</p>
                 </div>
                 <a href="{{ url('/how-it-works') }}" style="font-size: 13.5px; font-weight: 700; color: #2563EB; text-decoration: none;">
                     Learn More →
@@ -223,7 +222,7 @@
                 @endforeach
             </div>
 
-            <!-- FixMate AI Guarantee Banner matching user's exact mockup -->
+            <!-- FixMate Guarantee Banner matching user's exact mockup -->
             <div style="background: #FFFDF0; border: 1px solid #FEF08A; border-radius: 18px; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
                 
                 <!-- Guarantee Title & Subtitle -->
@@ -232,7 +231,7 @@
                         🛡️
                     </div>
                     <div>
-                        <strong style="display: block; font-size: 15px; color: #0F172A;">FixMate AI Guarantee</strong>
+                        <strong style="display: block; font-size: 15px; color: #0F172A;">{{ $hero['guarantee_title'] ?? 'FixMate Guarantee' }}</strong>
                         <span style="font-size: 12px; color: #64748B;">Trusted service. Verified professionals. {{ $stats['warranty_days'] ?? 30 }}-day warranty on all completed jobs.</span>
                     </div>
                 </div>

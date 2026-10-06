@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <title>@yield('title', 'FixMate AI — Smart Solutions for a Better Home')</title>
-    <meta name="description" content="@yield('meta_desc', 'AI-powered home service platform that connects you with verified professionals for all your home maintenance needs.')">
+    <title>@yield('title', 'FixMate — Trusted Home Services & Repairs')</title>
+    <meta name="description" content="@yield('meta_desc', 'On-demand home service platform connecting you with verified local technicians with transparent upfront pricing.')">
     <!-- Application Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
@@ -29,8 +29,8 @@
         <div class="header-custom-inner" style="max-width: 1360px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; height: 74px;">
             
             <!-- Brand Logo with Application Logo.png -->
-            <a href="{{ url('/') }}" class="brand-logo-wrap" style="display: flex; align-items: center; text-decoration: none; flex-shrink: 0;" title="FixMate AI">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 42px; width: auto; object-fit: contain; display: block;">
+            <a href="{{ url('/') }}" class="brand-logo-wrap" style="display: flex; align-items: center; text-decoration: none; flex-shrink: 0;" title="FixMate">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 42px; width: auto; object-fit: contain; display: block;">
             </a>
 
             <!-- Centered Desktop Nav Menu with Yellow Active Bar matching mockup -->
@@ -185,10 +185,10 @@
                 <!-- Col 1: Logo & Info -->
                 <div>
                     <a href="{{ url('/') }}" style="display: inline-block; background: #FFFFFF; padding: 6px 14px; border-radius: 10px; margin-bottom: 16px; text-decoration: none;">
-                        <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 34px; width: auto; object-fit: contain; display: block;">
+                        <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 34px; width: auto; object-fit: contain; display: block;">
                     </a>
                     <p style="color: #9CA3AF; font-size: 13.5px; line-height: 1.6; max-width: 320px; margin-bottom: 20px;">
-                        Intelligent Home Service Platform. Smart Diagnosis. Right Technician. Hassle Free.
+                        On-Demand Home Service Platform. Verified Technicians. Upfront Pricing. Hassle Free.
                     </p>
                     <div style="display: flex; gap: 12px; font-size: 16px;">
                         <a href="#" style="color: #9CA3AF;">🌐</a>
@@ -222,8 +222,8 @@
                 <div>
                     <h4 class="footer-heading">Support</h4>
                     <a href="{{ url('/contact') }}" class="footer-link">FAQs</a>
-                    <a href="#" class="footer-link">Privacy Policy</a>
-                    <a href="#" class="footer-link">Terms & Conditions</a>
+                    <a href="{{ url('/privacy-policy') }}" class="footer-link">Privacy Policy</a>
+                    <a href="{{ url('/terms') }}" class="footer-link">Terms & Conditions</a>
                     <a href="{{ url('/technician-dashboard') }}" class="footer-link">Technician Portal</a>
                 </div>
             </div>
@@ -231,7 +231,7 @@
             <!-- Bottom Line -->
             <div style="border-top: 1px solid #222222; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: #6B7280;">
                 <div>
-                    © 2026 FixMate AI. All rights reserved.
+                    © 2026 FixMate. All rights reserved.
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span>🌐</span>

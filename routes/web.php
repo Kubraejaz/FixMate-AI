@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes — FixMate AI Web & Cloud Platform
+| Web Routes — FixMate Web Platform
 | Architecture:
 | 1. Public Website (No Login Required)
 | 2. Authentication Pages (Login, Register, Role Choice, Phone OTP, Reset)
@@ -148,9 +148,14 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     // Customer Dashboard
     Route::get('/dashboard', [CustomerPortalController::class, 'dashboard'])->name('dashboard');
 
-    // AI Problem Diagnosis Scanner Flow
+    // Customer Services Catalog & Categories
+    Route::get('/services', [CustomerPortalController::class, 'services'])->name('services');
+
+    // Service Request / Problem Diagnosis Flow
     Route::get('/diagnose', [CustomerPortalController::class, 'diagnose'])->name('diagnose');
+    Route::get('/request-service', [CustomerPortalController::class, 'diagnose'])->name('request-service');
     Route::match(['get', 'post'], '/ai-result', [CustomerPortalController::class, 'aiResult'])->name('ai-result');
+    Route::match(['get', 'post'], '/service-summary', [CustomerPortalController::class, 'aiResult'])->name('service-summary');
 
     // Recommended Technicians & Booking Flow
     Route::get('/technicians', [CustomerPortalController::class, 'technicians'])->name('technicians');
@@ -210,6 +215,9 @@ Route::get('/customer-dashboard', function () {
     return redirect('/customer/dashboard');
 });
 Route::get('/describe-problem', function () {
+    return redirect('/customer/diagnose');
+});
+Route::get('/request-service', function () {
     return redirect('/customer/diagnose');
 });
 Route::get('/ai-scanner', function () {
@@ -332,9 +340,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('/services', [ServiceController::class, 'index'])->name('services');
 
-    // AI Diagnostics & Growth Analytics
+    // Growth Analytics
     Route::get('/analytics', [AnalyticsController::class, 'analytics'])->name('analytics');
-    Route::get('/ai-diagnostics', [AnalyticsController::class, 'aiDiagnostics'])->name('ai-diagnostics');
+    Route::get('/ai-diagnostics', function () {
+        return redirect()->route('admin.analytics');
+    })->name('ai-diagnostics');
 
     // KYC Verification Pipeline
     Route::get('/technicians/verification', [TechnicianVerificationController::class, 'index'])->name('technicians.verification');

@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Frequently Asked Questions (FAQs) — FixMate AI | Help Center')
-@section('meta_desc', 'Got questions about FixMate AI? Find verified answers on AI problem diagnosis, upfront pricing, escrow payments, technician verification, and our 30-day warranty.')
+@section('title', 'Frequently Asked Questions (FAQs) — FixMate | Help Center')
+@section('meta_desc', 'Got questions about FixMate? Find verified answers on upfront pricing, escrow payments, technician verification, and our 30-day warranty.')
 
 @section('content')
 <div style="background: #FFFFFF; min-height: 85vh;">
@@ -17,7 +17,7 @@
                 Frequently Asked <span style="color: #FFB800;">Questions</span>
             </h1>
             <p style="font-size: 16.5px; color: #64748B; margin: 0 auto 30px auto; line-height: 1.7; max-width: 680px;">
-                Everything you need to know about our AI computer vision diagnosis, certified technician vetting, escrow payments, and customer protection.
+                Everything you need to know about our upfront pricing tariff, certified technician vetting, escrow payments, and customer protection.
             </p>
 
             <!-- Search Bar -->

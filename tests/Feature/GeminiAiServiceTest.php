@@ -103,43 +103,13 @@ class GeminiAiServiceTest extends TestCase
             'user_type' => User::TYPE_CUSTOMER,
         ]);
 
-        config(['services.gemini.api_key' => 'AIzaSyTestMockKey123456789']);
-
-        Http::fake([
-            'https://generativelanguage.googleapis.com/*' => Http::response([
-                'candidates' => [
-                    [
-                        'content' => [
-                            'parts' => [
-                                [
-                                    'text' => json_encode([
-                                        'is_repair_defect' => true,
-                                        'confidence' => 98,
-                                        'trade_slug' => 'electrician',
-                                        'trade_name' => 'Electrician',
-                                        'defect_title' => 'Main Distribution Box Sparking Breaker',
-                                        'summary' => 'Loose phase connection caused thermal degradation in 32A breaker.',
-                                        'tools' => 'Multimeter, Insulated Screwdrivers',
-                                        'repair_time' => '40 Mins',
-                                        'cost_min' => 1500,
-                                        'cost_max' => 2800,
-                                        'safety_alert' => 'Switch off main power lever and do not touch bare wires.',
-                                    ]),
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ], 200),
-        ]);
-
         $response = $this->actingAs($customer)->post(route('customer.ai-result'), [
             'issue' => 'My breaker box is making buzzing sparking sound',
         ]);
 
         $response->assertStatus(200);
-        $response->assertSee('Powered by Google Gemini AI');
-        $response->assertSee('Main Distribution Box Sparking Breaker');
-        $response->assertSee('Switch off main power lever and do not touch bare wires.');
+        $response->assertSee('Service Request Summary');
+        $response->assertSee('Electrician');
+        $response->assertSee('Circuit Breaker Inspection');
     }
 }

@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Find Verified Technicians — FixMate AI')
+@section('title', 'Find Verified Technicians — FixMate')
 @section('meta_desc', 'Browse NADRA-verified, background-checked plumbers, electricians, AC technicians, and carpenters near you in Pakistan.')
 
 @section('content')
@@ -86,9 +86,15 @@
                             <div>
                                 <div style="position: relative; width: 76px; height: 76px; margin: 0 auto 12px auto;">
                                     <img src="{{ $avatar }}" alt="{{ $tech->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #FFB800;">
-                                    <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
+                                    @if($tech->is_verified)
+                                        <span style="position: absolute; bottom: 0; right: 0; background: #10B981; color: #FFF; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #FFF;" title="NADRA Verified Pro">✓</span>
+                                    @endif
                                 </div>
-                                <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
+                                @if($tech->isOnline())
+                                    <div style="display: inline-block; background: #DCFCE7; color: #15803D; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">● ONLINE NOW</div>
+                                @else
+                                    <div style="display: inline-block; background: #F1F5F9; color: #64748B; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;">○ OFF DUTY</div>
+                                @endif
                                 <strong style="display: block; font-size: 16px; color: #0F172A; margin-bottom: 2px;">{{ $tech->name }}</strong>
                                 <span style="font-size: 12.5px; color: #64748B; display: block; margin-bottom: 6px;">
                                     {{ $tech->profession?->name ?? 'Service Specialist' }} • {{ $tech->experience ?? '5+ yrs exp' }}
@@ -110,7 +116,7 @@
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <a href="{{ url('/technicians/' . $tech->id) }}" style="text-align: center; border: 1px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none;">View Profile</a>
-                                <a href="{{ url('/customer/diagnose') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
+                                <a href="{{ url('/customer/booking?professional=' . $tech->id) }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 12.5px; padding: 9px 0; border-radius: 8px; text-decoration: none; display: block; box-shadow: 0 2px 6px rgba(255, 184, 0, 0.3);">
                                     Book Pro
                                 </a>
                             </div>
@@ -140,7 +146,7 @@
             <div style="text-align: center; margin-bottom: 36px;">
                 <span style="font-size: 12px; font-weight: 800; color: #92400E; text-transform: uppercase;">SAFETY PROTOCOL</span>
                 <h2 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 4px 0 8px 0;">How We Vet Every Handyman</h2>
-                <p style="font-size: 14.5px; color: #64748B; margin: 0;">Only the top 12% of applicants qualify to enter your home under the FixMate AI standard.</p>
+                <p style="font-size: 14.5px; color: #64748B; margin: 0;">Only the top 12% of applicants qualify to enter your home under the FixMate platform standard.</p>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">

@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'About Us — FixMate AI | Intelligent Home Services')
-@section('meta_desc', 'Learn about FixMate AI — Pakistan’s premier AI-powered home service platform uniting verified tradespeople with homeowners through smart computer vision diagnosis and escrow security.')
+@section('title', 'About Us — FixMate | On-Demand Home Services')
+@section('meta_desc', 'Learn about FixMate — Pakistan’s premier on-demand home service platform uniting verified tradespeople with homeowners through transparent pricing and escrow security.')
 
 @section('content')
 <div style="background: #FFFFFF; min-height: 80vh;">
@@ -11,13 +11,13 @@
         <div class="container" style="max-width: 860px;">
             <div style="display: inline-flex; align-items: center; gap: 8px; background: #FFF9E6; border: 1px solid #FEF08A; padding: 6px 16px; border-radius: 50px; margin-bottom: 16px;">
                 <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #FFB800;"></span>
-                <span style="font-size: 12.5px; font-weight: 800; color: #92400E; letter-spacing: 0.05em; text-transform: uppercase;">About FixMate AI</span>
+                <span style="font-size: 12.5px; font-weight: 800; color: #92400E; letter-spacing: 0.05em; text-transform: uppercase;">About FixMate</span>
             </div>
             <h1 style="font-size: 42px; font-weight: 900; color: #0F172A; margin: 0 0 16px 0; letter-spacing: -0.03em; line-height: 1.15;">
-                Transforming Home Maintenance with <span style="color: #FFB800;">AI Precision & Trust</span>
+                Transforming Home Maintenance with <span style="color: #FFB800;">Transparency &amp; Trust</span>
             </h1>
             <p style="font-size: 16.5px; color: #64748B; margin: 0 auto; line-height: 1.7; max-width: 700px;">
-                {{ $settings?->hero_subtitle ?? 'FixMate AI is built on a simple conviction: hiring a home technician should be transparent, secure, and stress-free. We unite state-of-the-art computer vision diagnosis with verified local craftsmanship across Pakistan.' }}
+                {{ $settings?->hero_subtitle ?? 'FixMate is built on a simple conviction: hiring a home technician should be transparent, secure, and stress-free. We unite verified local craftsmanship with upfront standardized pricing and guaranteed escrow protection across Pakistan.' }}
             </p>
         </div>
     </section>
@@ -59,12 +59,12 @@
                         For decades, booking a tradesperson in Pakistan was a gamble. Homeowners faced unverified workers entering their private spaces, unpredictable pricing with arbitrary quotes, and zero accountability if the problem recurred the next day.
                     </p>
                     <p style="font-size: 15px; color: #475569; line-height: 1.75; margin: 0 0 24px 0;">
-                        {{ $settings?->guarantee_subtitle ?? 'FixMate AI changes this landscape completely. By deploying neural vision models to analyze defect photos before dispatch, we give homeowners accurate price benchmarks upfront. We back every technician with Nadra CNIC vetting, police record verification, and a ' . ($stats['warranty_days'] ?? 30) . '-day workmanship warranty.' }}
+                        {{ $settings?->guarantee_subtitle ?? 'FixMate changes this landscape completely. By providing upfront standardized price benchmarks before dispatch, we give homeowners complete cost clarity. We back every technician with Nadra CNIC vetting, police record verification, and a ' . ($stats['warranty_days'] ?? 30) . '-day workmanship warranty.' }}
                     </p>
                     <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                         <div style="background: #F8FAFC; border-left: 3px solid #FFB800; padding: 12px 18px; border-radius: 0 10px 10px 0; flex: 1; min-width: 220px;">
                             <strong style="color: #0F172A; font-size: 14.5px; display: block; margin-bottom: 2px;">Zero Overcharging</strong>
-                            <span style="color: #64748B; font-size: 13px;">AI sets transparent, standardized labor rates.</span>
+                            <span style="color: #64748B; font-size: 13px;">Standardized upfront tariff ensures transparent labor rates.</span>
                         </div>
                         <div style="background: #F8FAFC; border-left: 3px solid #10B981; padding: 12px 18px; border-radius: 0 10px 10px 0; flex: 1; min-width: 220px;">
                             <strong style="color: #0F172A; font-size: 14.5px; display: block; margin-bottom: 2px;">Protected Escrow</strong>
@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div style="position: relative;">
-                    <img src="{{ asset('assets/images/image_7.png') }}" alt="Modern Home living with FixMate AI services" style="width: 100%; height: 380px; object-fit: cover; border-radius: 24px; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);">
+                    <img src="{{ asset('assets/images/image_7.png') }}" alt="Modern Home living with FixMate services" style="width: 100%; height: 380px; object-fit: cover; border-radius: 24px; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);">
                     <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 16px 20px; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 10px 25px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 40px; height: 40px; border-radius: 10px; background: #FFB800; display: flex; align-items: center; justify-content: center; font-size: 18px;">
@@ -219,7 +219,7 @@
             <div style="margin-bottom: 70px;">
                 <div style="text-align: center; max-width: 600px; margin: 0 auto 36px auto;">
                     <span style="font-size: 12px; font-weight: 800; color: #FFB800; text-transform: uppercase; letter-spacing: 0.05em;">Community Voices</span>
-                    <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">What People Say About FixMate AI</h3>
+                    <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 8px 0 10px 0; letter-spacing: -0.02em;">What People Say About FixMate</h3>
                     <p style="font-size: 14.5px; color: #64748B; margin: 0;">Real feedback from verified homeowners across Karachi, Lahore, and Islamabad.</p>
                 </div>
 
@@ -258,10 +258,10 @@
             <div style="background: #FFF9E6; border: 2px solid #FEF08A; border-radius: 24px; padding: 48px; text-align: center;">
                 <span style="font-size: 12px; font-weight: 800; color: #92400E; text-transform: uppercase; letter-spacing: 0.05em;">Get Started Now</span>
                 <h3 style="font-size: 28px; font-weight: 900; color: #0F172A; margin: 6px 0 12px 0; letter-spacing: -0.02em;">
-                    Experience FixMate AI in Your Home Today
+                    Experience FixMate in Your Home Today
                 </h3>
                 <p style="font-size: 15px; color: #475569; max-width: 580px; margin: 0 auto 24px auto; line-height: 1.6;">
-                    Upload an image of your problem or describe what is broken. Receive upfront pricing in seconds with guaranteed escrow protection.
+                    Explore our standardized home services catalog. Receive upfront pricing in seconds with guaranteed escrow protection.
                 </p>
                 <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
                     <a href="{{ route('services') }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 12px 28px; border-radius: 50px; text-decoration: none; box-shadow: 0 4px 12px rgba(255,184,0,0.35);">

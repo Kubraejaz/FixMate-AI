@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="robots" content="noindex, nofollow">
 
-    <title>@yield('title', 'Admin Console — FixMate AI')</title>
+    <title>@yield('title', 'Admin Console — FixMate')</title>
 
     <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -894,7 +894,7 @@
     <!-- Top Bar -->
     <header class="adm-topbar">
         <a href="{{ url('/admin/dashboard') }}" class="adm-brand">
-            <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI">
+            <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate">
             <span class="adm-console-badge">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2"></rect>
@@ -1091,20 +1091,6 @@
                     <span>All Bookings</span>
                 </a>
 
-                <a href="{{ url('/admin/ai-diagnostics') }}" class="adm-nav-link {{ Request::is('admin/ai-diagnostics*') ? 'active' : '' }}">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M12 2v3"></path>
-                        <path d="M12 19v3"></path>
-                        <path d="M4.2 4.2l2.1 2.1"></path>
-                        <path d="M17.7 17.7l2.1 2.1"></path>
-                        <path d="M2 12h3"></path>
-                        <path d="M19 12h3"></path>
-                        <path d="M4.2 19.8l2.1-2.1"></path>
-                        <path d="M17.7 6.3l2.1-2.1"></path>
-                    </svg>
-                    <span>AI Diagnostic Logs</span>
-                </a>
 
                 <a href="{{ url('/admin/payments') }}" class="adm-nav-link {{ Request::is('admin/payments*') ? 'active' : '' }}">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

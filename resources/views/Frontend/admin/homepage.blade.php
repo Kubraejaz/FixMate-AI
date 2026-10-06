@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'Homepage CMS & Content Editor — FixMate AI Admin')
+@section('title', 'Homepage CMS & Content Editor — FixMate Admin')
 
 @section('content')
 
@@ -88,7 +88,7 @@
                 </div>
 
                 <div style="background: #F8FAFC; border: 1px solid var(--adm-border); border-radius: 14px; padding: 18px; margin-top: 10px;">
-                    <strong style="display: block; font-size: 13.5px; color: var(--adm-ink); margin-bottom: 12px;">FixMate AI Guarantee Parameters</strong>
+                    <strong style="display: block; font-size: 13.5px; color: var(--adm-ink); margin-bottom: 12px;">FixMate Guarantee Parameters</strong>
                     
                     <div class="adm-form-grid">
                         <div class="adm-field" style="margin-bottom: 0;">
@@ -269,11 +269,11 @@
     </div>
 </div>
 
-<!-- Section 3: How FixMate AI Works Steps (Full CRUD) -->
+<!-- Section 3: How FixMate Works Steps (Full CRUD) -->
 <div class="adm-card">
     <div class="adm-card-head" style="border-bottom: 1px solid var(--adm-border-soft); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h3>3. "How FixMate AI Works" Workflow Steps ({{ $steps->count() }})</h3>
+            <h3>3. "How FixMate Works" Workflow Steps ({{ $steps->count() }})</h3>
             <span class="sub" style="font-size: 12.5px; color: var(--adm-muted);">Configure step order, emoji/icons, and process instructions.</span>
         </div>
         <button type="button" class="adm-btn adm-btn-primary adm-btn-sm" onclick="document.getElementById('addStepForm').style.display = document.getElementById('addStepForm').style.display === 'none' ? 'block' : 'none';">

@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Register — FixMate AI')
-@section('meta_desc', 'Create your FixMate AI account. Join thousands of homeowners receiving instant AI diagnostics and trusted repair services.')
+@section('title', 'Register — FixMate')
+@section('meta_desc', 'Create your FixMate account. Join thousands of homeowners receiving upfront pricing and trusted repair services.')
 
 @section('content')
 <div class="container" style="padding-top: 40px; padding-bottom: 70px; display: flex; justify-content: center;">
@@ -12,11 +12,11 @@
         <div style="text-align: center; margin-bottom: 26px;">
             <!-- Brand Logo -->
             <a href="{{ url('/') }}" style="display: inline-block; margin-bottom: 16px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 40px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 40px; width: auto; object-fit: contain; margin: 0 auto; display: block;">
             </a>
 
             <h1 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 4px;">Create Your Account</h1>
-            <p style="font-size: 13.5px; color: #757575;">Join FixMate AI today</p>
+            <p style="font-size: 13.5px; color: #757575;">Join FixMate today</p>
         </div>
 
         <form action="{{ url('/customer-dashboard') }}" method="GET">

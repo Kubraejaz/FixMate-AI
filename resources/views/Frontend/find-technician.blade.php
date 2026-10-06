@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Find a Technician — FixMate AI')
+@section('title', 'Find a Technician — FixMate')
 @section('meta_desc', 'Search and filter verified professionals in your area: plumbers, electricians, AC repair, and carpenters.')
 
 @section('content')

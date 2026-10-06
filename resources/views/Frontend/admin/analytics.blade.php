@@ -1,16 +1,16 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'Growth & Recommendation Analytics — FixMate AI Admin')
+@section('title', 'Growth & Operations Analytics — FixMate Admin')
 
 @section('content')
 
 <div class="adm-page-head">
     <div>
-        <h1>Recommendation &amp; AI Matching Analytics</h1>
-        <p>Performance of computer vision diagnostics, technician matching, and conversion.</p>
+        <h1>Trade Demand &amp; Growth Analytics</h1>
+        <p>Platform technician capacity, booking volume, and popular repair services.</p>
     </div>
     <div class="adm-page-actions">
-        <span class="adm-badge yellow">Average matching score 91.4%</span>
+        <span class="adm-badge green">Verified Fulfillment Rate 98.2%</span>
     </div>
 </div>
 
@@ -103,27 +103,27 @@
     <!-- Common Problems Classification -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>Most Common Detected Defect Types</h3>
+            <h3>Most Requested Service Types</h3>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
             <div class="pname" style="font-size: 13.5px;">Kitchen Sink &amp; P-trap Pipe Leakage</div>
-            <div class="pmeta" style="margin-top: 3px;">382 scans &middot; 94.6% precision</div>
+            <div class="pmeta" style="margin-top: 3px;">382 bookings &middot; 98.6% resolved</div>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
             <div class="pname" style="font-size: 13.5px;">AC Inverter Condenser &amp; Gas Leaks</div>
-            <div class="pmeta" style="margin-top: 3px;">294 scans &middot; 91.0% precision</div>
+            <div class="pmeta" style="margin-top: 3px;">294 bookings &middot; 97.0% resolved</div>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
             <div class="pname" style="font-size: 13.5px;">Circuit Breaker DB Tripping &amp; Neutral Short</div>
-            <div class="pmeta" style="margin-top: 3px;">188 scans &middot; 97.2% precision</div>
+            <div class="pmeta" style="margin-top: 3px;">188 bookings &middot; 99.2% resolved</div>
         </div>
 
         <div style="background: var(--adm-border-soft); border-radius: 10px; padding: 12px 14px;">
             <div class="pname" style="font-size: 13.5px;">Door Lock Realignment &amp; Woodwork</div>
-            <div class="pmeta" style="margin-top: 3px;">142 scans &middot; 88.5% precision</div>
+            <div class="pmeta" style="margin-top: 3px;">142 bookings &middot; 96.5% resolved</div>
         </div>
     </div>
 

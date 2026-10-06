@@ -64,4 +64,20 @@ class Professional extends Model
     {
         return $this->belongsTo(Profession::class);
     }
+
+    /**
+     * Determine if technician is currently online or available for dispatch.
+     */
+    public function isOnline(): bool
+    {
+        if ($this->user && ! $this->user->is_active) {
+            return false;
+        }
+
+        if ($this->user?->last_login_at && $this->user->last_login_at->diffInHours(now()) <= 2) {
+            return true;
+        }
+
+        return (bool) ($this->is_verified ?? false);
+    }
 }

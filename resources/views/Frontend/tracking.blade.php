@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Live Tracking & Booking Details — FixMate AI')
+@section('title', 'Live Tracking & Booking Details — FixMate')
 @section('meta_desc', 'Track technician Ali Khan in real-time on the live GPS map. Booking #FM-10245.')
 
 @section('content')

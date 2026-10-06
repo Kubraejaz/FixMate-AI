@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.technician')
 
-@section('title', 'Technician Profile & Partner Settings — FixMate AI')
+@section('title', 'Technician Profile & Partner Settings — FixMate')
 
 @section('content')
 <div style="max-width: 820px; margin: 0 auto;">

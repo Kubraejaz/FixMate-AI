@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.master')
 
-@section('title', 'Recommended Technicians — FixMate AI')
+@section('title', 'Recommended Technicians — FixMate')
 @section('meta_desc', 'Matched verified plumbers for kitchen sink leakage based on location, availability, and customer reviews.')
 
 @section('content')

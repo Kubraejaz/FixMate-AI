@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.admin')
 
-@section('title', 'Dashboard & KPIs — FixMate AI Admin')
+@section('title', 'Dashboard & KPIs — FixMate Admin')
 
 @section('content')
 
@@ -188,32 +188,32 @@
         @endif
     </div>
 
-    <!-- AI Diagnostics Engine Health -->
+    <!-- Service Quality & Escrow Health -->
     <div class="adm-card">
         <div class="adm-card-head">
-            <h3>AI Diagnostics Accuracy</h3>
-            <span class="adm-badge green">94.8% precision</span>
+            <h3>Service Quality &amp; Escrow Health</h3>
+            <span class="adm-badge green">99.4% Dispute-Free</span>
         </div>
 
         <div class="adm-stat-row">
-            <span class="label">Total images processed</span>
-            <span class="value">14,920 scans</span>
+            <span class="label">Escrow protection success</span>
+            <span class="value">100% Guaranteed</span>
         </div>
         <div class="adm-stat-row">
-            <span class="label">Mean analysis latency</span>
-            <span class="value">1.18 seconds</span>
+            <span class="label">Mean dispatch arrival</span>
+            <span class="value">28.4 minutes</span>
         </div>
         <div class="adm-stat-row">
-            <span class="label">Cost prediction accuracy</span>
-            <span class="value">92.4% within bounds</span>
+            <span class="label">Upfront tariff accuracy</span>
+            <span class="value">96.8% standard bill</span>
         </div>
         <div class="adm-stat-row">
-            <span class="label">Customer acceptance rate</span>
-            <span class="value">88.5% confirmed</span>
+            <span class="label">Customer satisfaction rating</span>
+            <span class="value">4.92 / 5.0 (verified)</span>
         </div>
 
-        <a href="{{ route('admin.ai-diagnostics') }}" class="adm-btn adm-btn-ghost" style="width: 100%; margin-top: 18px;">
-            Open AI Scans Log
+        <a href="{{ route('admin.payments') }}" class="adm-btn adm-btn-ghost" style="width: 100%; margin-top: 18px;">
+            Open Escrow Console
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14"></path>
                 <path d="M12 5l7 7-7 7"></path>

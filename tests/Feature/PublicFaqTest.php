@@ -47,9 +47,9 @@ class PublicFaqTest extends TestCase
     public function test_user_can_filter_faqs_by_category(): void
     {
         Faq::create([
-            'question' => 'What is AI Diagnosis?',
-            'answer' => 'AI estimates parts and labor from photos.',
-            'category' => 'ai_diagnosis',
+            'question' => 'How are repair costs estimated?',
+            'answer' => 'Upfront standardized tariffs are calculated by trade specialty.',
+            'category' => 'pricing_booking',
             'sort_order' => 1,
             'is_active' => true,
         ]);
@@ -62,10 +62,10 @@ class PublicFaqTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get(route('faqs', ['category' => 'ai_diagnosis']));
+        $response = $this->get(route('faqs', ['category' => 'pricing_booking']));
 
         $response->assertStatus(200);
-        $response->assertSee('What is AI Diagnosis?');
+        $response->assertSee('How are repair costs estimated?');
         $response->assertDontSee('How do I pay with JazzCash?');
     }
 

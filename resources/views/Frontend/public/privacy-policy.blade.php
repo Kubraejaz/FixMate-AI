@@ -1,6 +1,6 @@
 @extends('Frontend.layouts.public')
 
-@section('title', 'Privacy Policy — FixMate AI')
+@section('title', 'Privacy Policy — FixMate')
 
 @section('content')
 <div class="site-wrapper" style="background: #FAFAFA; min-height: 80vh; padding: 50px 0 70px 0;">
@@ -15,27 +15,26 @@
             
             <h1 style="font-size: 32px; font-weight: 900; color: #0F172A; margin: 0 0 10px 0;">Privacy &amp; Data Protection Policy</h1>
             <p style="font-size: 13.5px; color: #64748B; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #F1F5F9;">
-                Last updated: {{ now()->format('F Y') }} • Applies to all FixMate AI Web &amp; Mobile Platform users across Pakistan.
+                Last updated: {{ now()->format('F Y') }} • Applies to all FixMate Web &amp; Mobile Platform users across Pakistan.
             </p>
 
             <div style="font-size: 14.5px; color: #4B5563; line-height: 1.8; display: flex; flex-direction: column; gap: 22px;">
                 <p>
-                    <strong>FixMate AI</strong> ("we", "our", or "us") respects your personal privacy and is committed to protecting data collected through our customer portal, technician network, computer vision defect diagnostic scanner, and escrow payment intermediation.
+                    <strong>FixMate</strong> ("we", "our", or "us") respects your personal privacy and is committed to protecting data collected through our customer portal, technician network, and escrow payment intermediation.
                 </p>
 
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">1. Information We Collect</h3>
                     <p style="margin: 0 0 10px 0;">
-                        <strong>A. Customer Accounts:</strong> Name, authenticated phone number, email address, service location coordinates, and uploaded photographs/audio of repair issues for computer-vision diagnostics.<br>
-                        <strong>B. Technician Verification:</strong> National Database &amp; Registration Authority (NADRA) CNIC numbers, trade diplomas, police clearance checks, real-time GPS telemetry during dispatches, and bank/JazzCash account details.<br>
-                        <strong>C. AI Telemetry:</strong> Device identifiers, diagnostic inference metadata, and model performance logs to refine repair cost accuracy.
+                        <strong>A. Customer Accounts:</strong> Name, authenticated phone number, email address, service location coordinates, and optional photographs of repair issues.<br>
+                        <strong>B. Technician Verification:</strong> National Database &amp; Registration Authority (NADRA) CNIC numbers, trade diplomas, police clearance checks, real-time GPS telemetry during dispatches, and bank/JazzCash account details.
                     </p>
                 </div>
 
                 <div>
-                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">2. How Computer Vision Processes Defect Photos</h3>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">2. How Defect Photos Are Handled</h3>
                     <p style="margin: 0;">
-                        Photographs uploaded to our AI scanner are analyzed solely to detect damaged components (e.g. leaking joints, tripped breaker switches, burned PCB traces), estimate labor and materials cost benchmarks, and dispatch the correct trade discipline. Photos are stored securely in encrypted private buckets and are never shared or sold to advertising brokers.
+                        Photographs attached to service requests are shared solely with the assigned certified technician so they arrive prepared with appropriate replacement parts and tools. Photos are stored securely in private buckets and are never shared or sold to advertising brokers.
                     </p>
                 </div>
 

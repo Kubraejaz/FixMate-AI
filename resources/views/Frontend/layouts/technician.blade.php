@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
-    <title>@yield('title', 'Technician Portal — FixMate AI')</title>
+    <title>@yield('title', 'Technician Portal — FixMate')</title>
     <!-- Application Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/Logo.png') }}">
@@ -24,7 +24,7 @@
         <div class="container site-nav">
             <!-- Brand Logo -->
             <a href="{{ url('/technician/dashboard') }}" class="brand-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate AI" style="height: 38px; width: auto; object-fit: contain; display: block;">
+                <img src="{{ asset('assets/images/Logo.png') }}" alt="FixMate" style="height: 38px; width: auto; object-fit: contain; display: block;">
                 <span style="color: #B45309; font-weight: 800; background: #FFF9E6; border: 1px solid #FFECB3; padding: 2px 7px; border-radius: 6px; font-size: 11px;">Technician Pro</span>
             </a>
 
