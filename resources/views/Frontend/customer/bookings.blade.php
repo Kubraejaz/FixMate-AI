@@ -17,6 +17,39 @@
         </div>
     </div>
 
+    <!-- Upcoming Booking Date Near Reminder Alert -->
+    @if(isset($nearUpcomingBooking) && $nearUpcomingBooking)
+        @php
+            $isToday = $nearUpcomingBooking->service_date->isToday();
+            $isTomorrow = $nearUpcomingBooking->service_date->isTomorrow();
+            $dayBadge = $isToday ? 'TODAY' : ($isTomorrow ? 'TOMORROW' : $nearUpcomingBooking->service_date->format('M d'));
+            $borderCol = $isToday ? '#EF4444' : '#F59E0B';
+            $badgeBg = $isToday ? '#DC2626' : '#D97706';
+        @endphp
+        <div style="background: #FFFBEB; border: 1.5px solid {{ $borderCol }}; border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 24px;">⏰</span>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                        <span style="background: {{ $badgeBg }}; color: #FFFFFF; font-size: 10px; font-weight: 900; padding: 2px 8px; border-radius: 10px;">
+                            DUE {{ $dayBadge }}
+                        </span>
+                        <strong style="font-size: 14px; color: #0F172A;">{{ $nearUpcomingBooking->service_title }} (#{{ $nearUpcomingBooking->booking_number }})</strong>
+                    </div>
+                    <span style="font-size: 12.5px; color: #475569;">
+                        Scheduled for <strong>{{ $nearUpcomingBooking->service_date->format('l, M d') }}</strong> during <strong>{{ $nearUpcomingBooking->service_time_slot }}</strong> at {{ $nearUpcomingBooking->service_address }}
+                    </span>
+                </div>
+            </div>
+            @if($nearUpcomingBooking->arrival_otp)
+                <div style="background: #FFFFFF; border: 1.5px dashed {{ $borderCol }}; border-radius: 8px; padding: 4px 12px; text-align: center;">
+                    <span style="font-size: 9px; font-weight: 800; color: #64748B; display: block; text-transform: uppercase;">Arrival OTP</span>
+                    <strong style="font-size: 15px; font-weight: 900; letter-spacing: 2px; color: #0F172A;">{{ $nearUpcomingBooking->arrival_otp }}</strong>
+                </div>
+            @endif
+        </div>
+    @endif
+
     <!-- Status Tabs & Search Bar -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; flex-wrap: wrap; gap: 12px;">
         <div style="display: flex; gap: 10px;">
@@ -49,11 +82,16 @@
                 <img src="{{ asset($booking->professional?->profile_image ?: 'assets/images/image_1.png') }}" alt="{{ $booking->professional?->name ?? 'Pro' }}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #FFCC00;">
                 
                 <div>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
                         <strong style="font-size: 17px; color: #111;">{{ $booking->service_title }}</strong>
                         <span style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 12px; {{ $booking->status === 'completed' ? 'background: #ECFDF5; color: #047857;' : ($booking->status === 'cancelled' ? 'background: #FEE2E2; color: #B91C1C;' : 'background: #FFF9E6; color: #B45309; border: 1px solid #FFECB3;') }}">
                             {{ $booking->status_label }}
                         </span>
+                        @if($booking->isDateNear())
+                            <span style="background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                ⏰ Due {{ $booking->getDateNearLabel() }}
+                            </span>
+                        @endif
                         @if($booking->arrival_otp && in_array($booking->status, ['pending', 'confirmed', 'en_route']))
                             <span style="background: #EFF6FF; color: #1D4ED8; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 12px;">
                                 OTP: {{ $booking->arrival_otp }}

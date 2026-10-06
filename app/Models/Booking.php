@@ -189,4 +189,40 @@ class Booking extends Model
             'is_arrived' => $distanceKm <= 0.08 || in_array($this->status, ['in_progress', 'completed']),
         ];
     }
+
+    /**
+     * Check if the booking service date is near (today, tomorrow, or within 2 days).
+     */
+    public function isDateNear(): bool
+    {
+        if (! $this->service_date || in_array($this->status, ['completed', 'cancelled'])) {
+            return false;
+        }
+
+        $today = now()->startOfDay();
+        $date = $this->service_date->copy()->startOfDay();
+        $diffDays = (int) $today->diffInDays($date, false);
+
+        return $diffDays >= 0 && $diffDays <= 2;
+    }
+
+    /**
+     * Get a human-friendly label for near booking date.
+     */
+    public function getDateNearLabel(): ?string
+    {
+        if (! $this->isDateNear()) {
+            return null;
+        }
+
+        if ($this->service_date->isToday()) {
+            return 'Today';
+        }
+
+        if ($this->service_date->isTomorrow()) {
+            return 'Tomorrow';
+        }
+
+        return $this->service_date->format('l, M d');
+    }
 }

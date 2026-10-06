@@ -607,6 +607,64 @@ class CustomerPortalTest extends TestCase
         $responseCat->assertSee('Plumber');
     }
 
+    public function test_customer_dashboard_shows_alert_and_creates_notification_when_booking_date_near(): void
+    {
+        $nearBooking = Booking::create([
+            'booking_number' => 'FM-REMIND-01',
+            'user_id' => $this->customer->id,
+            'professional_id' => $this->technician->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'Emergency AC Leak Repair',
+            'service_date' => now()->addDay()->toDateString(),
+            'service_time_slot' => 'Morning (9:00 AM - 12:00 PM)',
+            'service_address' => 'House 12-A, Clifton Block 2',
+            'city' => 'Karachi',
+            'status' => 'pending',
+            'arrival_otp' => '4829',
+            'base_price' => 500,
+            'total_price' => 500,
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('nearBookingAlert');
+        $response->assertSee('Emergency AC Leak Repair');
+        $response->assertSee('SCHEDULED FOR TOMORROW');
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->customer->id,
+            'type' => 'booking_reminder',
+        ]);
+    }
+
+    public function test_customer_bookings_page_shows_reminder_alert_when_booking_date_near(): void
+    {
+        Booking::create([
+            'booking_number' => 'FM-REMIND-02',
+            'user_id' => $this->customer->id,
+            'professional_id' => $this->technician->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'Geyser Thermostat Check',
+            'service_date' => now()->toDateString(),
+            'service_time_slot' => 'Afternoon (1:00 PM - 4:00 PM)',
+            'service_address' => 'House 12-A, Clifton Block 2',
+            'city' => 'Karachi',
+            'status' => 'confirmed',
+            'arrival_otp' => '7821',
+            'base_price' => 600,
+            'total_price' => 600,
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.bookings'));
+
+        $response->assertStatus(200);
+        $response->assertSee('DUE TODAY');
+        $response->assertSee('Geyser Thermostat Check');
+        $response->assertSee('Due Today');
+        $response->assertSee('7821');
+    }
+
     public function test_guest_is_redirected_to_login_when_accessing_customer_services(): void
     {
         $response = $this->get(route('customer.services'));

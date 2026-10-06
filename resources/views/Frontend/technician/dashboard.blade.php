@@ -23,6 +23,41 @@
         </div>
     </div>
 
+    <!-- Upcoming Job Date Near Reminder Banner -->
+    @if(isset($nearJob) && $nearJob && (! $activeJob || $activeJob->id !== $nearJob->id))
+        @php
+            $isToday = $nearJob->service_date->isToday();
+            $isTomorrow = $nearJob->service_date->isTomorrow();
+            $dayBadge = $isToday ? 'TODAY' : ($isTomorrow ? 'TOMORROW' : $nearJob->service_date->format('M d'));
+            $borderCol = $isToday ? '#EF4444' : '#F59E0B';
+            $badgeBg = $isToday ? '#DC2626' : '#D97706';
+        @endphp
+        <div style="background: #FFFBEB; border: 2px solid {{ $borderCol }}; border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #FFFFFF; border: 2px solid {{ $borderCol }}; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                    ⏰
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="background: {{ $badgeBg }}; color: #FFFFFF; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 12px;">
+                            UPCOMING JOB {{ $dayBadge }}
+                        </span>
+                        <strong style="font-size: 15px; color: #0F172A;">{{ $nearJob->service_title }} (#{{ $nearJob->booking_number }})</strong>
+                    </div>
+                    <div style="font-size: 13px; color: #334155;">
+                        Customer: <strong>{{ $nearJob->user?->name ?? 'Customer' }}</strong> • 🗓️ <strong>{{ $nearJob->service_date->format('l, M d') }}</strong> at <strong>{{ $nearJob->service_time_slot }}</strong>
+                        <span style="display: block; font-size: 12px; color: #64748B; margin-top: 2px;">📍 {{ $nearJob->service_address }}, {{ $nearJob->city }}</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <a href="{{ route('technician.jobs') }}" class="btn-yellow" style="padding: 10px 18px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px; white-space: nowrap;">
+                    View Schedule &amp; Job →
+                </a>
+            </div>
+        </div>
+    @endif
+
     <!-- 4 Stats Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
         

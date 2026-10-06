@@ -79,6 +79,32 @@ class CustomerPortalController extends Controller
             ->take(2)
             ->get();
 
+        $nearUpcomingBooking = $user->bookings()
+            ->with(['professional.profession', 'profession'])
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->whereNotNull('service_date')
+            ->whereBetween('service_date', [now()->startOfDay()->toDateString(), now()->addDays(2)->endOfDay()->toDateString()])
+            ->orderBy('service_date', 'asc')
+            ->first();
+
+        if ($nearUpcomingBooking) {
+            $dayLabel = $nearUpcomingBooking->getDateNearLabel() ?? 'Soon';
+            $alreadyNotified = Notification::where('user_id', $user->id)
+                ->where('type', 'booking_reminder')
+                ->whereDate('created_at', now()->toDateString())
+                ->exists();
+
+            if (! $alreadyNotified) {
+                Notification::sendToUser(
+                    $user->id,
+                    'booking_reminder',
+                    "⏰ Upcoming Service Alert: Scheduled {$dayLabel}",
+                    "Your booking #{$nearUpcomingBooking->booking_number} ({$nearUpcomingBooking->service_title}) is scheduled for {$dayLabel} during {$nearUpcomingBooking->service_time_slot}.",
+                    route('customer.bookings')
+                );
+            }
+        }
+
         $stats = [
             'active' => $activeBookingsCount,
             'upcoming' => $upcomingBookingsCount,
@@ -92,6 +118,7 @@ class CustomerPortalController extends Controller
             'recentBookings',
             'recommendedTechnicians',
             'activeEnRouteBooking',
+            'nearUpcomingBooking',
             'quickTrades',
             'cityAlerts'
         ));
@@ -665,7 +692,15 @@ class CustomerPortalController extends Controller
 
         $bookings = $query->latest()->paginate(8)->withQueryString();
 
-        return view('Frontend.customer.bookings', compact('bookings'));
+        $nearUpcomingBooking = $user->bookings()
+            ->with(['professional.profession', 'profession'])
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->whereNotNull('service_date')
+            ->whereBetween('service_date', [now()->startOfDay()->toDateString(), now()->addDays(2)->endOfDay()->toDateString()])
+            ->orderBy('service_date', 'asc')
+            ->first();
+
+        return view('Frontend.customer.bookings', compact('bookings', 'nearUpcomingBooking'));
     }
 
     /**

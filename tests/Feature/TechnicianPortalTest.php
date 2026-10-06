@@ -537,5 +537,37 @@ class TechnicianPortalTest extends TestCase
         $responseAfterReply->assertSee('Your Public Response');
         $responseAfterReply->assertSee('Thank you Sara! Always happy to provide top-quality service.');
     }
+
+    public function test_technician_dashboard_shows_alert_and_creates_notification_when_job_date_near(): void
+    {
+        Booking::query()->delete();
+
+        Booking::create([
+            'booking_number' => 'FM-TECH-REMIND-01',
+            'user_id' => $this->customerUser->id,
+            'professional_id' => $this->professional->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'Main Valve Replacement',
+            'service_date' => now()->addDay()->toDateString(),
+            'service_time_slot' => 'Morning (9:00 AM - 12:00 PM)',
+            'service_address' => 'House 44, PECHS Block 6',
+            'city' => 'Karachi',
+            'status' => 'confirmed',
+            'arrival_otp' => '4829',
+            'base_price' => 800,
+            'total_price' => 800,
+        ]);
+
+        $response = $this->actingAs($this->technicianUser)->get(route('technician.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('UPCOMING JOB TOMORROW');
+        $response->assertSee('Main Valve Replacement');
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $this->technicianUser->id,
+            'type' => 'job_reminder',
+        ]);
+    }
 }
 

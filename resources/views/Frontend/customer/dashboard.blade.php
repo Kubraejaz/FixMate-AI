@@ -45,6 +45,56 @@
         </div>
     @endif
 
+    <!-- 2. Upcoming Booking Date Near Alert Banner -->
+    @if(isset($nearUpcomingBooking) && $nearUpcomingBooking && (! $activeEnRouteBooking || $activeEnRouteBooking->id !== $nearUpcomingBooking->id))
+        @php
+            $isToday = $nearUpcomingBooking->service_date->isToday();
+            $isTomorrow = $nearUpcomingBooking->service_date->isTomorrow();
+            $dayBadge = $isToday ? 'TODAY' : ($isTomorrow ? 'TOMORROW' : $nearUpcomingBooking->service_date->format('M d'));
+            $bgGradient = $isToday 
+                ? 'linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%)' 
+                : 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)';
+            $borderColor = $isToday ? '#EF4444' : '#F59E0B';
+            $badgeBg = $isToday ? '#DC2626' : '#D97706';
+            $pulseColor = $isToday ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+        @endphp
+        <div id="nearBookingAlert" style="background: {{ $bgGradient }}; border: 2px solid {{ $borderColor }}; border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 16px {{ $pulseColor }}; flex-wrap: wrap; gap: 16px; position: relative;">
+            <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 280px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #FFFFFF; border: 2px solid {{ $borderColor }}; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    ⏰
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                        <span style="background: {{ $badgeBg }}; color: #FFFFFF; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 12px; letter-spacing: 0.5px;">
+                            SERVICE SCHEDULED FOR {{ $dayBadge }}
+                        </span>
+                        <strong style="font-size: 15px; color: #0F172A;">{{ $nearUpcomingBooking->service_title }}</strong>
+                        <span style="font-size: 12px; color: #64748B;">(#{{ $nearUpcomingBooking->booking_number }})</span>
+                    </div>
+                    <div style="font-size: 13px; color: #334155; line-height: 1.4;">
+                        🗓️ <strong>{{ $nearUpcomingBooking->service_date->format('l, M d, Y') }}</strong> during <strong>{{ $nearUpcomingBooking->service_time_slot }}</strong>
+                        @if($nearUpcomingBooking->professional)
+                            • Assigned Pro: <strong>{{ $nearUpcomingBooking->professional->name }}</strong>
+                        @endif
+                        <span style="display: block; font-size: 12px; color: #64748B; margin-top: 2px;">📍 {{ $nearUpcomingBooking->service_address }}, {{ $nearUpcomingBooking->city }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                @if($nearUpcomingBooking->arrival_otp)
+                    <div style="background: #FFFFFF; border: 1.5px dashed {{ $borderColor }}; border-radius: 10px; padding: 6px 14px; text-align: center;">
+                        <span style="font-size: 10px; font-weight: 800; color: #64748B; display: block; text-transform: uppercase;">Arrival OTP</span>
+                        <strong style="font-size: 16px; font-weight: 900; letter-spacing: 2px; color: #0F172A;">{{ $nearUpcomingBooking->arrival_otp }}</strong>
+                    </div>
+                @endif
+                <a href="{{ route('customer.bookings') }}" class="btn-yellow" style="padding: 10px 18px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px; white-space: nowrap;">
+                    View Booking Details →
+                </a>
+            </div>
+        </div>
+    @endif
+
     <!-- 4 Stats Cards matching Mockup 1 -->
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
         

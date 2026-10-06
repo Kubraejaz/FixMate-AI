@@ -107,6 +107,32 @@ class TechnicianPortalController extends Controller
         // Unread notifications
         $recentNotifications = $user->notifications()->latest()->take(5)->get();
 
+        $nearJob = (clone $assignedJobQuery)
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->whereNotNull('service_date')
+            ->whereBetween('service_date', [now()->startOfDay()->toDateString(), now()->addDays(2)->endOfDay()->toDateString()])
+            ->with(['user', 'profession'])
+            ->orderBy('service_date', 'asc')
+            ->first();
+
+        if ($nearJob) {
+            $dayLabel = $nearJob->getDateNearLabel() ?? 'Soon';
+            $alreadyNotified = Notification::where('user_id', $user->id)
+                ->where('type', 'job_reminder')
+                ->whereDate('created_at', now()->toDateString())
+                ->exists();
+
+            if (! $alreadyNotified) {
+                Notification::sendToUser(
+                    $user->id,
+                    'job_reminder',
+                    "⏰ Upcoming Job Alert: Scheduled {$dayLabel}",
+                    "You have a scheduled job #{$nearJob->booking_number} ({$nearJob->service_title}) for {$dayLabel} at {$nearJob->service_time_slot}.",
+                    route('technician.jobs')
+                );
+            }
+        }
+
         return view('Frontend.technician.dashboard', compact(
             'user',
             'pro',
@@ -117,6 +143,7 @@ class TechnicianPortalController extends Controller
             'totalReviews',
             'activeJob',
             'incomingJob',
+            'nearJob',
             'recentCompletedJobs',
             'recentNotifications'
         ));
