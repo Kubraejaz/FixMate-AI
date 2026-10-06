@@ -20,15 +20,20 @@
                     <span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981;"></span>
                     ✓ 100% Verified Pro
                 </span>
+            @elseif(! $user->is_active || $pro->verification_status === 'rejected')
+                <span style="background: #FFF1F2; color: #BE123C; border: 1.5px solid #FECDD3; font-size: 12.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #EF4444;"></span>
+                    🚫 Profile Blocked
+                </span>
+            @elseif($pro->verification_status === 'returned')
+                <span style="background: #FFF7ED; color: #C2410C; border: 1.5px solid #FED7AA; font-size: 12.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #F97316;"></span>
+                    ⚠️ Returned for Revision
+                </span>
             @elseif($pro->verification_status === 'under_review')
                 <span style="background: #EFF6FF; color: #1D4ED8; border: 1.5px solid #BFDBFE; font-size: 12.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
                     <span style="width: 8px; height: 8px; border-radius: 50%; background: #3B82F6;"></span>
                     ⏳ Audit in Progress
-                </span>
-            @elseif($pro->verification_status === 'rejected')
-                <span style="background: #FFF1F2; color: #BE123C; border: 1.5px solid #FECDD3; font-size: 12.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #EF4444;"></span>
-                    ⚠️ Revision Required
                 </span>
             @else
                 <span style="background: #FFFBEB; color: #B45309; border: 1.5px solid #FDE68A; font-size: 12.5px; font-weight: 800; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
@@ -44,21 +49,44 @@
         <div class="portal-card" style="padding: 22px 26px; background: #ECFDF5; border: 1.5px solid #10B981; border-radius: 14px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 16px;">
             <div style="width: 44px; height: 44px; border-radius: 50%; background: #10B981; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">✓</div>
             <div>
-                <h3 style="font-size: 16.5px; font-weight: 800; color: #065F46; margin: 0 0 4px 0;">All Compliance & Biometric Checks Approved</h3>
+                <h3 style="font-size: 16.5px; font-weight: 800; color: #065F46; margin: 0 0 4px 0;">All Compliance &amp; Biometric Checks Approved</h3>
                 <p style="font-size: 13.5px; color: #047857; margin: 0; line-height: 1.5;">
                     Your computerized CNIC, live facial biometric photo, and trade credentials have been audited and verified by FixMate Compliance. You are entitled to automated customer job assignment and priority payouts.
                 </p>
             </div>
         </div>
-    @elseif($pro->verification_status === 'rejected')
-        <div class="portal-card" style="padding: 22px 26px; background: #FFF1F2; border: 1.5px solid #F43F5E; border-radius: 14px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 16px;">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background: #E11D48; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">⚠️</div>
+    @elseif(! $user->is_active || $pro->verification_status === 'rejected')
+        <div class="portal-card" style="padding: 24px 28px; background: #FFF1F2; border: 2px solid #E11D48; border-radius: 14px; margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: flex-start; gap: 16px; flex: 1; min-width: 280px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #E11D48; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🚫</div>
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 900; color: #9F1239; margin: 0 0 6px 0;">Profile Blocked: Verification Rejected</h3>
+                    <p style="font-size: 13.5px; color: #BE123C; margin: 0 0 10px 0; line-height: 1.5;">
+                        Your technician profile has been <strong>blocked</strong> by FixMate compliance officers.
+                        @if($pro->rejection_reason || $application?->rejection_reason)
+                            <br><strong>Recorded Reason:</strong> {{ $pro->rejection_reason ?: $application?->rejection_reason }}
+                        @endif
+                    </p>
+                    <p style="font-size: 13px; color: #881337; margin: 0; font-weight: 600;">
+                        Please contact the FixMate team for verification review, compliance questions, or account appeals.
+                    </p>
+                </div>
+            </div>
             <div>
-                <h3 style="font-size: 16.5px; font-weight: 800; color: #9F1239; margin: 0 0 4px 0;">Action Required: Document Revision Needed</h3>
-                <p style="font-size: 13.5px; color: #BE123C; margin: 0 0 8px 0; line-height: 1.5;">
-                    <strong>Inspector Feedback:</strong> {{ $pro->rejection_reason ?: ($application?->rejection_reason ?: 'Some uploaded photos were blurry or incomplete. Please re-upload clear photos below.') }}
+                <a href="{{ route('contact') }}" style="background: #E11D48; color: #FFF; padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);">
+                    <span>📞</span> Contact FixMate Team &rarr;
+                </a>
+            </div>
+        </div>
+    @elseif($pro->verification_status === 'returned')
+        <div class="portal-card" style="padding: 22px 26px; background: #FFF7ED; border: 2px solid #F97316; border-radius: 14px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 16px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #EA580C; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">↩</div>
+            <div>
+                <h3 style="font-size: 16.5px; font-weight: 800; color: #9A3412; margin: 0 0 4px 0;">Action Required: Verification Dossier Returned for Revision</h3>
+                <p style="font-size: 13.5px; color: #C2410C; margin: 0 0 8px 0; line-height: 1.5;">
+                    <strong>Compliance Officer Feedback:</strong> {{ $pro->rejection_reason ?: ($application?->rejection_reason ?: 'Some details or uploaded photos require correction. Please review the form below and resubmit.') }}
                 </p>
-                <span style="font-size: 12px; color: #881337;">Please update the flagged documents below and submit for re-inspection.</span>
+                <span style="font-size: 12.5px; color: #7C2D12; font-weight: 600;">Please update the flagged information or document uploads below and submit your revision for priority inspection.</span>
             </div>
         </div>
     @elseif($pro->verification_status === 'under_review')
@@ -397,10 +425,17 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border-color);">
-                <button type="submit" class="btn-yellow" style="padding: 12px 28px; font-size: 14px; font-weight: 900; border: none; cursor: pointer; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
-                    <span>🛡️</span>
-                    <span>Submit Documents & Biometrics for Audit</span>
-                </button>
+                @if(! $user->is_active || $pro->verification_status === 'rejected')
+                    <a href="{{ route('contact') }}" style="background: #E11D48; color: #FFF; padding: 12px 28px; font-size: 14px; font-weight: 800; border: none; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                        <span>🚫</span>
+                        <span>Profile Blocked — Contact FixMate Team &rarr;</span>
+                    </a>
+                @else
+                    <button type="submit" class="btn-yellow" style="padding: 12px 28px; font-size: 14px; font-weight: 900; border: none; cursor: pointer; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
+                        <span>🛡️</span>
+                        <span>{{ $pro->verification_status === 'returned' ? 'Resubmit Corrected Documents & Biometrics' : 'Submit Documents & Biometrics for Audit' }}</span>
+                    </button>
+                @endif
             </div>
         </div>
 

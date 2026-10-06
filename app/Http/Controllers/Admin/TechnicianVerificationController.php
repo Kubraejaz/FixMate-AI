@@ -46,6 +46,7 @@ class TechnicianVerificationController extends Controller
             'pending' => TechnicianApplication::where('status', 'pending')->count(),
             'under_review' => TechnicianApplication::where('status', 'under_review')->count(),
             'approved' => TechnicianApplication::where('status', 'approved')->count(),
+            'returned' => TechnicianApplication::where('status', 'returned')->count(),
             'rejected' => TechnicianApplication::where('status', 'rejected')->count(),
         ];
 
@@ -75,10 +76,10 @@ class TechnicianVerificationController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        // If a linked user or professional exists with matching phone/email, mark verified
+        // If a linked user or professional exists with matching phone/email, mark verified and active
         $techUserId = $application->user_id;
         if ($application->user_id) {
-            User::where('id', $application->user_id)->update(['is_verified' => true]);
+            User::where('id', $application->user_id)->update(['is_verified' => true, 'is_active' => true]);
             Professional::where('user_id', $application->user_id)->update([
                 'is_verified' => true,
                 'verification_status' => 'verified',
@@ -91,7 +92,7 @@ class TechnicianVerificationController extends Controller
                 ->first();
 
             if ($matchedUser) {
-                $matchedUser->update(['is_verified' => true]);
+                $matchedUser->update(['is_verified' => true, 'is_active' => true]);
                 Professional::where('user_id', $matchedUser->id)->update([
                     'is_verified' => true,
                     'verification_status' => 'verified',
@@ -125,7 +126,67 @@ class TechnicianVerificationController extends Controller
     }
 
     /**
-     * Reject technician partner application.
+     * Return technician application for revision/correction (data goes back to technician to fix).
+     */
+    public function returnApplication(Request $request, TechnicianApplication $application): RedirectResponse
+    {
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'min:5', 'max:1000'],
+        ], [
+            'reason.min' => 'Please provide at least 5 characters explaining what needs revision.',
+        ]);
+
+        $reason = trim($validated['reason']);
+
+        $application->update([
+            'status' => 'returned',
+            'rejection_reason' => $reason,
+            'admin_notes' => $reason,
+            'reviewed_at' => now(),
+        ]);
+
+        $techUserId = $application->user_id;
+        if (! $techUserId) {
+            $matchedUser = User::where('email', $application->email)
+                ->orWhere('phone', $application->phone)
+                ->first();
+            $techUserId = $matchedUser?->id;
+        }
+
+        if ($techUserId) {
+            // Keep user active so they can access their portal to update documents and resubmit
+            User::where('id', $techUserId)->update([
+                'is_verified' => false,
+                'is_active' => true,
+            ]);
+            Professional::where('user_id', $techUserId)->update([
+                'is_verified' => false,
+                'verification_status' => 'returned',
+                'rejection_reason' => $reason,
+            ]);
+
+            \App\Models\Notification::sendToUser(
+                $techUserId,
+                'kyc_returned',
+                'Verification Returned for Revision ⚠️',
+                "Your application #{$application->reference_no} was returned for revision: {$reason}. Please review the feedback, update your documents, and resubmit.",
+                route('technician.verification')
+            );
+        }
+
+        \App\Models\Notification::notifyAdmins(
+            'kyc_returned_admin',
+            'Technician Application Returned: ' . $application->name,
+            "Application #{$application->reference_no} returned to candidate for revision: {$reason}",
+            route('admin.technicians.verification')
+        );
+
+        return redirect()->route('admin.technicians.verification')
+            ->with('success', "Application #{$application->reference_no} returned to technician for document revision.");
+    }
+
+    /**
+     * Reject technician partner application and block their profile.
      */
     public function reject(Request $request, TechnicianApplication $application): RedirectResponse
     {
@@ -154,7 +215,11 @@ class TechnicianVerificationController extends Controller
         }
 
         if ($techUserId) {
-            User::where('id', $techUserId)->update(['is_verified' => false]);
+            // Block technician profile
+            User::where('id', $techUserId)->update([
+                'is_verified' => false,
+                'is_active' => false,
+            ]);
             Professional::where('user_id', $techUserId)->update([
                 'is_verified' => false,
                 'verification_status' => 'rejected',
@@ -165,21 +230,21 @@ class TechnicianVerificationController extends Controller
             \App\Models\Notification::sendToUser(
                 $techUserId,
                 'kyc_rejected',
-                'Verification Documents Need Revision ⚠️',
-                "Your application #{$application->reference_no} requires revision: {$reason}. Tap to view requirements & re-upload documents.",
-                route('technician.verification')
+                'Profile Blocked: Verification Rejected 🚫',
+                "Your technician profile (#{$application->reference_no}) has been blocked. Reason: {$reason}. Please contact the FixMate team for assistance.",
+                route('contact')
             );
         }
 
         \App\Models\Notification::notifyAdmins(
             'kyc_rejected_admin',
-            'Technician Rejected: ' . $application->name,
-            "Application #{$application->reference_no} rejected: {$reason}",
+            'Technician Profile Blocked: ' . $application->name,
+            "Application #{$application->reference_no} rejected and profile blocked: {$reason}",
             route('admin.technicians.verification')
         );
 
         return redirect()->route('admin.technicians.verification')
-            ->with('success', "Application #{$application->reference_no} rejected with recorded justification.");
+            ->with('success', "Application #{$application->reference_no} rejected and technician profile has been blocked.");
     }
 
     /**

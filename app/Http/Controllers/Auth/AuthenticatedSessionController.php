@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
 
         if (! $user->is_active) {
             throw ValidationException::withMessages([
-                'identifier' => 'This account has been deactivated. Please contact support.',
+                'identifier' => 'Your profile has been blocked. Please contact the FixMate team for assistance.',
             ]);
         }
 

@@ -349,6 +349,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // KYC Verification Pipeline
     Route::get('/technicians/verification', [TechnicianVerificationController::class, 'index'])->name('technicians.verification');
     Route::patch('/technicians/verification/{application}/approve', [TechnicianVerificationController::class, 'approve'])->name('technicians.verification.approve');
+    Route::patch('/technicians/verification/{application}/return', [TechnicianVerificationController::class, 'returnApplication'])->name('technicians.verification.return');
     Route::patch('/technicians/verification/{application}/reject', [TechnicianVerificationController::class, 'reject'])->name('technicians.verification.reject');
     Route::patch('/technicians/verification/{application}/review', [TechnicianVerificationController::class, 'review'])->name('technicians.verification.review');
 

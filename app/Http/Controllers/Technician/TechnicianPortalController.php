@@ -237,6 +237,10 @@ class TechnicianPortalController extends Controller
     {
         $pro = $this->getProfessional();
 
+        if (auth()->user()->is_active === false || $pro->verification_status === 'rejected') {
+            return back()->with('error', 'Your technician profile has been blocked. Please contact the FixMate team for assistance.');
+        }
+
         if ($booking->professional_id && $booking->professional_id !== $pro->id) {
             return back()->with('error', 'This job has already been claimed by another technician.');
         }
@@ -565,6 +569,10 @@ class TechnicianPortalController extends Controller
         /** @var User $user */
         $user = auth()->user();
         $pro = $this->getProfessional();
+
+        if ($user->is_active === false || $pro->verification_status === 'rejected') {
+            return back()->with('error', 'Your technician profile has been blocked. Please contact the FixMate team for assistance.');
+        }
 
         $userUpdates = [
             'cnic_number' => $validated['cnic_number'],

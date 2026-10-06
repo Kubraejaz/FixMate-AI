@@ -144,18 +144,47 @@
     </header>
 
     <!-- Dynamic KYC Verification Alert Banner -->
-    @if(auth()->check() && !auth()->user()->is_verified)
+    @if(auth()->check() && (!auth()->user()->is_verified || !auth()->user()->is_active))
         @php
             $techPro = auth()->user()->professional;
             $verStatus = $techPro?->verification_status ?? 'pending';
+            $isBlocked = !auth()->user()->is_active || $verStatus === 'rejected';
         @endphp
-        @if($verStatus === 'rejected')
-            <div style="background: #FFF1F2; border-bottom: 2px solid #FECDD3; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #9F1239;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">⚠️</span>
-                    <span><strong>Verification Revision Required:</strong> {{ $techPro->rejection_reason ?: 'Your document submission requires update.' }}</span>
+        @if($isBlocked)
+            <div style="background: #FFF1F2; border-bottom: 2px solid #FECDD3; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; color: #9F1239; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #E11D48; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">🚫</div>
+                    <div>
+                        <strong style="font-size: 14.5px; color: #9F1239;">Profile Blocked / Application Rejected:</strong>
+                        <span>Your technician profile has been blocked. Please contact the FixMate team for assistance.</span>
+                        @if($techPro?->rejection_reason)
+                            <div style="font-size: 12px; color: #BE123C; margin-top: 2px;"><strong>Reason:</strong> {{ $techPro->rejection_reason }}</div>
+                        @endif
+                    </div>
                 </div>
-                <a href="{{ route('technician.verification') }}" style="background: #E11D48; color: #FFF; padding: 5px 14px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 12px;">Re-upload Documents &rarr;</a>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <a href="{{ route('contact') }}" style="background: #E11D48; color: #FFF; padding: 8px 18px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📞</span> Contact FixMate Team
+                    </a>
+                </div>
+            </div>
+        @elseif($verStatus === 'returned')
+            <div style="background: #FFF7ED; border-bottom: 2px solid #FED7AA; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13.5px; color: #9A3412; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #C2410C; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">⚠️</div>
+                    <div>
+                        <strong style="font-size: 14px; color: #9A3412;">Verification Returned for Revision:</strong>
+                        <span>The compliance team returned your dossier. Please review the feedback, update your information/documents, and resubmit.</span>
+                        @if($techPro?->rejection_reason)
+                            <div style="font-size: 12px; color: #C2410C; margin-top: 2px;"><strong>Feedback:</strong> {{ $techPro->rejection_reason }}</div>
+                        @endif
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ route('technician.verification') }}" style="background: #C2410C; color: #FFF; padding: 8px 18px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>↩</span> Fix &amp; Resubmit Documents
+                    </a>
+                </div>
             </div>
         @elseif($verStatus === 'under_review')
             <div style="background: #EFF6FF; border-bottom: 2px solid #BFDBFE; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #1E40AF;">

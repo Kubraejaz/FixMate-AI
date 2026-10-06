@@ -110,7 +110,7 @@ class TechnicianVerificationTest extends TestCase
         $this->assertTrue((bool) $professional->is_verified);
     }
 
-    public function test_admin_can_reject_application_with_reason(): void
+    public function test_admin_can_reject_application_and_block_technician_profile(): void
     {
         $admin = User::factory()->admin()->create();
 
@@ -120,8 +120,26 @@ class TechnicianVerificationTest extends TestCase
             'is_active' => true,
         ]);
 
+        $techUser = User::factory()->technician()->create([
+            'email' => 'reject@example.com',
+            'phone' => '0345-1234567',
+            'is_active' => true,
+            'is_verified' => false,
+        ]);
+
+        $pro = Professional::create([
+            'user_id' => $techUser->id,
+            'profession_id' => $profession->id,
+            'name' => $techUser->name,
+            'email' => $techUser->email,
+            'phone' => $techUser->phone,
+            'verification_status' => 'pending',
+            'is_verified' => false,
+        ]);
+
         $app = TechnicianApplication::create([
             'reference_no' => 'FM-APP-7703',
+            'user_id' => $techUser->id,
             'profession_id' => $profession->id,
             'name' => 'Candidate to reject',
             'phone' => '0345-1234567',
@@ -142,5 +160,89 @@ class TechnicianVerificationTest extends TestCase
         $app->refresh();
         $this->assertEquals('rejected', $app->status);
         $this->assertEquals('Invalid CNIC provided upon NADRA lookup.', $app->admin_notes);
+
+        $techUser->refresh();
+        $this->assertFalse((bool) $techUser->is_active);
+        $this->assertFalse((bool) $techUser->is_verified);
+
+        $pro->refresh();
+        $this->assertEquals('rejected', $pro->verification_status);
+
+        // Verify technician sees blocked alert on dashboard and verification page
+        $dashResponse = $this->actingAs($techUser)->get(route('technician.dashboard'));
+        $dashResponse->assertSee('Profile Blocked');
+        $dashResponse->assertSee(route('contact'));
+
+        $verResponse = $this->actingAs($techUser)->get(route('technician.verification'));
+        $verResponse->assertSee('Profile Blocked: Verification Rejected');
+        $verResponse->assertSee('Contact FixMate Team');
+    }
+
+    public function test_admin_can_return_application_for_revision(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $profession = Profession::firstOrCreate([
+            'slug' => 'electrician',
+        ], [
+            'name' => 'Electrician',
+            'is_active' => true,
+        ]);
+
+        $techUser = User::factory()->technician()->create([
+            'email' => 'return.tech@example.com',
+            'phone' => '0311-9876543',
+            'is_active' => true,
+            'is_verified' => false,
+        ]);
+
+        $pro = Professional::create([
+            'user_id' => $techUser->id,
+            'profession_id' => $profession->id,
+            'name' => $techUser->name,
+            'email' => $techUser->email,
+            'phone' => $techUser->phone,
+            'verification_status' => 'pending',
+            'is_verified' => false,
+        ]);
+
+        $app = TechnicianApplication::create([
+            'reference_no' => 'FM-APP-7704',
+            'user_id' => $techUser->id,
+            'profession_id' => $profession->id,
+            'name' => $techUser->name,
+            'phone' => $techUser->phone,
+            'email' => $techUser->email,
+            'cnic_number' => '42201-8877665-1',
+            'city' => 'Lahore',
+            'experience_years' => 3,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin)->patch(route('admin.technicians.verification.return', $app), [
+            'reason' => 'CNIC back image is blurry. Please re-upload a clear photograph.',
+        ]);
+
+        $response->assertRedirect(route('admin.technicians.verification'));
+        $response->assertSessionHas('success');
+
+        $app->refresh();
+        $this->assertEquals('returned', $app->status);
+        $this->assertEquals('CNIC back image is blurry. Please re-upload a clear photograph.', $app->admin_notes);
+
+        $techUser->refresh();
+        $this->assertTrue((bool) $techUser->is_active); // Profile remains active
+
+        $pro->refresh();
+        $this->assertEquals('returned', $pro->verification_status);
+
+        // Technician visits verification and sees returned banner with revision instructions
+        $verResponse = $this->actingAs($techUser)->get(route('technician.verification'));
+        $verResponse->assertSee('Verification Dossier Returned for Revision');
+        $verResponse->assertSee('CNIC back image is blurry');
+
+        // Technician dashboard also shows returned banner
+        $dashResponse = $this->actingAs($techUser)->get(route('technician.dashboard'));
+        $dashResponse->assertSee('Verification Dossier Returned for Revision');
     }
 }

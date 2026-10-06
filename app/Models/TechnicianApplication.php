@@ -74,7 +74,8 @@ class TechnicianApplication extends Model
     {
         return match ($this->status) {
             'approved' => ['label' => 'Approved', 'class' => 'green', 'bg' => '#ECFDF5', 'color' => '#047857'],
-            'rejected' => ['label' => 'Rejected', 'class' => 'red', 'bg' => '#FFF1F2', 'color' => '#BE123C'],
+            'rejected' => ['label' => 'Rejected & Blocked', 'class' => 'red', 'bg' => '#FFF1F2', 'color' => '#BE123C'],
+            'returned' => ['label' => 'Returned for Revision', 'class' => 'orange', 'bg' => '#FFF7ED', 'color' => '#C2410C'],
             'under_review' => ['label' => 'Under Review', 'class' => 'blue', 'bg' => '#EFF6FF', 'color' => '#1D4ED8'],
             default => ['label' => 'Pending Review', 'class' => 'yellow', 'bg' => '#FFFBEB', 'color' => '#B45309'],
         };

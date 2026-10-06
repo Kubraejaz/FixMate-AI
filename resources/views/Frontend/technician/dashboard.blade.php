@@ -17,11 +17,66 @@
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 12px; color: #666;">Current Status:</span>
-            <span style="background: #ECFDF5; color: #047857; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #A7F3D0;">
-                ● Online & Receiving Requests
-            </span>
+            @if(! $user->is_active || $pro->verification_status === 'rejected')
+                <span style="background: #FFF1F2; color: #BE123C; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #FECDD3;">
+                    ● Profile Blocked
+                </span>
+            @elseif($pro->verification_status === 'returned')
+                <span style="background: #FFF7ED; color: #C2410C; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #FED7AA;">
+                    ● Revision Required
+                </span>
+            @else
+                <span style="background: #ECFDF5; color: #047857; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid #A7F3D0;">
+                    ● Online &amp; Receiving Requests
+                </span>
+            @endif
         </div>
     </div>
+
+    <!-- Profile Blocked Alert Banner -->
+    @if(! $user->is_active || $pro->verification_status === 'rejected')
+        <div style="background: #FFF1F2; border: 2px solid #E11D48; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #E11D48; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">
+                    🚫
+                </div>
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 900; color: #9F1239; margin: 0 0 4px 0;">Profile Blocked: Verification Rejected</h3>
+                    <p style="font-size: 13.5px; color: #BE123C; margin: 0; line-height: 1.4;">
+                        Your technician profile has been blocked by FixMate administration.
+                        @if($pro->rejection_reason)
+                            <strong>Reason:</strong> {{ $pro->rejection_reason }} &bull;
+                        @endif
+                        Please contact the FixMate team for assistance.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a href="{{ route('contact') }}" style="background: #E11D48; color: #FFF; padding: 10px 22px; font-size: 13.5px; font-weight: 800; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>📞</span> Contact FixMate Team &rarr;
+                </a>
+            </div>
+        </div>
+    @elseif($pro->verification_status === 'returned')
+        <div style="background: #FFF7ED; border: 2px solid #F97316; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EA580C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">
+                    ↩
+                </div>
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 900; color: #9A3412; margin: 0 0 4px 0;">Verification Dossier Returned for Revision</h3>
+                    <p style="font-size: 13.5px; color: #C2410C; margin: 0; line-height: 1.4;">
+                        Admin requested changes: <strong>{{ $pro->rejection_reason ?: 'Please review and re-upload documents.' }}</strong>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <a href="{{ route('technician.verification') }}" style="background: #C2410C; color: #FFF; padding: 10px 22px; font-size: 13.5px; font-weight: 800; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>↩</span> Update Documents &rarr;
+                </a>
+            </div>
+        </div>
+    @endif
 
     <!-- Upcoming Job Date Near Reminder Banner -->
     @if(isset($nearJob) && $nearJob && (! $activeJob || $activeJob->id !== $nearJob->id))
@@ -198,20 +253,52 @@
             
             <!-- KYC Badge Card -->
             <div class="portal-card" style="padding: 20px; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: {{ $user->is_verified ? '#ECFDF5' : '#FFFBEB' }}; border: 1px solid {{ $user->is_verified ? '#A7F3D0' : '#FDE68A' }}; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                        🛡️
+                @if(! $user->is_active || $pro->verification_status === 'rejected')
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #FFF1F2; border: 1px solid #FECDD3; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            🚫
+                        </div>
+                        <div>
+                            <strong style="font-size: 14px; color: #9F1239; display: block;">
+                                Profile Blocked
+                            </strong>
+                            <span style="font-size: 11.5px; color: #BE123C; font-weight: 700;">
+                                Account restricted &bull; Contact team
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <strong style="font-size: 14px; color: #111; display: block;">
-                            {{ $user->is_verified ? 'Verified Pro Badge Active' : 'KYC Verification In Progress' }}
-                        </strong>
-                        <span style="font-size: 11.5px; color: {{ $user->is_verified ? '#047857' : '#B45309' }}; font-weight: 700;">
-                            {{ $user->is_verified ? 'Identity & Trade Credential Cleared' : 'CNIC & Certificate under review' }}
-                        </span>
+                    <a href="{{ route('contact') }}" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none; border-color: #FECDD3; color: #BE123C;">Contact</a>
+                @elseif($pro->verification_status === 'returned')
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: #FFF7ED; border: 1px solid #FED7AA; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            ⚠️
+                        </div>
+                        <div>
+                            <strong style="font-size: 14px; color: #9A3412; display: block;">
+                                Revision Required
+                            </strong>
+                            <span style="font-size: 11.5px; color: #C2410C; font-weight: 700;">
+                                Returned by admin &bull; Fix documents
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <a href="{{ route('technician.verification') }}" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none;">Manage</a>
+                    <a href="{{ route('technician.verification') }}" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none; border-color: #FED7AA; color: #C2410C;">Fix Now</a>
+                @else
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: {{ $user->is_verified ? '#ECFDF5' : '#FFFBEB' }}; border: 1px solid {{ $user->is_verified ? '#A7F3D0' : '#FDE68A' }}; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            🛡️
+                        </div>
+                        <div>
+                            <strong style="font-size: 14px; color: #111; display: block;">
+                                {{ $user->is_verified ? 'Verified Pro Badge Active' : 'KYC Verification In Progress' }}
+                            </strong>
+                            <span style="font-size: 11.5px; color: {{ $user->is_verified ? '#047857' : '#B45309' }}; font-weight: 700;">
+                                {{ $user->is_verified ? 'Identity & Trade Credential Cleared' : 'CNIC & Certificate under review' }}
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{{ route('technician.verification') }}" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; text-decoration: none;">Manage</a>
+                @endif
             </div>
 
             <!-- Earnings Ticker Card -->
