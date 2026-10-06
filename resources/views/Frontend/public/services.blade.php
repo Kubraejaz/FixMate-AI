@@ -16,7 +16,7 @@
                 Professional Services, Guaranteed Quality
             </h1>
             <p style="font-size: 15.5px; color: #64748B; margin: 0; line-height: 1.6;">
-                No roadside negotiations or surprise invoices. Book licensed tradespeople with fixed transparent pricing, live tracking, and 60-day rework warranty.
+                No roadside negotiations or surprise invoices. Book licensed tradespeople with fixed transparent pricing, verified technicians, and 60-day rework warranty.
             </p>
 
             <!-- Action Bar -->

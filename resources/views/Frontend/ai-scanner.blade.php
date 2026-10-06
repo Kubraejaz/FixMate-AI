@@ -182,7 +182,7 @@
 
                 <!-- One Click Dispatch Action -->
                 <div style="display: flex; gap: 12px;">
-                    <a href="{{ url('/tracking') }}" class="btn-primary" style="flex: 1; padding: 14px; font-size: 15px; justify-content: center;">
+                    <a href="{{ url('/customer/bookings') }}" class="btn-primary" style="flex: 1; padding: 14px; font-size: 15px; justify-content: center;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>

@@ -38,8 +38,8 @@
                     <strong style="font-size: 18px; font-weight: 900; letter-spacing: 2px; color: #111;">{{ $activeEnRouteBooking->arrival_otp }}</strong>
                 </div>
 
-                <a href="{{ route('customer.booking.tracking', $activeEnRouteBooking->id) }}" class="btn-yellow" style="padding: 10px 20px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px;">
-                    📍 Track Live GPS →
+                <a href="{{ route('customer.bookings') }}" class="btn-yellow" style="padding: 10px 20px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px;">
+                    📋 View Booking →
                 </a>
             </div>
         </div>
@@ -179,11 +179,7 @@
                                 ({{ $bk->professional->name }})
                             @endif
                         </div>
-                        @if(in_array($bk->status, ['pending', 'confirmed', 'en_route', 'in_progress']))
-                            <a href="{{ route('customer.booking.tracking', $bk->id) }}" style="font-size: 12px; color: #1D4ED8; font-weight: 700; text-decoration: none;">📍 Live Track Technician →</a>
-                        @else
-                            <a href="{{ route('customer.bookings') }}" style="font-size: 12px; color: #6B7280; font-weight: 600; text-decoration: none;">View details →</a>
-                        @endif
+                        <a href="{{ route('customer.bookings') }}" style="font-size: 12px; color: #1D4ED8; font-weight: 700; text-decoration: none;">View Details →</a>
                     </div>
                 @empty
                     <div style="text-align: center; padding: 24px 0; color: #888;">

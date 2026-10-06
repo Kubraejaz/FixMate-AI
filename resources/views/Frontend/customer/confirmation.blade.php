@@ -84,8 +84,8 @@
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div style="width: 24px; height: 24px; border-radius: 50%; background: #FFCC00; color: #000; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">●</div>
                     <div>
-                        <strong style="font-size: 13.5px; color: #111;">GPS Dispatch & Live Status</strong>
-                        <span style="font-size: 11px; color: #059669; font-weight: 700; display: block;">Follow real-time status in tracking portal</span>
+                        <strong style="font-size: 13.5px; color: #111;">Dispatch & Status Updates</strong>
+                        <span style="font-size: 11px; color: #059669; font-weight: 700; display: block;">Track service progress in My Bookings</span>
                     </div>
                 </div>
 
@@ -94,11 +94,11 @@
 
         <!-- Action Buttons matching Mockup 1 & 2 -->
         <div style="display: flex; gap: 12px;">
-            <a href="{{ route('customer.booking.tracking', $booking->id) }}" class="btn-yellow" style="flex: 1; padding: 12px 0; font-size: 14.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
-                Track Live Booking →
+            <a href="{{ route('customer.bookings') }}" class="btn-yellow" style="flex: 1; padding: 12px 0; font-size: 14.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
+                📋 View My Bookings →
             </a>
-            <a href="{{ route('customer.bookings') }}" class="btn-outline" style="flex: 1; padding: 12px 0; font-size: 14px; border-radius: 10px; text-decoration: none;">
-                View My Bookings
+            <a href="{{ route('customer.services') }}" class="btn-outline" style="flex: 1; padding: 12px 0; font-size: 14px; border-radius: 10px; text-decoration: none;">
+                Browse More Services
             </a>
         </div>
 

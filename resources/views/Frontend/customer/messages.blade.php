@@ -70,8 +70,8 @@
                     </button>
 
                     @if($activeBooking)
-                        <a href="{{ route('customer.booking.tracking', $activeBooking->id) }}" class="btn-yellow" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; border-radius: 8px; font-weight: 700;">
-                            📍 Live Route
+                        <a href="{{ route('customer.bookings') }}" class="btn-yellow" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; border-radius: 8px; font-weight: 700;">
+                            📋 View Booking
                         </a>
                     @else
                         <a href="{{ route('customer.booking', ['tech_id' => $selectedTech->id]) }}" class="btn-yellow" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; border-radius: 8px; font-weight: 700;">

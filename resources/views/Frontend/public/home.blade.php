@@ -65,13 +65,13 @@
                             </div>
                         </div>
 
-                        <!-- Live Tracking -->
+                        <!-- Fast Dispatch -->
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 40px; height: 40px; border-radius: 50%; background: #FFF9E6; border: 1px solid #FEF08A; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                                📍
+                                ⏱️
                             </div>
                             <div style="line-height: 1.2;">
-                                <strong style="display: block; font-size: 13.5px; color: #0F172A;">Live Radar</strong>
+                                <strong style="display: block; font-size: 13.5px; color: #0F172A;">Fast Dispatch</strong>
                                 <span style="font-size: 11px; color: #64748B;">{{ $stats['avg_arrival_mins'] ?? 24 }}m avg arrival time</span>
                             </div>
                         </div>

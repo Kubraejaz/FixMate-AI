@@ -85,7 +85,7 @@ class LiveTrackingTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('liveTrackingMap');
-        $response->assertSee('LIVE GPS STREAMING');
+        $response->assertSee('DISPATCH ACTIVE');
         $response->assertSee('Booking #FM-88991');
         $response->assertSee('4491'); // Arrival OTP
     }

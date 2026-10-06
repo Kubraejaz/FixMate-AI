@@ -236,7 +236,7 @@ Route::get('/booking-confirmation', function () {
     return redirect('/customer/booking/FM-10245/confirm');
 });
 Route::get('/tracking', function () {
-    return redirect('/customer/tracking');
+    return redirect('/customer/bookings');
 });
 Route::get('/chat', function () {
     return redirect('/customer/messages');

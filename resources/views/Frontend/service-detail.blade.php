@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
 @section('title', 'Book Master Plumbing Service — FixMate')
-@section('meta_desc', 'Schedule guaranteed P-Trap & Pipe Leak Repair with verified technician Alex Rivera. Real-time GPS tracking and 100% escrow protection.')
+@section('meta_desc', 'Schedule guaranteed P-Trap & Pipe Leak Repair with verified technician Alex Rivera. Standardized pricing and 100% escrow protection.')
 
 @section('content')
 <div class="container" style="padding-top: 28px; padding-bottom: 70px;">
@@ -219,7 +219,7 @@
                 </div>
 
                 <!-- Confirm Button Trigger -->
-                <a href="{{ url('/tracking') }}" class="btn-primary" style="width: 100%; padding: 14px 20px; font-size: 15px; justify-content: center; margin-bottom: 12px;">
+                <a href="{{ url('/customer/bookings') }}" class="btn-primary" style="width: 100%; padding: 14px 20px; font-size: 15px; justify-content: center; margin-bottom: 12px;">
                     <span>Authorize Escrow & Dispatch Pro ($75.00)</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="5" y1="12" x2="19" y2="12"></line>

@@ -73,9 +73,6 @@
                     
                     <div style="display: flex; gap: 8px;">
                         @if(in_array($booking->status, ['pending', 'confirmed', 'en_route', 'in_progress']))
-                            <a href="{{ route('customer.booking.tracking', $booking->id) }}" class="btn-yellow" style="padding: 7px 16px; font-size: 12.5px; text-decoration: none; border-radius: 8px;">
-                                📍 Live Tracking
-                            </a>
                             <form action="{{ route('customer.booking.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel booking #{{ $booking->booking_number }}?');">
                                 @csrf
                                 <button type="submit" class="btn-outline" style="padding: 7px 12px; font-size: 12px; border-radius: 8px; color: #DC2626; border-color: #FCA5A5; cursor: pointer;">

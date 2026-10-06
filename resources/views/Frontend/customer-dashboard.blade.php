@@ -19,8 +19,8 @@
             <a href="{{ url('/describe-problem') }}" class="btn-yellow" style="padding: 10px 20px;">
                 + Describe New Problem
             </a>
-            <a href="{{ url('/tracking') }}" class="btn-outline" style="padding: 10px 18px;">
-                📍 Active Order Live GPS
+            <a href="{{ url('/customer/bookings') }}" class="btn-outline" style="padding: 10px 18px;">
+                📋 View My Bookings
             </a>
         </div>
     </div>
@@ -131,7 +131,7 @@
                     <p style="font-size: 12.5px; color: #555; margin-bottom: 8px;">Sep 26, 2026 • 3:00 PM • Ali Khan</p>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 12px; font-weight: 700; color: #111;">Rs. 500 – 800</span>
-                        <a href="{{ url('/tracking') }}" style="font-size: 12px; font-weight: 700; color: #B45309; text-decoration: underline;">Track GPS →</a>
+                        <a href="{{ url('/customer/bookings') }}" style="font-size: 12px; font-weight: 700; color: #B45309; text-decoration: underline;">View Booking →</a>
                     </div>
                 </div>
 

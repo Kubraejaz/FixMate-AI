@@ -113,9 +113,9 @@ class PublicPageController extends Controller
                 ],
                 [
                     'step' => 4,
-                    'icon' => '📍',
-                    'title' => 'Live Radar & Tracking',
-                    'desc' => 'Monitor real-time technician arrival on map.',
+                    'icon' => '⏱️',
+                    'title' => 'Fast Dispatch & Arrival',
+                    'desc' => 'Instant booking confirmation and dispatch notifications.',
                     'badge_color' => '#FFC107',
                 ],
                 [

@@ -164,9 +164,6 @@
                 <a href="{{ route('customer.payment') }}" class="portal-nav-link {{ Request::is('customer/payment*') ? 'active' : '' }}">
                     <span>💳</span> <span>Escrow & Payments</span>
                 </a>
-                <a href="{{ route('customer.tracking') }}" class="portal-nav-link {{ Request::is('*tracking*') ? 'active' : '' }}">
-                    <span>📍</span> <span>Live Tracking</span>
-                </a>
                 <a href="{{ route('customer.messages') }}" class="portal-nav-link {{ Request::is('customer/messages*') ? 'active' : '' }}">
                     <span>💬</span> <span>Messages</span>
                 </a>

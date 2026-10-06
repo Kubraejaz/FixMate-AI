@@ -1,7 +1,7 @@
 @extends('Frontend.layouts.master')
 
 @section('title', 'Login — FixMate')
-@section('meta_desc', 'Sign in to your FixMate account to manage bookings, track technicians, and view repair history.')
+@section('meta_desc', 'Sign in to your FixMate account to manage bookings, schedule services, and view repair history.')
 
 @section('content')
 <div class="container" style="padding-top: 40px; padding-bottom: 70px; display: flex; justify-content: center;">

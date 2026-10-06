@@ -1,16 +1,16 @@
 @extends('Frontend.layouts.customer')
 
-@section('title', 'Live Tracking & Booking Details — FixMate')
+@section('title', 'Booking Details & Service Status — FixMate')
 
 @section('content')
 <div style="max-width: 920px; margin: 0 auto;">
     
     @if(! $booking)
         <div class="portal-card" style="padding: 48px; text-align: center; background: #FFFFFF; border-radius: 16px;">
-            <div style="font-size: 44px; margin-bottom: 12px;">📍</div>
-            <h2 style="font-size: 22px; font-weight: 900; color: #111; margin-bottom: 6px;">No Active Booking to Track</h2>
+            <div style="font-size: 44px; margin-bottom: 12px;">📋</div>
+            <h2 style="font-size: 22px; font-weight: 900; color: #111; margin-bottom: 6px;">No Active Booking Found</h2>
             <p style="font-size: 14px; color: #666; max-width: 480px; margin: 0 auto 20px auto;">
-                You currently don't have an active or en-route service booking. Once you schedule a certified professional, live GPS status and arrival OTP will appear right here.
+                You currently don't have an active service booking. Once you schedule a certified professional, service status and arrival OTP will appear right here.
             </p>
             <a href="{{ route('customer.booking') }}" class="btn-yellow" style="padding: 10px 24px; font-size: 14px; font-weight: 800; text-decoration: none; border-radius: 10px;">
                 Schedule a Service Now
@@ -112,15 +112,15 @@
                             ⏱️
                         </div>
                         <div>
-                            <span style="font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Live Dynamic ETA</span>
+                            <span style="font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Estimated Arrival</span>
                             <strong id="liveEtaText" style="display: block; font-size: 15px; color: #0F172A;">Loading ETA...</strong>
                         </div>
                     </div>
 
-                    <!-- Top Right: Live GPS Streaming Status -->
+                    <!-- Top Right: Dispatch Status -->
                     <div style="position: absolute; top: 16px; right: 16px; z-index: 999; background: #065F46; color: #FFF; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 7px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid #10B981;">
                         <span style="width: 8px; height: 8px; border-radius: 50%; background: #34D399; display: inline-block; box-shadow: 0 0 8px #34D399;"></span>
-                        <span id="liveStatusText">LIVE GPS STREAMING</span>
+                        <span id="liveStatusText">DISPATCH ACTIVE</span>
                     </div>
 
                     <!-- Bottom Controls: Distance Pill & Recenter Buttons -->

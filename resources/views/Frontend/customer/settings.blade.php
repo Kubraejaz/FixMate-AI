@@ -66,8 +66,8 @@
                     <div style="display: flex; gap: 12px; align-items: center;">
                         <span style="font-size: 22px;">🔔</span>
                         <div>
-                            <strong style="font-size: 14px; color: #111; display: block;">In-App Bell & Live Route Tracking Notifications</strong>
-                            <span style="font-size: 12px; color: #64748B;">Real-time radar updates when technician is en-route, arrived, or finishes job inspection.</span>
+                            <strong style="font-size: 14px; color: #111; display: block;">In-App Bell & Booking Update Notifications</strong>
+                            <span style="font-size: 12px; color: #64748B;">Updates when technician is dispatched, arrived, or finishes job inspection.</span>
                         </div>
                     </div>
                     <input type="checkbox" name="booking_updates" value="1" {{ $user->getNotificationPref('booking_updates', true) ? 'checked' : '' }} style="accent-color: #FFB800; transform: scale(1.4); cursor: pointer;">

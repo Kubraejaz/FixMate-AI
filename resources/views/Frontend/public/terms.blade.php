@@ -26,7 +26,7 @@
                 <div>
                     <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px 0;">1. Verified Service Provider Relationship</h3>
                     <p style="margin: 0;">
-                        Tradespeople operating on FixMate are background-screened independent technicians. FixMate validates NADRA CNIC biometric records and provides standardized labor tariffs, real-time schedule tracking, and escrow payment intermediation.
+                        Tradespeople operating on FixMate are background-screened independent technicians. FixMate validates NADRA CNIC biometric records and provides standardized labor tariffs, standardized scheduling, and escrow payment intermediation.
                     </p>
                 </div>
 
