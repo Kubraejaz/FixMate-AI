@@ -212,12 +212,15 @@
                 </div>
             </div>
         @elseif($verStatus === 'under_review')
-            <div style="background: #EFF6FF; border-bottom: 2px solid #BFDBFE; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #1E40AF;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">⏳</span>
-                    <span><strong>Verification Under Review:</strong> Your CNIC, live biometric photo, and trade credentials are being audited by FixMate compliance team.</span>
+            <div style="background: #EFF6FF; border-bottom: 2px solid #BFDBFE; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #1E40AF; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">⏳</span>
+                    <div>
+                        <strong>Verification Documents Sent to Admin:</strong>
+                        <span>Your credentials are currently under review. Other portal pages (Dashboard, Dispatches, Messages, Earnings) are locked until an admin approves your profile.</span>
+                    </div>
                 </div>
-                <a href="{{ route('technician.verification') }}" style="color: #1D4ED8; font-weight: 700; text-decoration: underline; font-size: 12px;">Check KYC Status &rarr;</a>
+                <a href="{{ route('technician.verification') }}" style="background: #2563EB; color: #FFF; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 12px;">Check KYC Status &rarr;</a>
             </div>
         @else
             <div style="background: #FFFBEB; border-bottom: 2px solid #FDE68A; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #92400E;">
@@ -239,40 +242,80 @@
                 <span style="font-size: 11px; font-weight: 800; color: #9CA3AF; text-transform: uppercase;">Pro Workspace</span>
             </div>
 
+            @php
+                $isVerifiedPro = (bool) ($techUser?->is_verified || $techPro?->is_verified || $techPro?->verification_status === 'verified');
+            @endphp
+
             <nav style="display: flex; flex-direction: column;">
-                <a href="{{ url('/technician/dashboard') }}" class="portal-nav-link {{ Request::is('technician/dashboard*') ? 'active' : '' }}">
-                    <span>📊</span> <span>Dashboard</span>
-                </a>
-                <a href="{{ url('/technician/jobs') }}" class="portal-nav-link {{ Request::is('technician/jobs*') ? 'active' : '' }}">
-                    <span>💼</span> <span>Job Requests</span>
-                </a>
-                <a href="{{ route('technician.notifications') }}" class="portal-nav-link {{ Request::is('technician/notifications*') ? 'active' : '' }}">
-                    <span>🔔</span> <span>Notifications</span>
-                    @if($techUnreadCount > 0)
-                        <span style="margin-left: auto; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 10px;">{{ $techUnreadCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ url('/technician/schedule') }}" class="portal-nav-link {{ Request::is('technician/schedule*') || Request::is('technician/availability*') ? 'active' : '' }}">
-                    <span>📅</span> <span>My Schedule</span>
-                </a>
-                <a href="{{ url('/technician/earnings') }}" class="portal-nav-link {{ Request::is('technician/earnings*') || Request::is('technician/payouts*') ? 'active' : '' }}">
-                    <span>💰</span> <span>Earnings & Payouts</span>
-                </a>
-                <a href="{{ url('/technician/verification') }}" class="portal-nav-link {{ Request::is('technician/verification*') ? 'active' : '' }}">
-                    <span>🛡️</span> <span>KYC Verification</span>
-                </a>
-                <a href="{{ url('/technician/skills') }}" class="portal-nav-link {{ Request::is('technician/skills*') ? 'active' : '' }}">
-                    <span>🔧</span> <span>Skills & Services</span>
-                </a>
-                <a href="{{ url('/technician/reviews') }}" class="portal-nav-link {{ Request::is('technician/reviews*') ? 'active' : '' }}">
-                    <span>⭐</span> <span>Customer Reviews</span>
-                </a>
-                <a href="{{ url('/technician/messages') }}" class="portal-nav-link {{ Request::is('technician/messages*') ? 'active' : '' }}">
-                    <span>💬</span> <span>Messages</span>
-                </a>
-                <a href="{{ url('/technician/profile') }}" class="portal-nav-link {{ Request::is('technician/profile*') || Request::is('technician/settings*') ? 'active' : '' }}">
-                    <span>👤</span> <span>Profile & Bio</span>
-                </a>
+                @if($isVerifiedPro)
+                    <a href="{{ url('/technician/dashboard') }}" class="portal-nav-link {{ Request::is('technician/dashboard*') ? 'active' : '' }}">
+                        <span>📊</span> <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url('/technician/jobs') }}" class="portal-nav-link {{ Request::is('technician/jobs*') ? 'active' : '' }}">
+                        <span>💼</span> <span>Job Requests</span>
+                    </a>
+                    <a href="{{ route('technician.notifications') }}" class="portal-nav-link {{ Request::is('technician/notifications*') ? 'active' : '' }}">
+                        <span>🔔</span> <span>Notifications</span>
+                        @if($techUnreadCount > 0)
+                            <span style="margin-left: auto; background: #EF4444; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 10px;">{{ $techUnreadCount }}</span>
+                        @endif
+                    </a>
+                    <a href="{{ url('/technician/schedule') }}" class="portal-nav-link {{ Request::is('technician/schedule*') || Request::is('technician/availability*') ? 'active' : '' }}">
+                        <span>📅</span> <span>My Schedule</span>
+                    </a>
+                    <a href="{{ url('/technician/earnings') }}" class="portal-nav-link {{ Request::is('technician/earnings*') || Request::is('technician/payouts*') ? 'active' : '' }}">
+                        <span>💰</span> <span>Earnings & Payouts</span>
+                    </a>
+                    <a href="{{ url('/technician/verification') }}" class="portal-nav-link {{ Request::is('technician/verification*') ? 'active' : '' }}">
+                        <span>🛡️</span> <span>KYC Verification</span>
+                    </a>
+                    <a href="{{ url('/technician/skills') }}" class="portal-nav-link {{ Request::is('technician/skills*') ? 'active' : '' }}">
+                        <span>🔧</span> <span>Skills & Services</span>
+                    </a>
+                    <a href="{{ url('/technician/reviews') }}" class="portal-nav-link {{ Request::is('technician/reviews*') ? 'active' : '' }}">
+                        <span>⭐</span> <span>Customer Reviews</span>
+                    </a>
+                    <a href="{{ url('/technician/messages') }}" class="portal-nav-link {{ Request::is('technician/messages*') ? 'active' : '' }}">
+                        <span>💬</span> <span>Messages</span>
+                    </a>
+                    <a href="{{ url('/technician/profile') }}" class="portal-nav-link {{ Request::is('technician/profile*') || Request::is('technician/settings*') ? 'active' : '' }}">
+                        <span>👤</span> <span>Profile & Bio</span>
+                    </a>
+                @else
+                    <a href="{{ route('technician.verification') }}" class="portal-nav-link active" style="background: #FEF3C7; color: #92400E; font-weight: 800; border: 1.5px solid #FCD34D;">
+                        <span>🛡️</span> <span>KYC Verification</span>
+                        <span style="margin-left: auto; background: #D97706; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;">
+                            {{ $verStatus === 'under_review' ? 'In Review' : 'Action Req' }}
+                        </span>
+                    </a>
+                    <div style="margin: 12px 0 6px 0; padding: 0 10px; font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Locked (Pending Admin Approval)
+                    </div>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>📊</span> <span>Dashboard</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>💼</span> <span>Job Requests</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>📅</span> <span>My Schedule</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>💰</span> <span>Earnings & Payouts</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>🔧</span> <span>Skills & Services</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>⭐</span> <span>Customer Reviews</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>💬</span> <span>Messages</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                    <span class="portal-nav-link" style="opacity: 0.45; cursor: not-allowed; display: flex; align-items: center; gap: 8px;" title="Locked: Awaiting Admin Verification">
+                        <span>👤</span> <span>Profile & Bio</span> <span style="margin-left: auto; font-size: 12px;">🔒</span>
+                    </span>
+                @endif
 
                 <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-color);">
                     <a href="{{ url('/') }}" class="portal-nav-link" style="color: #6B7280; font-size: 13px;">
@@ -366,6 +409,16 @@
             }, 3000);
         }
     </script>
+
+    @if(session('success'))
+        <script>document.addEventListener('DOMContentLoaded', () => showToast(@json(session('success')), true));</script>
+    @elseif(session('error'))
+        <script>document.addEventListener('DOMContentLoaded', () => showToast(@json(session('error')), false));</script>
+    @elseif(session('warning'))
+        <script>document.addEventListener('DOMContentLoaded', () => showToast(@json(session('warning')), false));</script>
+    @elseif(session('info'))
+        <script>document.addEventListener('DOMContentLoaded', () => showToast(@json(session('info')), true));</script>
+    @endif
 
     @yield('extra_js')
 </body>

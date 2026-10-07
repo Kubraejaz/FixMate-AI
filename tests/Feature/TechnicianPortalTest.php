@@ -479,7 +479,7 @@ class TechnicianPortalTest extends TestCase
             'user_type' => User::TYPE_TECHNICIAN,
             'name' => 'Kashif Ali',
             'email' => 'kashif.new@example.com',
-            'is_verified' => false,
+            'is_verified' => true,
         ]);
 
         $response = $this->actingAs($newTechUser)
@@ -579,6 +579,42 @@ class TechnicianPortalTest extends TestCase
             'user_id' => $this->technicianUser->id,
             'type' => 'job_reminder',
         ]);
+    }
+
+    public function test_technician_with_documents_under_review_cannot_access_other_pages_and_sees_warning(): void
+    {
+        $underReviewTech = User::factory()->create([
+            'role' => 'technician',
+            'user_type' => User::TYPE_TECHNICIAN,
+            'is_verified' => false,
+        ]);
+        Professional::create([
+            'user_id' => $underReviewTech->id,
+            'profession_id' => $this->profession->id,
+            'name' => $underReviewTech->name,
+            'is_verified' => false,
+            'verification_status' => 'under_review',
+        ]);
+
+        // Attempting to access dashboard
+        $dashResponse = $this->actingAs($underReviewTech)
+            ->get(route('technician.dashboard'));
+
+        $dashResponse->assertRedirect(route('technician.verification'));
+        $dashResponse->assertSessionHas('warning');
+
+        // Attempting to access jobs page
+        $response = $this->actingAs($underReviewTech)
+            ->get(route('technician.jobs'));
+
+        $response->assertRedirect(route('technician.verification'));
+        $response->assertSessionHas('warning');
+
+        // Verification page itself remains accessible
+        $verResponse = $this->actingAs($underReviewTech)
+            ->get(route('technician.verification'));
+        $verResponse->assertOk();
+        $verResponse->assertSee('Audit in Progress');
     }
 }
 

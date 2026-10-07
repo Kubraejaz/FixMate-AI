@@ -259,7 +259,7 @@ Route::middleware('auth')->group(function () {
 // ==========================================
 // 4. TECHNICIAN PORTAL — TECHNICIAN ONLY
 // ==========================================
-Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:technician'])->group(function () {
+Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:technician', 'technician.verified'])->group(function () {
     
     // Technician Dashboard
     Route::get('/dashboard', [TechnicianPortalController::class, 'dashboard'])->name('dashboard');

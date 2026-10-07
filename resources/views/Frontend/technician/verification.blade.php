@@ -4,6 +4,37 @@
 
 @section('content')
 <div style="max-width: 900px; margin: 0 auto; padding-bottom: 40px;">
+
+    <!-- Session Flash Alerts -->
+    @if(session('warning'))
+        <div style="background: #FFFBEB; border: 1.5px solid #FCD34D; border-left: 5px solid #F59E0B; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 22px;">⏳</span>
+            <div style="font-size: 13.5px; color: #92400E; font-weight: 600;">
+                {{ session('warning') }}
+            </div>
+        </div>
+    @elseif(session('error'))
+        <div style="background: #FFF1F2; border: 1.5px solid #FECDD3; border-left: 5px solid #EF4444; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 22px;">⚠️</span>
+            <div style="font-size: 13.5px; color: #9F1239; font-weight: 600;">
+                {{ session('error') }}
+            </div>
+        </div>
+    @elseif(session('info'))
+        <div style="background: #EFF6FF; border: 1.5px solid #BFDBFE; border-left: 5px solid #3B82F6; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 22px;">ℹ️</span>
+            <div style="font-size: 13.5px; color: #1E40AF; font-weight: 600;">
+                {{ session('info') }}
+            </div>
+        </div>
+    @elseif(session('success'))
+        <div style="background: #ECFDF5; border: 1.5px solid #A7F3D0; border-left: 5px solid #10B981; padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 22px;">✓</span>
+            <div style="font-size: 13.5px; color: #065F46; font-weight: 600;">
+                {{ session('success') }}
+            </div>
+        </div>
+    @endif
     
     <!-- Title & Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
@@ -95,8 +126,12 @@
             <div>
                 <h3 style="font-size: 16.5px; font-weight: 800; color: #1E40AF; margin: 0 0 4px 0;">Verification Dossier Under Active Audit</h3>
                 <p style="font-size: 13.5px; color: #1D4ED8; margin: 0; line-height: 1.5;">
-                    Your uploaded documents and live biometric photo are currently queued with the FixMate Compliance Desk. Review usually concludes within 4 to 12 hours. You will receive an instant notification on decision.
+                    Your uploaded documents and live biometric photo have been sent to the FixMate Compliance Desk. Review usually concludes within 4 to 12 hours. You will receive an instant notification once an admin approves your profile.
                 </p>
+                <div style="margin-top: 12px; padding: 10px 14px; background: rgba(37, 99, 235, 0.08); border-radius: 8px; border: 1px dashed #93C5FD; font-size: 13px; color: #1E40AF; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🔒</span>
+                    <span><strong>Portal Status:</strong> Other technician pages (Dashboard, Job Dispatches, Messages, Earnings) are locked until admin verification approval.</span>
+                </div>
             </div>
         </div>
     @else

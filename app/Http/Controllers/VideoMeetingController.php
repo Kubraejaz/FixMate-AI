@@ -23,6 +23,16 @@ class VideoMeetingController extends Controller
     {
         $caller = Auth::user();
 
+        if ($caller->isTechnician()) {
+            $isCallerVerified = (bool) ($caller->is_verified || $caller->professional?->is_verified || $caller->professional?->verification_status === 'verified');
+            if (! $isCallerVerified) {
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => 'Technician account requires admin approval before starting video consultations.'], 403);
+                }
+                return redirect()->route('technician.verification')->with('warning', 'Your verification documents are currently under review. Video calls will unlock once the admin approves your profile.');
+            }
+        }
+
         $bookingId = $request->input('booking_id');
         $receiverId = $request->input('receiver_id');
         $techId = $request->input('technician_id') ?: $request->input('tech_id') ?: $request->input('professional_id');
