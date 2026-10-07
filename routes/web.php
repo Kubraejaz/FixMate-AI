@@ -26,7 +26,9 @@ use App\Http\Controllers\Customer\CustomerPortalController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\Technician\TechnicianPortalController;
+use App\Http\Controllers\VideoMeetingController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -240,6 +242,17 @@ Route::get('/tracking', function () {
 });
 Route::get('/chat', function () {
     return redirect('/customer/messages');
+});
+
+// ==========================================
+// VIDEO MEETING — "LET'S TALK" MODULE
+// ==========================================
+Route::middleware('auth')->group(function () {
+    Route::match(['get', 'post'], '/video-meeting/initiate', [VideoMeetingController::class, 'initiate'])->name('video-meeting.initiate');
+    Route::get('/video-meeting/{code}', [VideoMeetingController::class, 'room'])->name('video-meeting.room');
+    Route::get('/video-meeting/{code}/status', [VideoMeetingController::class, 'pollStatus'])->name('video-meeting.status');
+    Route::post('/video-meeting/{code}/snapshot', [VideoMeetingController::class, 'saveSnapshot'])->name('video-meeting.snapshot');
+    Route::post('/video-meeting/{code}/end', [VideoMeetingController::class, 'endMeeting'])->name('video-meeting.end');
 });
 
 

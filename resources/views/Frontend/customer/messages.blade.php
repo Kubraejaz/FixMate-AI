@@ -63,10 +63,18 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 8px; align-items: center;">
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <!-- "Let's Talk" Video Meeting Button (Essential for uneducated customers) -->
+                    <a href="{{ route('video-meeting.initiate', ['technician_id' => $selectedTech->id, 'booking_id' => $activeBooking?->id]) }}" 
+                       style="padding: 7px 16px; font-size: 13px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25); transition: all 0.15s ease;"
+                       title="Click to start live video meeting with this technician — no typing required!">
+                        <span style="font-size: 16px;">📹</span>
+                        <span>Let's Talk (ویڈیو کال)</span>
+                    </a>
+
                     <!-- Interactive Call Button Trigger -->
                     <button type="button" id="openCallModalBtn" class="btn-outline" style="padding: 7px 14px; font-size: 12.5px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 700;">
-                        <span>📞</span> <span>Call Technician</span>
+                        <span>📞</span> <span>Call Phone</span>
                     </button>
 
                     @if($activeBooking)
@@ -79,6 +87,23 @@
                         </a>
                     @endif
                 </div>
+            </div>
+
+            <!-- Accessibility Banner for Illiterate / Uneducated Customers -->
+            <div style="background: linear-gradient(135deg, #FFFDF0 0%, #FEF9C3 100%); border-bottom: 2px solid #FDE047; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: #FFB800; color: #0F172A; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 900; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                        📹
+                    </div>
+                    <div>
+                        <strong style="font-size: 13px; color: #854D0E; display: block;">میسج ٹائپ نہیں کرنا آتا؟ کیمرے پر مسئلہ دکھائیں اور بات کریں!</strong>
+                        <span style="font-size: 11.5px; color: #A16207;">Can't deal via text messages? Click <strong>Let's Talk</strong> to open face-to-face video consultation.</span>
+                    </div>
+                </div>
+                <a href="{{ route('video-meeting.initiate', ['technician_id' => $selectedTech->id, 'booking_id' => $activeBooking?->id]) }}" 
+                   style="background: #10B981; color: #FFFFFF; font-weight: 900; font-size: 12.5px; padding: 7px 16px; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+                    <span>📹</span> <span>Let's Talk (ویڈیو کال شروع کریں)</span>
+                </a>
             </div>
 
             <!-- Chat Stream -->
@@ -124,7 +149,15 @@
                 @if($activeBooking)
                     <input type="hidden" name="booking_id" value="{{ $activeBooking->id }}">
                 @endif
-                <input type="text" name="message" id="messageInput" placeholder="Type a message to {{ $selectedTech->name }}..." class="form-input" required autocomplete="off" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
+                
+                <!-- Quick "Let's Talk" button beside text input for non-typing users -->
+                <a href="{{ route('video-meeting.initiate', ['technician_id' => $selectedTech->id, 'booking_id' => $activeBooking?->id]) }}" 
+                   style="background: #FFFBEB; border: 1.5px solid #FCD34D; color: #92400E; padding: 9px 14px; border-radius: 8px; text-decoration: none; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; white-space: nowrap;"
+                   title="Can't type? Click to start video call">
+                    <span>📹</span> <span>Let's Talk</span>
+                </a>
+
+                <input type="text" name="message" id="messageInput" placeholder="Type a message or use 'Let's Talk' video call..." class="form-input" required autocomplete="off" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
                 <button type="submit" id="chatSendBtn" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer; border-radius: 8px;">
                     Send
                 </button>
@@ -149,6 +182,11 @@
 
                     <!-- Action Grid -->
                     <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Primary Let's Talk Video Meeting Button -->
+                        <a href="{{ route('video-meeting.initiate', ['technician_id' => $selectedTech->id, 'booking_id' => $activeBooking?->id]) }}" style="background: #0F172A; color: #FFB800; border: 2px solid #FFB800; font-weight: 900; font-size: 14px; padding: 12px 0; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+                            <span style="font-size: 18px;">📹</span> <span>Start Let's Talk Video Call (ویڈیو میٹنگ)</span>
+                        </a>
+
                         <!-- Copy Button -->
                         <button type="button" id="copyPhoneBtn" class="btn-outline" style="width: 100%; padding: 11px 0; font-size: 13.5px; font-weight: 700; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             <span id="copyIcon">📋</span> <span id="copyText">Copy Phone Number</span>
@@ -160,7 +198,7 @@
                         </a>
 
                         <!-- Direct Phone Dialer -->
-                        <a href="tel:{{ $rawPhone }}" style="background: #0F172A; color: #FFFFFF; font-weight: 800; font-size: 13.5px; padding: 11px 0; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <a href="tel:{{ $rawPhone }}" style="background: #334155; color: #FFFFFF; font-weight: 800; font-size: 13.5px; padding: 11px 0; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             <span>📞</span> <span>Dial via Phone App</span>
                         </a>
                     </div>

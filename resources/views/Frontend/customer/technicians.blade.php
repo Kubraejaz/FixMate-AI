@@ -74,7 +74,12 @@
                         <span style="font-size: 11px; color: #888;">Base Inspection Fee</span>
                         <strong style="display: block; font-size: 16px; color: #111;">Rs. {{ number_format($tech->profession?->base_price ?? 650) }}</strong>
                     </div>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <a href="{{ route('video-meeting.initiate', ['technician_id' => $tech->id]) }}" 
+                           style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 8px 12px; font-size: 12px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" 
+                           title="Direct Video Consultation — No text messages required">
+                            <span>📹</span> <span>Let's Talk</span>
+                        </a>
                         <a href="{{ route('technician-profile', $tech->id) }}" class="btn-outline" style="padding: 8px 14px; font-size: 12.5px; text-decoration: none; border-radius: 8px;">View Profile</a>
                         <a href="{{ route('customer.booking', ['tech_id' => $tech->id]) }}" class="btn-yellow" style="padding: 8px 18px; font-size: 13px; text-decoration: none; border-radius: 8px;">Book Now</a>
                     </div>

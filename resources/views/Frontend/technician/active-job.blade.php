@@ -155,7 +155,12 @@
                     📞 {{ $booking->user?->phone ?? 'Not provided' }}<br>
                     📍 {{ $booking->service_address }}, {{ $booking->city }}
                 </div>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                    <a href="{{ route('video-meeting.initiate', ['booking_id' => $booking->id]) }}" 
+                       style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"
+                       title="Start live video call with customer to inspect appliance/fault">
+                        <span>📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                    </a>
                     @if($booking->user?->phone)
                         <a href="tel:{{ $booking->user->phone }}" class="btn-outline" style="padding: 6px 14px; font-size: 12px; text-decoration: none;">Call</a>
                     @endif

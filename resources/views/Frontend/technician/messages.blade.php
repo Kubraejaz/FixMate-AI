@@ -62,7 +62,14 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center; flex-wrap: wrap;">
+                    <!-- "Let's Talk" Video Meeting Button for uneducated/speaking-first customers -->
+                    <a href="{{ route('video-meeting.initiate', ['receiver_id' => $selectedCustomer->id, 'booking_id' => $activeBooking?->id]) }}" 
+                       style="padding: 7px 15px; font-size: 12.5px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);"
+                       title="Live Video Meeting — Perfect for illiterate/uneducated customers!">
+                        <span>📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                    </a>
+
                     @if($selectedCustomer->phone)
                         <a href="tel:{{ $selectedCustomer->phone }}" class="btn-outline" style="padding: 6px 14px; font-size: 12px; text-decoration: none;">
                             📞 Call Customer
@@ -74,6 +81,23 @@
                         </a>
                     @endif
                 </div>
+            </div>
+
+            <!-- Assistive Banner for Uneducated Customers -->
+            <div style="background: linear-gradient(135deg, #FFFDF0 0%, #FEF9C3 100%); border-bottom: 2px solid #FDE047; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #FFB800; color: #0F172A; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900;">
+                        📹
+                    </div>
+                    <div>
+                        <strong style="font-size: 13px; color: #854D0E; display: block;">گاہک میسج نہیں پڑھ سکتے؟ براہِ راست ویڈیو کال شروع کریں</strong>
+                        <span style="font-size: 11.5px; color: #A16207;">Customer has trouble typing? Launch <strong>Let's Talk</strong> to inspect the defect on live video.</span>
+                    </div>
+                </div>
+                <a href="{{ route('video-meeting.initiate', ['receiver_id' => $selectedCustomer->id, 'booking_id' => $activeBooking?->id]) }}" 
+                   style="background: #10B981; color: #FFFFFF; font-weight: 900; font-size: 12px; padding: 6px 14px; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    <span>📹</span> <span>Start Let's Talk Video Call</span>
+                </a>
             </div>
 
             <!-- Job Context Strip -->
@@ -115,7 +139,15 @@
                 @if($activeBooking)
                     <input type="hidden" name="booking_id" value="{{ $activeBooking->id }}">
                 @endif
-                <input type="text" name="message" id="techMessageInput" required placeholder="Type a message to {{ $selectedCustomer->name }}..." class="form-input" autocomplete="off" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
+                
+                <!-- Quick "Let's Talk" button for technician -->
+                <a href="{{ route('video-meeting.initiate', ['receiver_id' => $selectedCustomer->id, 'booking_id' => $activeBooking?->id]) }}" 
+                   style="background: #FFFBEB; border: 1.5px solid #FCD34D; color: #92400E; padding: 9px 14px; border-radius: 8px; text-decoration: none; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; white-space: nowrap;"
+                   title="Call customer on live video">
+                    <span>📹</span> <span>Let's Talk</span>
+                </a>
+
+                <input type="text" name="message" id="techMessageInput" required placeholder="Type a message or use 'Let's Talk' video call..." class="form-input" autocomplete="off" style="flex: 1; padding: 10px 14px; font-size: 13.5px;">
                 <button type="submit" id="techSendBtn" class="btn-yellow" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer;">
                     Send
                 </button>

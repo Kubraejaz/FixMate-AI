@@ -143,6 +143,31 @@
         </div>
     </header>
 
+    @php
+        $incomingCallTech = auth()->check() ? auth()->user()->notifications()->where('type', 'video_meeting_invite')->where('is_read', false)->where('created_at', '>=', now()->subMinutes(15))->latest()->first() : null;
+    @endphp
+    @if($incomingCallTech)
+        <div id="incomingCallBannerTech" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFFFFF; border-bottom: 3px solid #FFB800; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; z-index: 9999; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 42px; height: 42px; border-radius: 50%; background: #FFB800; color: #0F172A; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900;">
+                    📹
+                </div>
+                <div>
+                    <strong style="font-size: 15px; color: #FFB800; display: block;">{{ $incomingCallTech->title }}</strong>
+                    <span style="font-size: 13px; color: #E2E8F0;">{{ $incomingCallTech->message }}</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="{{ route('technician.notifications.open', $incomingCallTech->id) }}" style="background: #10B981; color: #FFFFFF; font-weight: 900; font-size: 13.5px; padding: 9px 20px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+                    <span>📹</span> <span>Answer Call (ویڈیو کال شروع کریں)</span>
+                </a>
+                <button type="button" onclick="document.getElementById('incomingCallBannerTech').style.display='none';" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #CBD5E1; font-size: 12px; padding: 8px 14px; border-radius: 8px; cursor: pointer;">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+    @endif
+
     <!-- Dynamic KYC Verification Alert Banner -->
     @if(auth()->check() && (!auth()->user()->is_verified || !auth()->user()->is_active))
         @php

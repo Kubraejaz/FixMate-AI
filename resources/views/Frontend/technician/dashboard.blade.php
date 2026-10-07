@@ -183,11 +183,16 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <a href="{{ route('video-meeting.initiate', ['booking_id' => $incomingJob->id]) }}" 
+                       style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 10px 16px; font-size: 13px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);" 
+                       title="Call customer via live video before dispatch">
+                        <span>📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                    </a>
                     <a href="{{ route('technician.jobs.details', $incomingJob->booking_number) }}" class="btn-outline" style="padding: 10px 18px; font-size: 13px; text-decoration: none;">View Details</a>
                     <form action="{{ route('technician.jobs.accept', $incomingJob->id) }}" method="POST" style="margin: 0;">
                         @csrf
-                        <button type="submit" class="btn-yellow" style="padding: 10px 24px; font-size: 13.5px; font-weight: 800; border: none; cursor: pointer;">
+                        <button type="submit" class="btn-yellow" style="padding: 10px 24px; font-size: 13.5px; font-weight: 900; border: none; cursor: pointer;">
                             Accept Job →
                         </button>
                     </form>
@@ -198,7 +203,7 @@
     @endif
 
     <!-- Two Columns: Active Job & Status Ledger -->
-    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px;">
+    <div style="grid-template-columns: 1.1fr 0.9fr; gap: 24px; display: grid;">
         
         <!-- Left: Today's Active Job State -->
         <div class="portal-card" style="padding: 24px; background: #FFFFFF;">
@@ -225,13 +230,20 @@
                         Customer: <strong>{{ $activeJob->user?->name }}</strong> &bull; {{ $activeJob->service_address }}, {{ $activeJob->city }}
                     </p>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap; gap: 10px;">
                         <span style="font-size: 12px; color: #888;">
                             {{ $activeJob->status === 'in_progress' ? 'Service In Progress' : 'Handshake OTP Required upon arrival' }}
                         </span>
-                        <a href="{{ route('technician.active-job') }}" class="btn-yellow" style="padding: 7px 16px; font-size: 12.5px; text-decoration: none;">
-                            Open Active Job Screen →
-                        </a>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a href="{{ route('video-meeting.initiate', ['booking_id' => $activeJob->id]) }}" 
+                               style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 7px 14px; font-size: 12px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);"
+                               title="Start live video call with customer">
+                                <span>📹</span> <span>Let's Talk</span>
+                            </a>
+                            <a href="{{ route('technician.active-job') }}" class="btn-yellow" style="padding: 7px 16px; font-size: 12.5px; text-decoration: none;">
+                                Open Active Job Screen →
+                            </a>
+                        </div>
                     </div>
                 </div>
             @else

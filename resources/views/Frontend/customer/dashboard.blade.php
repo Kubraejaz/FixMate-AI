@@ -82,6 +82,13 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <!-- "Let's Talk" Video Meeting Button for uneducated/voice-first customers -->
+                <a href="{{ route('video-meeting.initiate', ['booking_id' => $nearUpcomingBooking->id]) }}" 
+                   style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 10px 18px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);"
+                   title="Start live video call with assigned technician">
+                    <span style="font-size: 15px;">📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                </a>
+
                 @if($nearUpcomingBooking->arrival_otp)
                     <div style="background: #FFFFFF; border: 1.5px dashed {{ $borderColor }}; border-radius: 10px; padding: 6px 14px; text-align: center;">
                         <span style="font-size: 10px; font-weight: 800; color: #64748B; display: block; text-transform: uppercase;">Arrival OTP</span>
@@ -197,7 +204,14 @@
                                 ★ {{ number_format($tech->rating ?? 4.9, 1) }} <span style="color: #888;">({{ $tech->jobs_completed ?? 42 }})</span>
                             </div>
                         </div>
-                        <a href="{{ route('customer.booking', ['tech_id' => $tech->id]) }}" class="btn-yellow" style="display: block; font-size: 12px; padding: 6px 0; border-radius: 6px; text-decoration: none;">Book Now</a>
+                        <div style="display: flex; gap: 6px; margin-top: 6px;">
+                            <a href="{{ route('video-meeting.initiate', ['technician_id' => $tech->id]) }}" class="btn-outline" style="flex: 1; font-size: 11px; padding: 6px 4px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 3px;" title="Let's Talk Video Call">
+                                📹 Talk
+                            </a>
+                            <a href="{{ route('customer.booking', ['tech_id' => $tech->id]) }}" class="btn-yellow" style="flex: 1; font-size: 11.5px; padding: 6px 4px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                Book
+                            </a>
+                        </div>
                     </div>
                 @empty
                     <div style="grid-column: span 3; text-align: center; color: #888; padding: 24px 0;">

@@ -208,8 +208,16 @@
                         <div>✓ Escrow Protected Payment Release</div>
                     </div>
 
-                    <a href="{{ url('/customer/booking?profession=' . $profSlug . '&tech_id=' . ($professional->id ?? '1')) }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 13px 0; border-radius: 12px; text-decoration: none; display: block; text-align: center; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35); transition: background 0.15s;" onmouseover="this.style.background='#F59E0B'" onmouseout="this.style.background='#FFB800'">
+                    <a href="{{ url('/customer/booking?profession=' . $profSlug . '&tech_id=' . ($professional->id ?? '1')) }}" style="background: #FFB800; color: #0F172A; font-weight: 800; font-size: 14.5px; padding: 13px 0; border-radius: 12px; text-decoration: none; display: block; text-align: center; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35); transition: background 0.15s;" onmouseover="this.style.background='#F59E0B'" onmouseout="this.style.background='#FFB800'">
                         Book {{ $techFirstName }} Now →
+                    </a>
+
+                    <!-- "Let's Talk" Video Meeting Button for customers who don't want to type text messages -->
+                    <a href="{{ route('video-meeting.initiate', ['technician_id' => $professional->id ?? 1]) }}" 
+                       style="background: #0F172A; color: #FFB800; border: 2px solid #FFB800; font-weight: 800; font-size: 13.5px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);"
+                       title="Can't type? Talk to {{ $techFirstName }} live via video">
+                        <span style="font-size: 16px;">📹</span>
+                        <span>Let's Talk (ویڈیو کال شروع کریں)</span>
                     </a>
 
                     <a href="{{ url('/services') }}" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 13px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">

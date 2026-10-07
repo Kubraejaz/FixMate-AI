@@ -155,11 +155,16 @@
                         <div>
                             <strong style="display: block; font-size: 16px; color: #111;">{{ $booking->professional?->name ?? 'FixMate Dedicated Pro' }}</strong>
                             <span style="font-size: 12.5px; color: #666; display: block; margin-bottom: 4px;">{{ $booking->profession?->name ?? 'Technician' }} • ★ {{ number_format($booking->professional?->rating ?? 4.9, 1) }}</span>
-                            <div style="display: flex; gap: 8px;">
-                                <button type="button" onclick="document.getElementById('trackCallModal').style.display='flex';" class="btn-outline" style="padding: 5px 12px; font-size: 11.5px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <a href="{{ route('video-meeting.initiate', ['booking_id' => $booking->id]) }}" 
+                                   style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 5px 12px; font-size: 11.5px; border-radius: 6px; text-decoration: none; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" 
+                                   title="Can't type? Click to start video call with technician">
+                                    <span>📹</span> <span>Let's Talk</span>
+                                </a>
+                                <button type="button" onclick="document.getElementById('trackCallModal').style.display='flex';" class="btn-outline" style="padding: 5px 10px; font-size: 11.5px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
                                     📞 Call
                                 </button>
-                                <a href="{{ route('customer.messages', ['tech_id' => $booking->professional_id]) }}" class="btn-yellow" style="padding: 5px 14px; font-size: 11.5px; border-radius: 6px; text-decoration: none; font-weight: 700;">
+                                <a href="{{ route('customer.messages', ['tech_id' => $booking->professional_id]) }}" class="btn-yellow" style="padding: 5px 12px; font-size: 11.5px; border-radius: 6px; text-decoration: none; font-weight: 700;">
                                     💬 Chat
                                 </a>
                             </div>
@@ -198,13 +203,17 @@
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Start Let's Talk Video Call -->
+                            <a href="{{ route('video-meeting.initiate', ['booking_id' => $booking->id]) }}" style="background: #0F172A; color: #FFB800; border: 2px solid #FFB800; font-weight: 900; font-size: 13.5px; padding: 11px 0; border-radius: 8px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                <span style="font-size: 16px;">📹</span> <span>Start Let's Talk Video Call (ویڈیو میٹنگ)</span>
+                            </a>
                             <button type="button" onclick="navigator.clipboard.writeText('{{ $techPhone }}'); alert('Phone number copied to clipboard: {{ $techPhone }}');" class="btn-outline" style="width: 100%; padding: 10px 0; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer;">
                                 📋 Copy Phone Number
                             </button>
                             <a href="https://wa.me/{{ $waTechPhone }}?text={{ urlencode('Hello, I am waiting for you for FixMate booking #' . $booking->booking_number) }}" target="_blank" rel="noopener noreferrer" style="background: #25D366; color: #FFFFFF; font-weight: 800; font-size: 13px; padding: 10px 0; border-radius: 8px; text-decoration: none; display: block;">
                                 💬 WhatsApp Chat
                             </a>
-                            <a href="tel:{{ $techPhone }}" style="background: #0F172A; color: #FFFFFF; font-weight: 800; font-size: 13px; padding: 10px 0; border-radius: 8px; text-decoration: none; display: block;">
+                            <a href="tel:{{ $techPhone }}" style="background: #334155; color: #FFFFFF; font-weight: 800; font-size: 13px; padding: 10px 0; border-radius: 8px; text-decoration: none; display: block;">
                                 📞 Call on Phone
                             </a>
                         </div>

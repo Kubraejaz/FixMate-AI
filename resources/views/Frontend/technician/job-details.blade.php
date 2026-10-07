@@ -86,6 +86,13 @@
 
         <!-- Action Row -->
         <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <!-- "Let's Talk" Video Meeting Button -->
+            <a href="{{ route('video-meeting.initiate', ['booking_id' => $booking->id]) }}" 
+               style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 12px 24px; font-size: 14px; font-weight: 800; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);"
+               title="Start live video consultation with customer — no typing needed">
+                <span>📹</span> <span>Let's Talk (ویڈیو کال)</span>
+            </a>
+
             <a href="{{ route('technician.messages', ['client_id' => $booking->user_id]) }}" class="btn-outline" style="padding: 12px 24px; font-size: 14px; text-decoration: none;">
                 💬 Chat With Customer
             </a>

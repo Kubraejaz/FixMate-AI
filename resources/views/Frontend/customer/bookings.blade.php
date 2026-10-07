@@ -109,9 +109,22 @@
                 <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
                     <strong style="font-size: 16px; color: #047857;">Rs. {{ number_format($booking->total_price) }}</strong>
                     
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
                         @if(in_array($booking->status, ['pending', 'confirmed', 'en_route', 'in_progress']))
-                            <form action="{{ route('customer.booking.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel booking #{{ $booking->booking_number }}?');">
+                            <!-- "Let's Talk" Video Meeting Button for uneducated/voice-first customers -->
+                            <a href="{{ route('video-meeting.initiate', ['booking_id' => $booking->id]) }}" 
+                               style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 7px 14px; font-size: 12px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"
+                               title="Click to start live video call with assigned technician">
+                                <span style="font-size: 14px;">📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                            </a>
+
+                            @if($booking->professional_id)
+                                <a href="{{ route('customer.messages', ['tech_id' => $booking->professional_id]) }}" class="btn-outline" style="padding: 7px 12px; font-size: 12px; border-radius: 8px; text-decoration: none;">
+                                    💬 Chat
+                                </a>
+                            @endif
+
+                            <form action="{{ route('customer.booking.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel booking #{{ $booking->booking_number }}?');" style="margin: 0;">
                                 @csrf
                                 <button type="submit" class="btn-outline" style="padding: 7px 12px; font-size: 12px; border-radius: 8px; color: #DC2626; border-color: #FCA5A5; cursor: pointer;">
                                     Cancel
