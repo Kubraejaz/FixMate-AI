@@ -65,6 +65,7 @@ class ServiceController extends Controller
             'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
             'warranty_text' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'sub_categories' => ['nullable'],
             'feature_points' => ['nullable'],
             'included_items' => ['nullable'],
             'excluded_items' => ['nullable'],
@@ -100,7 +101,12 @@ class ServiceController extends Controller
                 return array_values(array_filter(array_map('trim', $input)));
             }
             if (is_string($input)) {
-                $lines = preg_split('/\r\n|\r|\n/', $input);
+                // Split by newline or commas if on single line
+                if (str_contains($input, "\n") || str_contains($input, "\r")) {
+                    $lines = preg_split('/\r\n|\r|\n/', $input);
+                } else {
+                    $lines = explode(',', $input);
+                }
                 return array_values(array_filter(array_map('trim', $lines)));
             }
             return null;
@@ -116,6 +122,7 @@ class ServiceController extends Controller
             'headline' => $validated['headline'] ?? trim($validated['name']) . ' Repair & Maintenance',
             'image' => $imagePath,
             'warranty_text' => $validated['warranty_text'] ?? '60-Day Re-work Free',
+            'sub_categories' => $parseList($request->input('sub_categories')),
             'feature_points' => $parseList($request->input('feature_points')),
             'included_items' => $parseList($request->input('included_items')),
             'excluded_items' => $parseList($request->input('excluded_items')),
@@ -123,7 +130,7 @@ class ServiceController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        return redirect()->route('admin.categories')
+        return redirect()->route('admin.services')
             ->with('success', "Service category '{$validated['name']}' created successfully!");
     }
 
@@ -144,6 +151,7 @@ class ServiceController extends Controller
             'image_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
             'warranty_text' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'sub_categories' => ['nullable'],
             'feature_points' => ['nullable'],
             'included_items' => ['nullable'],
             'excluded_items' => ['nullable'],
@@ -167,7 +175,11 @@ class ServiceController extends Controller
                 return array_values(array_filter(array_map('trim', $input)));
             }
             if (is_string($input)) {
-                $lines = preg_split('/\r\n|\r|\n/', $input);
+                if (str_contains($input, "\n") || str_contains($input, "\r")) {
+                    $lines = preg_split('/\r\n|\r|\n/', $input);
+                } else {
+                    $lines = explode(',', $input);
+                }
                 return array_values(array_filter(array_map('trim', $lines)));
             }
             return null;
@@ -183,6 +195,7 @@ class ServiceController extends Controller
             'headline' => $validated['headline'] ?? ($service->headline ?? $validated['name']),
             'image' => $imagePath ?: $service->image,
             'warranty_text' => $validated['warranty_text'] ?? ($service->warranty_text ?? '60-Day Re-work Free'),
+            'sub_categories' => $request->has('sub_categories') ? $parseList($request->input('sub_categories')) : $service->sub_categories,
             'feature_points' => $request->has('feature_points') ? $parseList($request->input('feature_points')) : $service->feature_points,
             'included_items' => $request->has('included_items') ? $parseList($request->input('included_items')) : $service->included_items,
             'excluded_items' => $request->has('excluded_items') ? $parseList($request->input('excluded_items')) : $service->excluded_items,
@@ -190,7 +203,7 @@ class ServiceController extends Controller
             'is_active' => $request->boolean('is_active'),
         ]);
 
-        return redirect()->route('admin.categories')
+        return redirect()->route('admin.services')
             ->with('success', "Service category '{$service->name}' updated successfully!");
     }
 
@@ -202,14 +215,14 @@ class ServiceController extends Controller
         $techCount = $service->professionals()->count();
 
         if ($techCount > 0) {
-            return redirect()->route('admin.categories')
+            return redirect()->route('admin.services')
                 ->with('error', "Cannot delete '{$service->name}' because {$techCount} technician(s) are linked to it. Deactivate the service instead.");
         }
 
         $name = $service->name;
         $service->delete();
 
-        return redirect()->route('admin.categories')
+        return redirect()->route('admin.services')
             ->with('success', "Service category '{$name}' has been deleted.");
     }
 
@@ -224,7 +237,7 @@ class ServiceController extends Controller
 
         $statusText = $service->is_active ? 'activated' : 'deactivated';
 
-        return redirect()->route('admin.categories')
+        return redirect()->route('admin.services')
             ->with('success', "Service '{$service->name}' is now {$statusText}.");
     }
 }

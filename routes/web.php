@@ -331,14 +331,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::match(['patch', 'post'], '/notifications/{notification}/read', [AdminDashboardController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [AdminDashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
 
-    // Catalog & Category / Services Management (Full CRUD)
+    // Services & Categories Management (Full CRUD)
+    Route::get('/services', [ServiceController::class, 'index'])->name('services');
+    Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+    Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+    Route::patch('/services/{service}/toggle', [ServiceController::class, 'toggle'])->name('services.toggle');
+
     Route::get('/categories', [ServiceController::class, 'index'])->name('categories');
     Route::post('/categories', [ServiceController::class, 'store'])->name('categories.store');
     Route::put('/categories/{service}', [ServiceController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{service}', [ServiceController::class, 'destroy'])->name('categories.destroy');
     Route::patch('/categories/{service}/toggle', [ServiceController::class, 'toggle'])->name('categories.toggle');
-
-    Route::get('/services', [ServiceController::class, 'index'])->name('services');
 
     // Growth Analytics
     Route::get('/analytics', [AnalyticsController::class, 'analytics'])->name('analytics');

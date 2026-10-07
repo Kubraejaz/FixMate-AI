@@ -192,6 +192,22 @@
                     {{ $svc->description ?: 'No detailed description set for this service category.' }}
                 </p>
 
+                <!-- Sub-Categories Badges -->
+                @if(!empty($svc->sub_categories_list))
+                    <div style="background: #FFFDF0; border: 1px solid #FEF08A; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;">
+                        <div style="font-weight: 800; color: #92400E; margin-bottom: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;">
+                            Sub-Categories ({{ count($svc->sub_categories_list) }}):
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                            @foreach($svc->sub_categories_list as $subCat)
+                                <span style="font-size: 11px; font-weight: 700; color: #0F172A; background: #FFFFFF; border: 1px solid #E2E8F0; padding: 2px 7px; border-radius: 6px;">
+                                    {{ $subCat }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Key Feature Points Preview -->
                 <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: #475569;">
                     <div style="font-weight: 700; color: #0F172A; margin-bottom: 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em;">Key Features / Scope:</div>
@@ -270,7 +286,7 @@
             <button type="button" onclick="closeAddServiceModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--adm-muted);">&times;</button>
         </div>
 
-        <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.services.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -349,6 +365,15 @@
                     </select>
                     <input type="file" name="image_file" accept="image/*" class="adm-input" style="font-size: 12px; padding: 7px 10px;">
                 </div>
+            </div>
+
+            <!-- Sub-Categories Field -->
+            <div class="adm-field">
+                <label for="addServiceSubCategories">Sub-Categories &amp; Specialized Capabilities (One per line or comma-separated)</label>
+                <textarea id="addServiceSubCategories" name="sub_categories" rows="3" class="adm-textarea" placeholder="Pipe Leakage & Repair&#10;Sanitary Fittings & Taps&#10;Water Tank Cleaning&#10;Motor & Water Pump"></textarea>
+                <span style="font-size: 11.5px; color: var(--adm-muted); margin-top: 4px; display: block;">
+                    These sub-categories appear as skills for technicians and filter tags across public and customer portals.
+                </span>
             </div>
 
             <!-- Bullet Points Textarea -->
@@ -490,6 +515,15 @@
                 </div>
             </div>
 
+            <!-- Sub-Categories Field -->
+            <div class="adm-field">
+                <label for="editServiceSubCategories">Sub-Categories &amp; Specialized Capabilities (One per line or comma-separated)</label>
+                <textarea id="editServiceSubCategories" name="sub_categories" rows="3" class="adm-textarea" placeholder="Pipe Leakage & Repair&#10;Sanitary Fittings & Taps&#10;Water Tank Cleaning"></textarea>
+                <span style="font-size: 11.5px; color: var(--adm-muted); margin-top: 4px; display: block;">
+                    These sub-categories appear as skills for technicians and filter tags across public and customer portals.
+                </span>
+            </div>
+
             <!-- Bullet Points Textarea -->
             <div class="adm-field">
                 <label for="editServiceFeatures">Key Features (One bullet per line, shown on service cards)</label>
@@ -590,7 +624,7 @@
     }
 
     function openEditModal(service) {
-        document.getElementById('editServiceForm').action = "{{ url('/admin/categories') }}/" + service.id;
+        document.getElementById('editServiceForm').action = "{{ url('/admin/services') }}/" + service.id;
         document.getElementById('editServiceName').value = service.name || '';
         document.getElementById('editServiceSlug').value = service.slug || '';
         document.getElementById('editServiceIcon').value = service.icon || '🔧';
@@ -610,6 +644,7 @@
             imageSelect.value = service.image;
         }
 
+        document.getElementById('editServiceSubCategories').value = parseLines(service.sub_categories);
         document.getElementById('editServiceFeatures').value = parseLines(service.feature_points);
         document.getElementById('editServiceIncluded').value = parseLines(service.included_items);
         document.getElementById('editServiceExcluded').value = parseLines(service.excluded_items);
@@ -628,7 +663,7 @@
         const msg = document.getElementById('deleteModalMessage');
         const submitBtn = document.getElementById('deleteModalSubmitBtn');
 
-        form.action = "{{ url('/admin/categories') }}/" + id;
+        form.action = "{{ url('/admin/services') }}/" + id;
 
         if (techCount > 0) {
             msg.innerHTML = `<strong>${name}</strong> has <strong>${techCount} technician(s)</strong> assigned to it.<br><br><span style="color: #DC2626;">Deletion is blocked to protect existing technician profiles.</span> You can deactivate it instead to hide it from the website.`;

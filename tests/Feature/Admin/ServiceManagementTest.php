@@ -25,7 +25,7 @@ class ServiceManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($admin)->get(route('admin.categories'));
+        $response = $this->actingAs($admin)->get(route('admin.services'));
 
         $response->assertOk();
         $response->assertSee('Solar Specialist');
@@ -37,7 +37,7 @@ class ServiceManagementTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
 
-        $response = $this->actingAs($admin)->post(route('admin.categories.store'), [
+        $response = $this->actingAs($admin)->post(route('admin.services.store'), [
             'name' => 'CCTV & Smart Security',
             'slug' => 'cctv-smart-security',
             'icon' => '📹',
@@ -46,6 +46,7 @@ class ServiceManagementTest extends TestCase
             'estimated_duration' => '45 – 90 mins',
             'headline' => 'HD IP Camera Installation & Smart Monitoring',
             'warranty_text' => '90-Day Protection Guarantee',
+            'sub_categories' => "IP Camera Installation\nDVR & NVR Setup\nNight Vision Tuning\nMobile App Streaming",
             'feature_points' => "Night vision camera calibration\nDVR/NVR cloud setup\nMobile app live view configuration",
             'included_items' => "Full wiring conduit audit\nBNC connector fitting\nMobile remote view setup",
             'excluded_items' => "Hard disk drive hardware\nCoaxial cable beyond 30 meters",
@@ -53,7 +54,7 @@ class ServiceManagementTest extends TestCase
             'is_active' => '1',
         ]);
 
-        $response->assertRedirect(route('admin.categories'));
+        $response->assertRedirect(route('admin.services'));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('professions', [
@@ -66,6 +67,8 @@ class ServiceManagementTest extends TestCase
 
         $service = Profession::where('slug', 'cctv-smart-security')->first();
         $this->assertNotNull($service);
+        $this->assertCount(4, $service->sub_categories);
+        $this->assertEquals('IP Camera Installation', $service->sub_categories[0]);
         $this->assertCount(3, $service->feature_points);
         $this->assertEquals('Night vision camera calibration', $service->feature_points[0]);
     }
@@ -83,7 +86,7 @@ class ServiceManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($admin)->put(route('admin.categories.update', $service->id), [
+        $response = $this->actingAs($admin)->put(route('admin.services.update', $service->id), [
             'name' => 'Updated Master Plumber',
             'slug' => 'updated-master-plumber',
             'icon' => '💧',
@@ -92,12 +95,13 @@ class ServiceManagementTest extends TestCase
             'estimated_duration' => '30 – 45 mins',
             'headline' => 'Modern Bathroom Fitting & Leak Repairs',
             'warranty_text' => '60-Day Rework Escrow',
+            'sub_categories' => "Pipe Leakage Ultrasonic Check\nTeflon Sealing Joint Fitting",
             'feature_points' => "Pipe leakage ultrasonic inspection\nTeflon sanitary thread sealing",
             'description' => 'Updated description text',
             'is_active' => '1',
         ]);
 
-        $response->assertRedirect(route('admin.categories'));
+        $response->assertRedirect(route('admin.services'));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('professions', [
@@ -109,6 +113,8 @@ class ServiceManagementTest extends TestCase
         ]);
 
         $service->refresh();
+        $this->assertCount(2, $service->sub_categories);
+        $this->assertEquals('Pipe Leakage Ultrasonic Check', $service->sub_categories[0]);
         $this->assertCount(2, $service->feature_points);
         $this->assertEquals('Pipe leakage ultrasonic inspection', $service->feature_points[0]);
     }
@@ -123,9 +129,9 @@ class ServiceManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($admin)->patch(route('admin.categories.toggle', $service->id));
+        $response = $this->actingAs($admin)->patch(route('admin.services.toggle', $service->id));
 
-        $response->assertRedirect(route('admin.categories'));
+        $response->assertRedirect(route('admin.services'));
 
         $this->assertDatabaseHas('professions', [
             'id' => $service->id,
@@ -156,9 +162,9 @@ class ServiceManagementTest extends TestCase
             'is_verified' => true,
         ]);
 
-        $response = $this->actingAs($admin)->delete(route('admin.categories.destroy', $service->id));
+        $response = $this->actingAs($admin)->delete(route('admin.services.destroy', $service->id));
 
-        $response->assertRedirect(route('admin.categories'));
+        $response->assertRedirect(route('admin.services'));
         $response->assertSessionHas('error');
 
         // Service should still exist in DB
@@ -177,9 +183,9 @@ class ServiceManagementTest extends TestCase
             'is_active' => false,
         ]);
 
-        $response = $this->actingAs($admin)->delete(route('admin.categories.destroy', $service->id));
+        $response = $this->actingAs($admin)->delete(route('admin.services.destroy', $service->id));
 
-        $response->assertRedirect(route('admin.categories'));
+        $response->assertRedirect(route('admin.services'));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseMissing('professions', [

@@ -17,12 +17,12 @@
             </svg>
             Review Pending KYC ({{ $stats['pending_kyc'] ?? 0 }})
         </a>
-        <a href="{{ route('admin.categories') }}" class="adm-btn adm-btn-primary">
+        <a href="{{ route('admin.services') }}" class="adm-btn adm-btn-primary">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
                 <path d="M12 5v14"></path>
                 <path d="M5 12h14"></path>
             </svg>
-            Manage Categories
+            Services &amp; Categories Portal
         </a>
     </div>
 </div>
@@ -168,7 +168,7 @@
     <div class="adm-card">
         <div class="adm-card-head">
             <h3>Active Trade Categories ({{ $stats['total_professions'] }})</h3>
-            <a href="{{ route('admin.categories') }}" class="adm-card-link">Manage Categories &rarr;</a>
+            <a href="{{ route('admin.services') }}" class="adm-card-link">Manage Services &rarr;</a>
         </div>
 
         @if($professions->isNotEmpty())
