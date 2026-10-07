@@ -205,7 +205,7 @@
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <!-- Start Let's Talk Video Call -->
                             <a href="{{ route('video-meeting.initiate', ['booking_id' => $booking->id]) }}" style="background: #0F172A; color: #FFB800; border: 2px solid #FFB800; font-weight: 900; font-size: 13.5px; padding: 11px 0; border-radius: 8px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                <span style="font-size: 16px;">📹</span> <span>Start Let's Talk Video Call (ویڈیو میٹنگ)</span>
+                                <span style="font-size: 16px;">📹</span> <span>Start Let's Talk Video Call</span>
                             </a>
                             <button type="button" onclick="navigator.clipboard.writeText('{{ $techPhone }}'); alert('Phone number copied to clipboard: {{ $techPhone }}');" class="btn-outline" style="width: 100%; padding: 10px 0; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer;">
                                 📋 Copy Phone Number

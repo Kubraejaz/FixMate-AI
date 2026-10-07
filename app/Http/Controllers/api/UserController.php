@@ -9,11 +9,20 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::select('id')->find(1);
+        $users = User::get();
 
         return response()->json([
             'status' => 200,
             'users' => $users
+        ]);
+    }
+
+    public function show($id)
+    {
+        $user = User::find($id);
+        return response()->json([
+            'status' => 200,
+            'user' => $user
         ]);
     }
 }

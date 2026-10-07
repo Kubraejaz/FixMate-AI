@@ -159,7 +159,7 @@
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <a href="{{ route('technician.notifications.open', $incomingCallTech->id) }}" style="background: #10B981; color: #FFFFFF; font-weight: 900; font-size: 13.5px; padding: 9px 20px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
-                    <span>📹</span> <span>Answer Call (ویڈیو کال شروع کریں)</span>
+                    <span>📹</span> <span>Answer Call (Video Meeting)</span>
                 </a>
                 <button type="button" onclick="document.getElementById('incomingCallBannerTech').style.display='none';" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #CBD5E1; font-size: 12px; padding: 8px 14px; border-radius: 8px; cursor: pointer;">
                     Dismiss

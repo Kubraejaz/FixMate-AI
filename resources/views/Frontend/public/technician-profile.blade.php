@@ -217,7 +217,7 @@
                        style="background: #0F172A; color: #FFB800; border: 2px solid #FFB800; font-weight: 800; font-size: 13.5px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);"
                        title="Can't type? Talk to {{ $techFirstName }} live via video">
                         <span style="font-size: 16px;">📹</span>
-                        <span>Let's Talk (ویڈیو کال شروع کریں)</span>
+                        <span>Let's Talk (Video Meeting)</span>
                     </a>
 
                     <a href="{{ url('/services') }}" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 13px; padding: 11px 0; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">

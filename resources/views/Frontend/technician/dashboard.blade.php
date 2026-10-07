@@ -187,7 +187,7 @@
                     <a href="{{ route('video-meeting.initiate', ['booking_id' => $incomingJob->id]) }}" 
                        style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 10px 16px; font-size: 13px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);" 
                        title="Call customer via live video before dispatch">
-                        <span>📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                        <span>📹</span> <span>Let's Talk (Video Call)</span>
                     </a>
                     <a href="{{ route('technician.jobs.details', $incomingJob->booking_number) }}" class="btn-outline" style="padding: 10px 18px; font-size: 13px; text-decoration: none;">View Details</a>
                     <form action="{{ route('technician.jobs.accept', $incomingJob->id) }}" method="POST" style="margin: 0;">

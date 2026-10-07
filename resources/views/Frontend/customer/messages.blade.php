@@ -69,7 +69,7 @@
                        style="padding: 7px 16px; font-size: 13px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25); transition: all 0.15s ease;"
                        title="Click to start live video meeting with this technician — no typing required!">
                         <span style="font-size: 16px;">📹</span>
-                        <span>Let's Talk (ویڈیو کال)</span>
+                        <span>Let's Talk</span>
                     </a>
 
                     <!-- Interactive Call Button Trigger -->
@@ -96,13 +96,13 @@
                         📹
                     </div>
                     <div>
-                        <strong style="font-size: 13px; color: #854D0E; display: block;">میسج ٹائپ نہیں کرنا آتا؟ کیمرے پر مسئلہ دکھائیں اور بات کریں!</strong>
+                        <strong style="font-size: 13px; color: #854D0E; display: block;">Don't want to type messages? Show the problem on camera and talk directly!</strong>
                         <span style="font-size: 11.5px; color: #A16207;">Can't deal via text messages? Click <strong>Let's Talk</strong> to open face-to-face video consultation.</span>
                     </div>
                 </div>
                 <a href="{{ route('video-meeting.initiate', ['technician_id' => $selectedTech->id, 'booking_id' => $activeBooking?->id]) }}" 
                    style="background: #10B981; color: #FFFFFF; font-weight: 900; font-size: 12.5px; padding: 7px 16px; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
-                    <span>📹</span> <span>Let's Talk (ویڈیو کال شروع کریں)</span>
+                    <span>📹</span> <span>Let's Talk (Start Video Call)</span>
                 </a>
             </div>
 
@@ -184,7 +184,7 @@
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         <!-- Primary Let's Talk Video Meeting Button -->
                         <a href="{{ route('video-meeting.initiate', ['technician_id' => $selectedTech->id, 'booking_id' => $activeBooking?->id]) }}" style="background: #0F172A; color: #FFB800; border: 2px solid #FFB800; font-weight: 900; font-size: 14px; padding: 12px 0; border-radius: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
-                            <span style="font-size: 18px;">📹</span> <span>Start Let's Talk Video Call (ویڈیو میٹنگ)</span>
+                            <span style="font-size: 18px;">📹</span> <span>Start Let's Talk Video Call</span>
                         </a>
 
                         <!-- Copy Button -->

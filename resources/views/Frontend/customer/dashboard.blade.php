@@ -86,7 +86,7 @@
                 <a href="{{ route('video-meeting.initiate', ['booking_id' => $nearUpcomingBooking->id]) }}" 
                    style="background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; padding: 10px 18px; font-size: 13px; font-weight: 800; text-decoration: none; border-radius: 8px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);"
                    title="Start live video call with assigned technician">
-                    <span style="font-size: 15px;">📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                    <span style="font-size: 15px;">📹</span> <span>Let's Talk (Video Call)</span>
                 </a>
 
                 @if($nearUpcomingBooking->arrival_otp)

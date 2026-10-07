@@ -67,7 +67,7 @@
                     <a href="{{ route('video-meeting.initiate', ['receiver_id' => $selectedCustomer->id, 'booking_id' => $activeBooking?->id]) }}" 
                        style="padding: 7px 15px; font-size: 12.5px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; background: #0F172A; color: #FFB800; border: 1.5px solid #FFB800; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);"
                        title="Live Video Meeting — Perfect for illiterate/uneducated customers!">
-                        <span>📹</span> <span>Let's Talk (ویڈیو کال)</span>
+                        <span>📹</span> <span>Let's Talk</span>
                     </a>
 
                     @if($selectedCustomer->phone)
@@ -90,7 +90,7 @@
                         📹
                     </div>
                     <div>
-                        <strong style="font-size: 13px; color: #854D0E; display: block;">گاہک میسج نہیں پڑھ سکتے؟ براہِ راست ویڈیو کال شروع کریں</strong>
+                        <strong style="font-size: 13px; color: #854D0E; display: block;">Customer has difficulty reading messages? Start a direct video call</strong>
                         <span style="font-size: 11.5px; color: #A16207;">Customer has trouble typing? Launch <strong>Let's Talk</strong> to inspect the defect on live video.</span>
                     </div>
                 </div>
