@@ -68,6 +68,11 @@ class Professional extends Model
         return $this->belongsTo(Profession::class);
     }
 
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * Determine if technician is currently online or available for dispatch.
      */

@@ -17,8 +17,41 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'user_type' => EnsureUserHasRole::class,
             'technician.verified' => \App\Http\Middleware\EnsureTechnicianVerified::class,
+            'api.role' => \App\Http\Middleware\Api\EnsureApiRole::class,
+            'api.verified' => \App\Http\Middleware\Api\EnsureApiTechnicianVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('api/*') || $request->expectsJson());
+
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'data' => null,
+                    'errors' => $e->errors(),
+                ], $e->status);
+            }
+        });
+
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated. Please sign in to continue.',
+                    'data' => null,
+                ], 401);
+            }
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Request failed.',
+                    'data' => null,
+                ], $e->getStatusCode());
+            }
+        });
     })->create();

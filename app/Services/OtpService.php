@@ -21,7 +21,7 @@ class OtpService
      * Issue a 6-digit OTP for the given user, persist it (hashed) and
      * deliver it via SMS (or mail when no phone is known).
      */
-    public static function issue(User $user, string $identifier, string $purpose): void
+    public static function issue(User $user, string $identifier, string $purpose): string
     {
         $code = (string) random_int(100000, 999999);
 
@@ -44,6 +44,8 @@ class OtpService
 
         session()->put('otp.identifier', $identifier);
         session()->put('otp.purpose', $purpose);
+
+        return $code;
     }
 
     /**
