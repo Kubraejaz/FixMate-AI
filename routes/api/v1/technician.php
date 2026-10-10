@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Technician\ProfileController;
 use App\Http\Controllers\Api\V1\Technician\ReviewController;
 use App\Http\Controllers\Api\V1\Technician\ScheduleController;
 use App\Http\Controllers\Api\V1\Technician\SkillController;
+use App\Http\Controllers\Api\V1\Technician\SubscriptionController;
 use App\Http\Controllers\Api\V1\Technician\VerificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,11 @@ Route::prefix('technician')->middleware(['auth:sanctum', 'api.role:technician'])
         // Earnings & schedule
         Route::get('earnings', [EarningsController::class, 'index'])->name('api.technician.earnings');
         Route::get('schedule', [ScheduleController::class, 'index'])->name('api.technician.schedule');
+
+        // Subscriptions & FixMate Pro VIP (Phase 2)
+        Route::get('subscription', [SubscriptionController::class, 'show'])->name('api.technician.subscription.show');
+        Route::post('subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('api.technician.subscription.upgrade');
+        Route::post('subscription/cancel', [SubscriptionController::class, 'cancel'])->name('api.technician.subscription.cancel');
 
         // Skills
         Route::get('skills', [SkillController::class, 'index'])->name('api.technician.skills.index');

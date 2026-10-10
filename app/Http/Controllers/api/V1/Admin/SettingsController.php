@@ -15,7 +15,10 @@ class SettingsController extends ApiController
     public function settings(): JsonResponse
     {
         return $this->ok([
-            'platform_commission' => cache('platform_commission', 12.0),
+            'platform_commission' => (float) cache('platform_commission', 10.0),
+            'subscription_monthly_price' => (int) cache('subscription_monthly_price', 500),
+            'subscription_annual_price' => (int) cache('subscription_annual_price', 4999),
+            'convenience_fee' => (int) cache('convenience_fee', 50),
             'otp_expiry_minutes' => cache('otp_expiry_minutes', 10),
             'max_service_radius_km' => cache('max_service_radius_km', 25),
             'maintenance_mode' => (bool) cache('maintenance_mode', false),
@@ -32,6 +35,9 @@ class SettingsController extends ApiController
     {
         $validated = $request->validate([
             'platform_commission' => ['nullable', 'numeric', 'between:0,100'],
+            'subscription_monthly_price' => ['nullable', 'integer', 'min:0'],
+            'subscription_annual_price' => ['nullable', 'integer', 'min:0'],
+            'convenience_fee' => ['nullable', 'integer', 'min:0'],
             'otp_expiry_minutes' => ['nullable', 'integer', 'between:1,60'],
             'max_service_radius_km' => ['nullable', 'numeric', 'between:1,200'],
             'maintenance_mode' => ['nullable', 'boolean'],
@@ -79,8 +85,16 @@ class SettingsController extends ApiController
             ->whereBetween('completed_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('total_price');
 
-        $commissionRate = (float) cache('platform_commission', 12.0);
-        $netCommission = (int) round($settledThisMonth * ($commissionRate / 100));
+        $commissionRate = (float) cache('platform_commission', 10.0);
+        $commissionEarned = (int) (Booking::where('status', 'completed')->sum('platform_fee')
+            ?: round($settledThisMonth * ($commissionRate / 100)));
+
+        $subscriptionRevenue = (int) \App\Models\TechnicianSubscription::where('status', 'active')->sum('price');
+        $activeSubscribersCount = Professional::where('subscription_plan', '!=', 'free')
+            ->where('subscribed_until', '>', now())
+            ->count();
+
+        $totalPlatformRevenue = $commissionEarned + $subscriptionRevenue;
 
         $transactions = Booking::with(['professional', 'user'])
             ->whereIn('payment_status', ['escrow_held', 'cash_on_delivery', 'escrow_released'])
@@ -91,7 +105,7 @@ class SettingsController extends ApiController
                 'booking_number' => $b->booking_number,
                 'type' => $b->payment_status === 'escrow_released' ? 'Escrow Release' : 'Escrow Hold',
                 'amount' => (int) $b->total_price,
-                'fee' => (int) round($b->total_price * ($commissionRate / 100)),
+                'fee' => (int) ($b->platform_fee ?: round($b->total_price * ($commissionRate / 100))),
                 'technician' => $b->professional?->name,
                 'customer' => $b->user?->name,
                 'status' => $b->payment_status,
@@ -102,8 +116,13 @@ class SettingsController extends ApiController
             'summary' => [
                 'escrow_held' => $escrowHeld,
                 'settled_this_month' => $settledThisMonth,
-                'net_commission' => $netCommission,
+                'commission_earned' => $commissionEarned,
+                'subscription_revenue' => $subscriptionRevenue,
+                'total_platform_revenue' => $totalPlatformRevenue,
+                'active_subscribers_count' => $activeSubscribersCount,
                 'commission_rate' => $commissionRate,
+                'monthly_subscription_price' => (int) cache('subscription_monthly_price', 500),
+                'annual_subscription_price' => (int) cache('subscription_annual_price', 4999),
                 'total_customers' => User::where('user_type', User::TYPE_CUSTOMER)->count(),
                 'total_technicians' => Professional::count(),
             ],

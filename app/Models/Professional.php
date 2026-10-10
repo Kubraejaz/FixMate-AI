@@ -19,6 +19,9 @@ class Professional extends Model
         'experience',
         'description',
         'sub_categories',
+        'subscription_plan',
+        'subscribed_until',
+        'is_featured',
         'cnic_number',
         'is_verified',
         'verification_status',
@@ -42,6 +45,8 @@ class Professional extends Model
     {
         return [
             'is_verified' => 'boolean',
+            'is_featured' => 'boolean',
+            'subscribed_until' => 'datetime',
             'sub_categories' => 'array',
             'cnic_number' => 'encrypted',
         ];
@@ -71,6 +76,42 @@ class Professional extends Model
     public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TechnicianSubscription::class);
+    }
+
+    /**
+     * Check if technician has an active VIP Pro subscription (0% commission perk).
+     */
+    public function hasActiveProSubscription(): bool
+    {
+        if ($this->subscription_plan === 'free' || empty($this->subscription_plan)) {
+            return false;
+        }
+
+        return $this->subscribed_until !== null && $this->subscribed_until->isFuture();
+    }
+
+    public function isPro(): bool
+    {
+        return $this->hasActiveProSubscription();
+    }
+
+    /**
+     * Determine platform commission rate applied to this technician.
+     * VIP Pro subscribers enjoy 0% platform commission!
+     * Standard free tier pays platform commission (default 10%).
+     */
+    public function getCommissionRate(): float
+    {
+        if ($this->hasActiveProSubscription()) {
+            return 0.0;
+        }
+
+        return (float) cache('platform_commission', 10.0);
     }
 
     /**

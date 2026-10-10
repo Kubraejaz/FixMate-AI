@@ -447,13 +447,18 @@ class TechnicianPortalController extends Controller
             abort(403, 'Unauthorized booking operation.');
         }
 
+        $booking->calculateFinancials($pro);
+
         $booking->update([
             'status' => 'completed',
             'completed_at' => now(),
             'payment_status' => 'escrow_released',
+            'platform_fee' => $booking->platform_fee,
+            'technician_payout' => $booking->technician_payout,
+            'commission_rate' => $booking->commission_rate,
         ]);
 
-        $payout = (int) round($booking->total_price * 0.90);
+        $payout = $booking->technician_payout;
 
         // Notify customer
         Notification::sendToUser(
@@ -489,23 +494,71 @@ class TechnicianPortalController extends Controller
             ->latest('completed_at')
             ->get();
 
-        $lifetimeEarnings = (int) round($completedBookings->sum('total_price') * 0.90);
+        $rate = $pro->getCommissionRate();
+        $payoutMult = (100.0 - $rate) / 100.0;
+
+        $lifetimeEarnings = (int) ($completedBookings->sum('technician_payout')
+            ?: round($completedBookings->sum('total_price') * $payoutMult));
 
         $pendingEscrow = (int) round(
             Booking::where('professional_id', $pro->id)
                 ->whereIn('status', ['confirmed', 'en_route', 'in_progress'])
-                ->sum('total_price') * 0.90
+                ->sum('total_price') * $payoutMult
         );
 
         $availableWithdrawal = $lifetimeEarnings; // Available wallet balance
+
+        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
+        $annualPrice = (int) cache('subscription_annual_price', 4999);
 
         return view('Frontend.technician.earnings', compact(
             'pro',
             'completedBookings',
             'lifetimeEarnings',
             'pendingEscrow',
-            'availableWithdrawal'
+            'availableWithdrawal',
+            'rate',
+            'monthlyPrice',
+            'annualPrice'
         ));
+    }
+
+    /**
+     * Subscribe to FixMate Pro VIP from web portal
+     */
+    public function subscribePro(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'plan_name' => ['required', 'in:pro_monthly,pro_annual'],
+            'payment_method' => ['required', 'in:wallet,jazzcash,easypaisa,card'],
+        ]);
+
+        $pro = $this->getProfessional();
+        $isMonthly = $validated['plan_name'] === 'pro_monthly';
+        $price = $isMonthly ? (int) cache('subscription_monthly_price', 500) : (int) cache('subscription_annual_price', 4999);
+        $durationDays = $isMonthly ? 30 : 365;
+
+        $baseDate = ($pro->subscribed_until && $pro->subscribed_until->isFuture()) ? $pro->subscribed_until : now();
+        $expiresAt = $baseDate->copy()->addDays($durationDays);
+
+        \App\Models\TechnicianSubscription::create([
+            'professional_id' => $pro->id,
+            'plan_name' => $validated['plan_name'],
+            'price' => $price,
+            'payment_method' => $validated['payment_method'],
+            'transaction_reference' => \App\Models\TechnicianSubscription::generateReference(),
+            'status' => 'active',
+            'starts_at' => now(),
+            'expires_at' => $expiresAt,
+        ]);
+
+        $pro->update([
+            'subscription_plan' => $validated['plan_name'],
+            'subscribed_until' => $expiresAt,
+            'is_featured' => true,
+        ]);
+
+        return back()->with('success', "🎉 Welcome to FixMate Pro VIP! You now enjoy 0% platform commission on all jobs until {$expiresAt->format('M d, Y')}!");
     }
 
     /**

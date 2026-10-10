@@ -146,6 +146,9 @@ Requires `auth:sanctum` and `api.role:technician`. Operational endpoints require
 | `POST` | `/api/v1/technician/jobs/{booking}/complete` | Mark job completed and release escrow payout | Yes |
 | `GET` | `/api/v1/technician/earnings` | Complete earnings ledger, platform fee deductions, balance | Yes |
 | `GET` | `/api/v1/technician/schedule` | Scheduled appointments and calendar jobs | Yes |
+| `GET` | `/api/v1/technician/subscription` | Current VIP status, plan benefits, available tiers | Yes |
+| `POST` | `/api/v1/technician/subscription/upgrade` | Upgrade to FixMate Pro VIP (0% commission perk) | Yes |
+| `POST` | `/api/v1/technician/subscription/cancel` | Cancel Pro subscription and revert to free tier | Yes |
 | `GET` | `/api/v1/technician/skills` | Active trade category and sub-skills | Yes |
 | `POST` | `/api/v1/technician/skills` | Update trade category and specialized skills | Yes |
 | `GET` | `/api/v1/technician/profile` | Technician bio, contact, and profile info | Yes |

@@ -33,7 +33,7 @@ class TechnicianDirectoryController extends ApiController
         }
 
         $perPage = min((int) $request->input('per_page', 12), 50);
-        $technicians = $query->latest()->paginate($perPage);
+        $technicians = $query->orderByDesc('is_featured')->latest()->paginate($perPage);
 
         return $this->paginated($technicians, ProfessionalResource::class, 'Technicians retrieved.');
     }

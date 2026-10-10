@@ -33,6 +33,9 @@ class Booking extends Model
         'arrival_otp',
         'base_price',
         'total_price',
+        'platform_fee',
+        'technician_payout',
+        'commission_rate',
         'payment_status',
         'payment_method',
         'cancellation_reason',
@@ -45,6 +48,9 @@ class Booking extends Model
             'service_date' => 'date',
             'base_price' => 'integer',
             'total_price' => 'integer',
+            'platform_fee' => 'integer',
+            'technician_payout' => 'integer',
+            'commission_rate' => 'float',
             'tracking_eta_minutes' => 'integer',
             'technician_latitude' => 'float',
             'technician_longitude' => 'float',
@@ -53,6 +59,37 @@ class Booking extends Model
             'location_updated_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Compute platform commission, convenience fee, and technician net payout.
+     */
+    public function calculateFinancials(?Professional $pro = null): self
+    {
+        if ($pro === null && $this->professional_id) {
+            $pro = $this->professional;
+        }
+
+        $rate = $pro ? $pro->getCommissionRate() : (float) cache('platform_commission', 10.0);
+        $total = (int) ($this->total_price ?: $this->base_price ?: 650);
+
+        $fee = (int) round(($total * $rate) / 100);
+        $payout = max(0, $total - $fee);
+
+        $this->commission_rate = $rate;
+        $this->platform_fee = $fee;
+        $this->technician_payout = $payout;
+
+        return $this;
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Booking $booking) {
+            if ($booking->technician_payout === null || $booking->technician_payout === 0) {
+                $booking->calculateFinancials();
+            }
+        });
     }
 
     public static function generateBookingNumber(): string

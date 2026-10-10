@@ -284,6 +284,7 @@ Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:tech
     // Earnings & Payout Ledger
     Route::get('/earnings', [TechnicianPortalController::class, 'earnings'])->name('earnings');
     Route::get('/payouts', [TechnicianPortalController::class, 'earnings'])->name('payouts');
+    Route::post('/subscription/upgrade', [TechnicianPortalController::class, 'subscribePro'])->name('subscription.upgrade');
 
     // Schedule & Availability
     Route::get('/schedule', [TechnicianPortalController::class, 'schedule'])->name('schedule');

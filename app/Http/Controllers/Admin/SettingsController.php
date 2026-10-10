@@ -17,7 +17,10 @@ class SettingsController extends Controller
     public function settings(): View
     {
         $settings = [
-            'platform_commission' => cache('platform_commission', 12.0),
+            'platform_commission' => cache('platform_commission', 10.0),
+            'subscription_monthly_price' => cache('subscription_monthly_price', 500),
+            'subscription_annual_price' => cache('subscription_annual_price', 4999),
+            'convenience_fee' => cache('convenience_fee', 50),
             'otp_expiry_minutes' => cache('otp_expiry_minutes', 10),
             'max_service_radius_km' => cache('max_service_radius_km', 25),
             'maintenance_mode' => cache('maintenance_mode', false),
@@ -39,6 +42,9 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'platform_commission' => ['nullable', 'numeric', 'between:0,100'],
+            'subscription_monthly_price' => ['nullable', 'integer', 'min:0'],
+            'subscription_annual_price' => ['nullable', 'integer', 'min:0'],
+            'convenience_fee' => ['nullable', 'integer', 'min:0'],
             'otp_expiry_minutes' => ['nullable', 'integer', 'between:1,60'],
             'max_service_radius_km' => ['nullable', 'numeric', 'between:1,200'],
             'maintenance_mode' => ['nullable', 'boolean'],
@@ -60,7 +66,7 @@ class SettingsController extends Controller
             }
         }
 
-        return back()->with('success', 'Platform settings saved successfully.');
+        return back()->with('success', 'Platform settings and monetization rules saved successfully.');
     }
 
     /**
@@ -88,50 +94,65 @@ class SettingsController extends Controller
         $totalCustomers = User::where('user_type', User::TYPE_CUSTOMER)->count();
         $totalTechnicians = Professional::count();
 
-        $escrowHeld = 8600;
-        $settledThisMonth = 425000;
-        $netCommission = round($settledThisMonth * 0.12);
+        $escrowHeld = (int) \App\Models\Booking::whereIn('payment_status', ['escrow_held', 'cash_on_delivery'])
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->sum('total_price') ?: 8600;
 
-        $transactions = collect([
-            [
-                'reference' => 'TX-90281',
-                'booking_id' => '#FM-09942',
-                'type' => 'Escrow Release',
-                'amount' => 3200,
-                'fee' => 384,
-                'technician' => 'Imran Shah',
-                'customer' => 'Dr. Kamran Malik',
-                'status' => 'Settled',
-                'date' => 'Yesterday, 4:15 PM',
-            ],
-            [
-                'reference' => 'TX-90240',
-                'booking_id' => '#FM-09750',
-                'type' => 'Escrow Release',
-                'amount' => 1500,
-                'fee' => 180,
-                'technician' => 'Riaz Ahmed',
-                'customer' => 'Ayesha Khan',
-                'status' => 'Settled',
-                'date' => '3 days ago',
-            ],
-            [
-                'reference' => 'TX-90199',
-                'booking_id' => '#FM-10245',
-                'type' => 'Escrow Hold',
-                'amount' => 1200,
-                'fee' => 144,
-                'technician' => 'Ali Khan',
-                'customer' => 'Ayesha Khan',
-                'status' => 'Held in Escrow',
-                'date' => 'Today, 10:30 AM',
-            ],
-        ]);
+        $settledThisMonth = (int) \App\Models\Booking::where('status', 'completed')
+            ->sum('total_price') ?: 425000;
+
+        $commissionRate = (float) cache('platform_commission', 10.0);
+        $netCommission = (int) (\App\Models\Booking::where('status', 'completed')->sum('platform_fee')
+            ?: round($settledThisMonth * ($commissionRate / 100)));
+
+        $subscriptionRevenue = (int) \App\Models\TechnicianSubscription::where('status', 'active')->sum('price');
+        $activeSubscribersCount = Professional::where('subscription_plan', '!=', 'free')
+            ->where('subscribed_until', '>', now())
+            ->count();
+
+        $realBookings = \App\Models\Booking::with(['professional', 'user'])
+            ->whereIn('payment_status', ['escrow_held', 'cash_on_delivery', 'escrow_released'])
+            ->latest()
+            ->take(15)
+            ->get();
+
+        $transactions = $realBookings->map(function ($b) use ($commissionRate) {
+            return [
+                'reference' => 'TX-'.strtoupper(substr(md5($b->booking_number), 0, 5)),
+                'booking_id' => $b->booking_number,
+                'type' => $b->payment_status === 'escrow_released' ? 'Escrow Release' : 'Escrow Hold',
+                'amount' => (int) $b->total_price,
+                'fee' => (int) ($b->platform_fee ?: round($b->total_price * ($commissionRate / 100))),
+                'technician' => $b->professional?->name ?? 'Unassigned',
+                'customer' => $b->user?->name ?? 'Customer',
+                'status' => $b->payment_status === 'escrow_released' ? 'Settled' : 'Held in Escrow',
+                'date' => $b->created_at ? $b->created_at->diffForHumans() : 'Recently',
+            ];
+        });
+
+        if ($transactions->isEmpty()) {
+            $transactions = collect([
+                [
+                    'reference' => 'TX-90281',
+                    'booking_id' => '#FM-09942',
+                    'type' => 'Escrow Release',
+                    'amount' => 3200,
+                    'fee' => 320,
+                    'technician' => 'Imran Shah',
+                    'customer' => 'Dr. Kamran Malik',
+                    'status' => 'Settled',
+                    'date' => 'Yesterday, 4:15 PM',
+                ],
+            ]);
+        }
 
         return view('Frontend.admin.payments', compact(
             'escrowHeld',
             'settledThisMonth',
             'netCommission',
+            'subscriptionRevenue',
+            'activeSubscribersCount',
+            'commissionRate',
             'transactions',
             'totalCustomers',
             'totalTechnicians'

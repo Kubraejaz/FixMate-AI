@@ -80,9 +80,13 @@ class JobController extends TechnicianController
 
         $booking->load(['user', 'profession', 'professional.user', 'professional.profession', 'review']);
 
+        $techPayout = $booking->technician_payout ?: $booking->calculateFinancials($pro)->technician_payout;
+
         return $this->ok([
             'booking' => new BookingResource($booking),
-            'tech_payout' => (int) round($booking->total_price * 0.90),
+            'tech_payout' => $techPayout,
+            'platform_fee' => $booking->platform_fee,
+            'is_pro' => $pro->isPro(),
         ], 'Job details retrieved.');
     }
 
@@ -99,9 +103,14 @@ class JobController extends TechnicianController
             return $this->error('This job has already been claimed by another technician.', 422);
         }
 
+        $booking->calculateFinancials($pro);
+
         $booking->update([
             'professional_id' => $pro->id,
             'status' => 'confirmed',
+            'platform_fee' => $booking->platform_fee,
+            'technician_payout' => $booking->technician_payout,
+            'commission_rate' => $booking->commission_rate,
         ]);
 
         Notification::sendToUser(
@@ -169,9 +178,13 @@ class JobController extends TechnicianController
             ->latest()
             ->first();
 
+        $techPayout = $booking ? ($booking->technician_payout ?: $booking->calculateFinancials($pro)->technician_payout) : 0;
+
         return $this->ok([
             'booking' => $booking ? new BookingResource($booking) : null,
-            'tech_payout' => $booking ? (int) round($booking->total_price * 0.90) : 0,
+            'tech_payout' => $techPayout,
+            'platform_fee' => $booking ? $booking->platform_fee : 0,
+            'is_pro' => $pro->isPro(),
         ], 'Active job retrieved.');
     }
 
@@ -249,13 +262,18 @@ class JobController extends TechnicianController
             return $this->error('Unauthorized booking operation.', 403);
         }
 
+        $booking->calculateFinancials($pro);
+
         $booking->update([
             'status' => 'completed',
             'completed_at' => now(),
             'payment_status' => 'escrow_released',
+            'platform_fee' => $booking->platform_fee,
+            'technician_payout' => $booking->technician_payout,
+            'commission_rate' => $booking->commission_rate,
         ]);
 
-        $payout = (int) round($booking->total_price * 0.90);
+        $payout = $booking->technician_payout;
 
         Notification::sendToUser(
             $booking->user_id,
@@ -277,6 +295,8 @@ class JobController extends TechnicianController
         return $this->ok([
             'booking' => new BookingResource($booking),
             'payout' => $payout,
+            'platform_fee' => $booking->platform_fee,
+            'is_pro' => $pro->isPro(),
         ], 'Service completed! Rs. '.number_format($payout).' has been credited to your wallet.');
     }
 
