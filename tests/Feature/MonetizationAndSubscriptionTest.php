@@ -198,6 +198,62 @@ class MonetizationAndSubscriptionTest extends TestCase
             ->assertJsonPath('data.summary.active_subscribers_count', 1);
     }
 
+    public function test_phase2_technician_can_upgrade_via_web_portal_route(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_monthly',
+                'payment_method' => 'wallet',
+            ]);
+
+        $response->assertRedirect();
+        $this->professional->refresh();
+        $this->assertTrue($this->professional->isPro());
+        $this->assertEquals('pro_monthly', $this->professional->subscription_plan);
+
+        // Check dashboard view renders the Pro VIP status
+        $dashResponse = $this->actingAs($this->techUser)
+            ->get(route('technician.dashboard'));
+
+        $dashResponse->assertOk();
+        $dashResponse->assertSee('FixMate Pro VIP Partner (Active)');
+        $dashResponse->assertSee('0% Fee Active');
+    }
+
+    public function test_phase2_customer_can_upgrade_to_vip_home_care_pass_via_web(): void
+    {
+        // 1. Initial dashboard shows upgrade banner
+        $initialDash = $this->actingAs($this->customer)
+            ->get(route('customer.dashboard'));
+
+        $initialDash->assertOk();
+        $initialDash->assertSee('FixMate Home Care VIP Pass');
+        $initialDash->assertSee('Rs. 299');
+
+        // 2. Customer upgrades to VIP monthly
+        $upgradeResponse = $this->actingAs($this->customer)
+            ->post(route('customer.subscription.upgrade'), [
+                'plan_name' => 'vip_monthly',
+                'payment_method' => 'jazzcash',
+            ]);
+
+        $upgradeResponse->assertRedirect();
+        $this->customer->refresh();
+
+        $this->assertTrue($this->customer->isVip());
+        $this->assertEquals('vip_monthly', $this->customer->subscription_plan);
+        $this->assertNotNull($this->customer->subscribed_until);
+        $this->assertTrue($this->customer->subscribed_until->isFuture());
+
+        // 3. Customer dashboard now shows active VIP badge
+        $vipDash = $this->actingAs($this->customer)
+            ->get(route('customer.dashboard'));
+
+        $vipDash->assertOk();
+        $vipDash->assertSee('FixMate Home Care VIP Member (Active)');
+        $vipDash->assertSee('0% Convenience Fee Active');
+    }
+
     public function test_phase2_technician_can_cancel_subscription(): void
     {
         $this->professional->update([

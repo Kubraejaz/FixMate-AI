@@ -102,6 +102,113 @@
         </div>
     @endif
 
+    <!-- FixMate Home Care VIP Pass Banner & Status Card -->
+    @php
+        $isCustVip = $user->isVip();
+        $vipMonthlyPrice = 299;
+        $vipAnnualPrice = 2499;
+    @endphp
+
+    <div id="vipSubscriptionSection" style="background: {{ $isCustVip ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' : 'linear-gradient(135deg, #18181B 0%, #27272A 100%)' }}; border: 2px solid {{ $isCustVip ? '#F59E0B' : '#EAB308' }}; border-radius: 18px; padding: 22px 26px; margin-bottom: 24px; color: #FFFFFF; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 290px;">
+            <div style="width: 56px; height: 56px; border-radius: 16px; background: {{ $isCustVip ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'linear-gradient(135deg, #FACC15, #CA8A04)' }}; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0;">
+                👑
+            </div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
+                    <h3 style="font-size: 18px; font-weight: 900; color: #FDE047; margin: 0;">
+                        {{ $isCustVip ? 'FixMate Home Care VIP Member (Active)' : 'FixMate Home Care VIP Pass — Waive All Booking Fees' }}
+                    </h3>
+                    @if($isCustVip)
+                        <span style="background: #10B981; color: #FFFFFF; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 20px; text-transform: uppercase;">
+                            ● 0% Convenience Fee Active
+                        </span>
+                    @else
+                        <span style="background: #EAB308; color: #000000; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 20px; text-transform: uppercase;">
+                            Save Rs. 50 On Every Request
+                        </span>
+                    @endif
+                </div>
+                <p style="font-size: 13.5px; color: #E4E4E7; margin: 0; line-height: 1.45;">
+                    @if($isCustVip)
+                        Your VIP Pass is active until <strong>{{ $user->subscribed_until->format('M d, Y') }}</strong>! You enjoy <strong>0% booking fees</strong>, <strong>15-minute priority dispatch</strong>, and <strong>30-day extended repair warranty</strong>.
+                    @else
+                        Join FixMate Home Care VIP Club for only <strong>Rs. {{ number_format($vipMonthlyPrice) }}/mo</strong>! Get <strong>Rs. 0 platform fees</strong>, guaranteed <strong>15-minute priority technician dispatch</strong>, and <strong>30-day extended repair warranty</strong>.
+                    @endif
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <button type="button" onclick="document.getElementById('customerSubscriptionModal').style.display='flex';" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000000; font-weight: 900; font-size: 13.5px; padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
+                <span>👑</span>
+                <span>{{ $isCustVip ? 'Extend VIP Membership' : 'Join VIP Club (Rs. ' . number_format($vipMonthlyPrice) . '/mo) →' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Customer VIP Subscription Modal -->
+    <div id="customerSubscriptionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: #FFFFFF; border-radius: 20px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 26px;">👑</span>
+                    <h3 style="font-size: 20px; font-weight: 900; color: #111; margin: 0;">FixMate Home Care VIP Pass</h3>
+                </div>
+                <button type="button" onclick="document.getElementById('customerSubscriptionModal').style.display='none';" style="background: #F3F4F6; border: none; font-size: 18px; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;">✕</button>
+            </div>
+
+            <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px; margin-bottom: 20px;">
+                <div style="font-size: 13.5px; font-weight: 800; color: #92400E; margin-bottom: 6px;">Exclusive VIP Member Perks:</div>
+                <ul style="font-size: 13px; color: #78350F; margin: 0; padding-left: 20px; line-height: 1.6;">
+                    <li><strong>0% Platform Convenience Fees:</strong> Save Rs. 50 on every single booking!</li>
+                    <li><strong>15-Minute Priority Dispatch:</strong> Top queue priority for certified plumbers, electricians & AC pros.</li>
+                    <li><strong>30-Day Extended Repair Warranty:</strong> FixMate guarantees free re-inspection if issue reoccurs.</li>
+                    <li><strong>Unlimited AI Diagnostics & Video Meets:</strong> Direct remote expert assistance whenever you need it.</li>
+                </ul>
+            </div>
+
+            <form action="{{ route('customer.subscription.upgrade') }}" method="POST">
+                @csrf
+                <div style="margin-bottom: 18px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 8px;">Select VIP Membership Plan:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <label style="border: 2px solid #F59E0B; border-radius: 12px; padding: 14px; cursor: pointer; background: #FFFDF5; display: block;">
+                            <input type="radio" name="plan_name" value="vip_monthly" checked style="margin-right: 6px;">
+                            <strong style="font-size: 14px; color: #111; display: block; margin-top: 4px;">Monthly VIP</strong>
+                            <span style="font-size: 18px; font-weight: 900; color: #D97706;">Rs. {{ number_format($vipMonthlyPrice) }}</span>
+                            <span style="font-size: 11px; color: #6B7280; display: block;">Billed monthly</span>
+                        </label>
+                        <label style="border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 14px; cursor: pointer; background: #FFFFFF; display: block;">
+                            <input type="radio" name="plan_name" value="vip_annual" style="margin-right: 6px;">
+                            <strong style="font-size: 14px; color: #111; display: block; margin-top: 4px;">Annual VIP Pass</strong>
+                            <span style="font-size: 18px; font-weight: 900; color: #047857;">Rs. {{ number_format($vipAnnualPrice) }}</span>
+                            <span style="font-size: 11px; color: #10B981; font-weight: 800; display: block;">Save 30% (Rs. 1,089 off)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 22px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 8px;">Payment Method:</label>
+                    <select name="payment_method" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
+                        <option value="jazzcash">📱 JazzCash Mobile Account</option>
+                        <option value="easypaisa">📱 EasyPaisa Mobile Account</option>
+                        <option value="card">💳 Debit / Credit Card (Visa / Mastercard)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="document.getElementById('customerSubscriptionModal').style.display='none';" style="flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #E5E7EB; background: #F9FAFB; font-weight: 700; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="flex: 2; padding: 12px; border-radius: 10px; border: none; background: #111827; color: #FDE047; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        Activate VIP Membership Now →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- 4 Stats Cards matching Mockup 1 -->
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
         
@@ -256,7 +363,17 @@
             </div>
         </div>
 
-    </div>
-
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.location.hash === '#vipSubscription' || window.location.hash === '#subscriptionModal') {
+            const modal = document.getElementById('customerSubscriptionModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    });
+</script>
 @endsection

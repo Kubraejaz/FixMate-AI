@@ -49,7 +49,8 @@
                 <!-- Earnings Quick Metric -->
                 @php
                     $techUser = auth()->user();
-                    $techProId = $techUser?->professional?->id;
+                    $techPro = $techUser?->professional;
+                    $techProId = $techPro?->id;
                     $techWalletTotal = $techProId
                         ? (int) round(\App\Models\Booking::where('professional_id', $techProId)->where('status', 'completed')->sum('total_price') * 0.90)
                         : 0;
@@ -265,6 +266,14 @@
                     </a>
                     <a href="{{ url('/technician/earnings') }}" class="portal-nav-link {{ Request::is('technician/earnings*') || Request::is('technician/payouts*') ? 'active' : '' }}">
                         <span>💰</span> <span>Earnings & Payouts</span>
+                    </a>
+                    <a href="{{ url('/technician/earnings#techSubscription') }}" onclick="if(document.getElementById('techSubscriptionModal')){ document.getElementById('techSubscriptionModal').style.display='flex'; }" class="portal-nav-link" style="color: #D97706; font-weight: 800;">
+                        <span>👑</span> <span>VIP Pro Pass (0% Fee)</span>
+                        @if($techPro?->hasActiveProSubscription())
+                            <span style="margin-left: auto; background: #10B981; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;">PRO VIP</span>
+                        @else
+                            <span style="margin-left: auto; background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;">0% FEE</span>
+                        @endif
                     </a>
                     <a href="{{ url('/technician/verification') }}" class="portal-nav-link {{ Request::is('technician/verification*') ? 'active' : '' }}">
                         <span>🛡️</span> <span>KYC Verification</span>

@@ -41,6 +41,8 @@ class User extends Authenticatable
         'cnic_number',
         'is_verified',
         'is_active',
+        'subscription_plan',
+        'subscribed_until',
         'city',
         'area',
         'description',
@@ -56,6 +58,7 @@ class User extends Authenticatable
      */
     protected $attributes = [
         'is_active' => true,
+        'subscription_plan' => 'free',
     ];
 
     /**
@@ -80,6 +83,7 @@ class User extends Authenticatable
             'user_type' => 'integer',
             'is_verified' => 'boolean',
             'is_active' => 'boolean',
+            'subscribed_until' => 'datetime',
             'cnic_number' => 'encrypted',
             'email_verified_at' => 'datetime',
             'contact_verified_at' => 'datetime',
@@ -88,6 +92,19 @@ class User extends Authenticatable
             'password' => 'hashed',
             'notification_settings' => 'array',
         ];
+    }
+
+    public function isVip(): bool
+    {
+        return $this->subscription_plan !== 'free'
+            && ! empty($this->subscription_plan)
+            && $this->subscribed_until !== null
+            && $this->subscribed_until->isFuture();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->isVip();
     }
 
     /**

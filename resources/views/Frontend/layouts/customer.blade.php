@@ -189,6 +189,14 @@
                 <a href="{{ route('customer.payment') }}" class="portal-nav-link {{ Request::is('customer/payment*') ? 'active' : '' }}">
                     <span>💳</span> <span>Escrow & Payments</span>
                 </a>
+                <a href="{{ route('customer.dashboard') }}#vipSubscription" onclick="if(document.getElementById('customerSubscriptionModal')){ document.getElementById('customerSubscriptionModal').style.display='flex'; }" class="portal-nav-link" style="color: #D97706; font-weight: 800;">
+                    <span>👑</span> <span>Home Care VIP Club</span>
+                    @if(auth()->user()?->isVip())
+                        <span style="margin-left: auto; background: #10B981; color: #FFF; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;">VIP ACTIVE</span>
+                    @else
+                        <span style="margin-left: auto; background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 10px;">SAVE FEES</span>
+                    @endif
+                </a>
                 <a href="{{ route('customer.messages') }}" class="portal-nav-link {{ Request::is('customer/messages*') ? 'active' : '' }}">
                     <span>💬</span> <span>Messages</span>
                 </a>

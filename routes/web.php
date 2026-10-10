@@ -206,6 +206,7 @@ Route::prefix('customer')->name('customer.')->middleware(['auth', 'role:customer
     Route::match(['patch', 'post'], '/notifications/{notification}/read', [CustomerPortalController::class, 'markSingleNotificationRead'])->name('notifications.single-read');
     Route::post('/notifications/read', [CustomerPortalController::class, 'markNotificationsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [CustomerPortalController::class, 'markNotificationsRead'])->name('notifications.read-all');
+    Route::post('/subscription/upgrade', [CustomerPortalController::class, 'subscribeVip'])->name('subscription.upgrade');
 
 });
 

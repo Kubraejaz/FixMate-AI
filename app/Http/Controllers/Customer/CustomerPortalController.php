@@ -945,6 +945,40 @@ class CustomerPortalController extends Controller
     }
 
     /**
+     * Subscribe to FixMate Home Care VIP Pass
+     */
+    public function subscribeVip(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
+            'payment_method' => ['required', 'in:jazzcash,easypaisa,card'],
+        ]);
+
+        /** @var User $user */
+        $user = auth()->user();
+        $isMonthly = $validated['plan_name'] === 'vip_monthly';
+        $durationDays = $isMonthly ? 30 : 365;
+
+        $baseDate = ($user->subscribed_until && $user->subscribed_until->isFuture()) ? $user->subscribed_until : now();
+        $expiresAt = $baseDate->copy()->addDays($durationDays);
+
+        $user->update([
+            'subscription_plan' => $validated['plan_name'],
+            'subscribed_until' => $expiresAt,
+        ]);
+
+        Notification::sendToUser(
+            $user->id,
+            'vip_activated',
+            '👑 FixMate VIP Home Care Pass Activated!',
+            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')}. Enjoy waived booking fees and priority 15-minute dispatch!",
+            route('customer.dashboard')
+        );
+
+        return back()->with('success', "🎉 Welcome to FixMate VIP Club! Your Home Care Pass is active until {$expiresAt->format('M d, Y')}!");
+    }
+
+    /**
      * Helper to verify booking ownership.
      */
     private function authorizeBookingOwnership(Booking $booking): void

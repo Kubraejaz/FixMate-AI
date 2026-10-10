@@ -16,6 +16,24 @@
                 <span style="font-size: 12px; font-weight: 800; color: #065F46;">FixMate Escrow Protected</span>
             </div>
         </div>
+    <!-- VIP Home Care Club Pass Info Banner -->
+    @php
+        $userVip = auth()->user()?->isVip();
+    @endphp
+    <div style="background: {{ $userVip ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' : '#FFFDF5' }}; border: 1.5px solid {{ $userVip ? '#F59E0B' : '#FCD34D' }}; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 22px;">👑</span>
+            <div style="font-size: 13px; color: {{ $userVip ? '#FDE047' : '#92400E' }};">
+                @if($userVip)
+                    <strong>FixMate Home Care VIP Member Active:</strong> 0% booking fees applied to all escrow checkouts! Valid until {{ auth()->user()->subscribed_until?->format('M d, Y') }}.
+                @else
+                    <strong>FixMate Home Care VIP Pass:</strong> Waive booking convenience fees, get 15-min priority dispatches and a 30-day extended repair warranty.
+                @endif
+            </div>
+        </div>
+        <a href="{{ route('customer.dashboard') }}#vipSubscription" class="btn-yellow" style="padding: 6px 14px; font-size: 12px; font-weight: 800; text-decoration: none; border-radius: 6px;">
+            {{ $userVip ? 'Manage VIP Pass' : 'Join VIP Club (Rs. 299/mo) →' }}
+        </a>
     </div>
 
     @if(! $booking)
