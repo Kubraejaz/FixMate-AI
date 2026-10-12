@@ -344,7 +344,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/notifications', [AdminDashboardController::class, 'notifications'])->name('notifications');
     Route::get('/notifications/{notification}/open', [AdminDashboardController::class, 'openNotification'])->name('notifications.open');
     Route::match(['patch', 'post'], '/notifications/{notification}/read', [AdminDashboardController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/{notification}/unread', [AdminDashboardController::class, 'markNotificationUnread'])->name('notifications.unread');
+    Route::delete('/notifications/{notification}', [AdminDashboardController::class, 'deleteNotification'])->name('notifications.destroy');
     Route::post('/notifications/read-all', [AdminDashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
+    Route::post('/notifications/clear-read', [AdminDashboardController::class, 'clearReadNotifications'])->name('notifications.clear-read');
 
     // Services & Categories Management (Full CRUD)
     Route::get('/services', [ServiceController::class, 'index'])->name('services');

@@ -99,17 +99,107 @@ class DashboardController extends Controller
         /** @var User $user */
         $user = auth()->user();
         $filter = $request->input('filter', 'all');
+        $category = $request->input('category', 'all');
+        $search = trim((string) $request->input('q', $request->input('search', '')));
 
-        $query = $user->notifications()->latest();
+        $baseQuery = $user->notifications();
+
+        // Platform alert KPI counters
+        $totalCount = (clone $baseQuery)->count();
+        $unreadCount = (clone $baseQuery)->unread()->count();
+        $readCount = max(0, $totalCount - $unreadCount);
+
+        $kycCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('type', 'like', 'kyc%')
+              ->orWhere('type', 'technician_registered');
+        })->count();
+
+        $bookingCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('type', 'like', 'booking%')
+              ->orWhere('type', 'like', 'job%')
+              ->orWhere('type', 'like', 'service%')
+              ->orWhere('type', 'technician_en_route');
+        })->count();
+
+        $paymentCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('type', 'like', 'escrow%')
+              ->orWhere('type', 'like', 'payment%')
+              ->orWhere('type', 'like', 'payout%');
+        })->count();
+
+        $inquiryCount = (clone $baseQuery)->where(function ($q) {
+            $q->where('type', 'like', 'inquiry%')
+              ->orWhere('type', 'like', 'complaint%')
+              ->orWhere('type', 'chat_message')
+              ->orWhere('type', 'review_reply');
+        })->count();
+
+        $stats = [
+            'total' => $totalCount,
+            'unread' => $unreadCount,
+            'read' => $readCount,
+            'kyc' => $kycCount,
+            'booking' => $bookingCount,
+            'payment' => $paymentCount,
+            'inquiry' => $inquiryCount,
+        ];
+
+        // Apply filters to feed
+        $query = (clone $baseQuery)->latest();
 
         if ($filter === 'unread') {
             $query->unread();
+        } elseif ($filter === 'read') {
+            $query->where('is_read', true);
+        }
+
+        if ($category && $category !== 'all') {
+            if ($category === 'kyc') {
+                $query->where(function ($q) {
+                    $q->where('type', 'like', 'kyc%')
+                      ->orWhere('type', 'technician_registered');
+                });
+            } elseif ($category === 'booking') {
+                $query->where(function ($q) {
+                    $q->where('type', 'like', 'booking%')
+                      ->orWhere('type', 'like', 'job%')
+                      ->orWhere('type', 'like', 'service%')
+                      ->orWhere('type', 'technician_en_route');
+                });
+            } elseif ($category === 'payment') {
+                $query->where(function ($q) {
+                    $q->where('type', 'like', 'escrow%')
+                      ->orWhere('type', 'like', 'payment%')
+                      ->orWhere('type', 'like', 'payout%');
+                });
+            } elseif ($category === 'inquiry') {
+                $query->where(function ($q) {
+                    $q->where('type', 'like', 'inquiry%')
+                      ->orWhere('type', 'like', 'complaint%')
+                      ->orWhere('type', 'chat_message')
+                      ->orWhere('type', 'review_reply');
+                });
+            }
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('message', 'like', "%{$search}%");
+            });
         }
 
         $notifications = $query->paginate(15)->withQueryString();
-        $unreadCount = $user->notifications()->unread()->count();
 
-        return view('Frontend.admin.notifications', compact('user', 'notifications', 'unreadCount', 'filter'));
+        return view('Frontend.admin.notifications', compact(
+            'user',
+            'notifications',
+            'unreadCount',
+            'filter',
+            'category',
+            'search',
+            'stats'
+        ));
     }
 
     /**
@@ -144,6 +234,44 @@ class DashboardController extends Controller
     }
 
     /**
+     * Mark single notification as unread
+     */
+    public function markNotificationUnread(Request $request, Notification $notification)
+    {
+        if ($notification->user_id === auth()->id()) {
+            $notification->update(['is_read' => false]);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'unread_count' => auth()->user()->notifications()->unread()->count(),
+            ]);
+        }
+
+        return back()->with('success', 'Notification marked as unread.');
+    }
+
+    /**
+     * Delete single notification
+     */
+    public function deleteNotification(Request $request, Notification $notification)
+    {
+        if ($notification->user_id === auth()->id()) {
+            $notification->delete();
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'unread_count' => auth()->user()->notifications()->unread()->count(),
+            ]);
+        }
+
+        return back()->with('success', 'Notification deleted successfully.');
+    }
+
+    /**
      * Mark all notifications as read
      */
     public function markAllNotificationsRead(Request $request)
@@ -160,5 +288,17 @@ class DashboardController extends Controller
         }
 
         return back()->with('success', 'All system notifications marked as read.');
+    }
+
+    /**
+     * Clear all read notifications
+     */
+    public function clearReadNotifications(Request $request)
+    {
+        /** @var User $user */
+        $user = auth()->user();
+        $user->notifications()->where('is_read', true)->delete();
+
+        return back()->with('success', 'All reviewed notifications have been cleared.');
     }
 }
