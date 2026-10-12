@@ -88,10 +88,41 @@ class DashboardController extends ApiController
         ], 'Notification marked as read.');
     }
 
+    public function markNotificationUnread(Request $request, Notification $notification): JsonResponse
+    {
+        if ($notification->user_id === $request->user()->id) {
+            $notification->update(['is_read' => false]);
+        }
+
+        return $this->ok([
+            'unread_count' => $request->user()->notifications()->unread()->count(),
+        ], 'Notification marked as unread.');
+    }
+
+    public function deleteNotification(Request $request, Notification $notification): JsonResponse
+    {
+        if ($notification->user_id === $request->user()->id) {
+            $notification->delete();
+        }
+
+        return $this->ok([
+            'unread_count' => $request->user()->notifications()->unread()->count(),
+        ], 'Notification deleted.');
+    }
+
     public function markAllNotificationsRead(Request $request): JsonResponse
     {
         $request->user()->notifications()->where('is_read', false)->update(['is_read' => true]);
 
         return $this->ok(['unread_count' => 0], 'All system notifications marked as read.');
+    }
+
+    public function clearReadNotifications(Request $request): JsonResponse
+    {
+        $request->user()->notifications()->where('is_read', true)->delete();
+
+        return $this->ok([
+            'unread_count' => $request->user()->notifications()->unread()->count(),
+        ], 'All reviewed notifications cleared.');
     }
 }

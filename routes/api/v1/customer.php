@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Customer\DashboardController;
 use App\Http\Controllers\Api\V1\Customer\NotificationController;
 use App\Http\Controllers\Api\V1\Customer\ProfileController;
 use App\Http\Controllers\Api\V1\Customer\ReviewController;
+use App\Http\Controllers\Api\V1\Customer\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,6 +52,11 @@ Route::prefix('customer')->middleware(['auth:sanctum', 'api.role:customer'])->gr
     Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update'])->name('api.customer.profile.update');
     Route::post('password', [ProfileController::class, 'updatePassword'])->name('api.customer.password.update');
     Route::post('notification-settings', [ProfileController::class, 'updateNotificationSettings'])->name('api.customer.notification-settings');
+
+    // Subscriptions & VIP Home Care Pass (Phase 2)
+    Route::get('subscription', [SubscriptionController::class, 'show'])->name('api.customer.subscription.show');
+    Route::post('subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('api.customer.subscription.upgrade');
+    Route::post('subscription/cancel', [SubscriptionController::class, 'cancel'])->name('api.customer.subscription.cancel');
 
     // AI defect diagnosis
     Route::post('ai/diagnose', [AiDiagnosisController::class, 'diagnose'])->name('api.customer.ai.diagnose');

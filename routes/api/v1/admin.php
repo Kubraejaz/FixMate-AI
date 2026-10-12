@@ -26,7 +26,10 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'api.role:admin'])->group(fu
     Route::get('dashboard', [DashboardController::class, 'index'])->name('api.admin.dashboard');
     Route::get('notifications', [DashboardController::class, 'notifications'])->name('api.admin.notifications.index');
     Route::post('notifications/{notification}/read', [DashboardController::class, 'markNotificationRead'])->name('api.admin.notifications.read');
+    Route::post('notifications/{notification}/unread', [DashboardController::class, 'markNotificationUnread'])->name('api.admin.notifications.unread');
+    Route::delete('notifications/{notification}', [DashboardController::class, 'deleteNotification'])->name('api.admin.notifications.destroy');
     Route::post('notifications/read-all', [DashboardController::class, 'markAllNotificationsRead'])->name('api.admin.notifications.read-all');
+    Route::post('notifications/clear-read', [DashboardController::class, 'clearReadNotifications'])->name('api.admin.notifications.clear-read');
 
     // Analytics
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('api.admin.analytics');

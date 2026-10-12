@@ -76,6 +76,48 @@ class AdminApiTest extends TestCase
             ->assertJsonStructure(['data' => ['totals', 'by_city']]);
     }
 
+    public function test_admin_can_manage_notifications(): void
+    {
+        $notif = \App\Models\Notification::create([
+            'user_id' => $this->admin->id,
+            'type' => 'kyc_submitted',
+            'title' => 'New Partner Verification',
+            'message' => 'A technician submitted documents',
+            'is_read' => false,
+        ]);
+
+        // 1. Get notifications
+        $this->actingAs($this->admin, 'sanctum')
+            ->getJson('/api/v1/admin/notifications')
+            ->assertOk()
+            ->assertJsonPath('meta.unread_count', 1);
+
+        // 2. Mark read
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson("/api/v1/admin/notifications/{$notif->id}/read")
+            ->assertOk()
+            ->assertJsonPath('data.unread_count', 0);
+
+        // 3. Mark unread
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson("/api/v1/admin/notifications/{$notif->id}/unread")
+            ->assertOk()
+            ->assertJsonPath('data.unread_count', 1);
+
+        // 4. Mark all read
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/v1/admin/notifications/read-all')
+            ->assertOk()
+            ->assertJsonPath('data.unread_count', 0);
+
+        // 5. Clear read notifications
+        $this->actingAs($this->admin, 'sanctum')
+            ->postJson('/api/v1/admin/notifications/clear-read')
+            ->assertOk();
+
+        $this->assertDatabaseMissing('notifications', ['id' => $notif->id]);
+    }
+
     public function test_admin_can_view_bookings(): void
     {
         $customer = $this->customer();

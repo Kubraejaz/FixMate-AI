@@ -260,6 +260,41 @@ class CustomerApiTest extends TestCase
             ->assertJsonPath('data.is_recognized', true);
     }
 
+    public function test_customer_can_view_upgrade_and_cancel_vip_subscription(): void
+    {
+        // 1. Initial subscription status
+        $this->actingAs($this->customer, 'sanctum')
+            ->getJson('/api/v1/customer/subscription')
+            ->assertOk()
+            ->assertJsonPath('data.current_subscription.is_vip', false)
+            ->assertJsonPath('data.current_subscription.plan', 'free');
+
+        // 2. Upgrade to VIP
+        $this->actingAs($this->customer, 'sanctum')
+            ->postJson('/api/v1/customer/subscription/upgrade', [
+                'plan_name' => 'vip_monthly',
+                'payment_method' => 'jazzcash',
+            ])
+            ->assertStatus(201)
+            ->assertJsonPath('data.subscription.is_vip', true)
+            ->assertJsonPath('data.subscription.plan_name', 'vip_monthly');
+
+        $this->customer->refresh();
+        $this->assertTrue($this->customer->isVip());
+        $this->assertEquals('vip_monthly', $this->customer->subscription_plan);
+
+        // 3. Cancel VIP subscription
+        $this->actingAs($this->customer, 'sanctum')
+            ->postJson('/api/v1/customer/subscription/cancel')
+            ->assertOk()
+            ->assertJsonPath('data.is_vip', false)
+            ->assertJsonPath('data.subscription_plan', 'free');
+
+        $this->customer->refresh();
+        $this->assertFalse($this->customer->isVip());
+        $this->assertEquals('free', $this->customer->subscription_plan);
+    }
+
     public function test_customer_cannot_access_another_customers_booking(): void
     {
         $other = User::factory()->customer()->create();
