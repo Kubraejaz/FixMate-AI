@@ -84,6 +84,28 @@ class Professional extends Model
     }
 
     /**
+     * Get available wallet balance for technician.
+     * Calculated as lifetime earnings from completed jobs minus any subscription fees paid via wallet.
+     */
+    public function getAvailableWalletBalance(): int
+    {
+        $completedBookings = Booking::where('professional_id', $this->id)
+            ->where('status', 'completed')
+            ->get();
+
+        $lifetimeEarnings = (int) $completedBookings->sum(function ($b) {
+            return $b->technician_payout ?: round($b->total_price * 0.90);
+        });
+
+        $walletDeductions = (int) $this->subscriptions()
+            ->where('payment_method', 'wallet')
+            ->whereIn('status', ['active', 'expired', 'completed'])
+            ->sum('price');
+
+        return max(0, $lifetimeEarnings - $walletDeductions);
+    }
+
+    /**
      * Check if technician has an active VIP Pro subscription (0% commission perk).
      */
     public function hasActiveProSubscription(): bool

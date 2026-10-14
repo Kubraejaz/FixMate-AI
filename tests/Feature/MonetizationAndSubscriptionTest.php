@@ -272,4 +272,91 @@ class MonetizationAndSubscriptionTest extends TestCase
         $this->assertFalse($this->professional->isPro());
         $this->assertEquals('free', $this->professional->subscription_plan);
     }
+
+    public function test_phase2_technician_can_view_subscription_checkout_page(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->get(route('technician.subscription.checkout', ['plan' => 'pro_annual']));
+
+        $response->assertOk();
+        $response->assertSee('FixMate Pro VIP Partner Checkout');
+        $response->assertSee('Annual VIP Pass');
+        $response->assertSee('Deduct from FixMate Wallet Balance');
+        $response->assertSee('JazzCash Mobile Account');
+        $response->assertSee('EasyPaisa Mobile Account');
+        $response->assertSee('Debit / Credit Card');
+    }
+
+    public function test_phase2_technician_can_upgrade_with_jazzcash_verified_payment(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_monthly',
+                'payment_method' => 'jazzcash',
+                'jazzcash_mobile' => '03001234567',
+                'jazzcash_mpin' => '1234',
+            ]);
+
+        $response->assertRedirect(route('technician.dashboard'));
+        $this->professional->refresh();
+        $this->assertTrue($this->professional->isPro());
+        $this->assertEquals('pro_monthly', $this->professional->subscription_plan);
+
+        $this->assertDatabaseHas('technician_subscriptions', [
+            'professional_id' => $this->professional->id,
+            'plan_name' => 'pro_monthly',
+            'payment_method' => 'jazzcash',
+            'status' => 'active',
+        ]);
+    }
+
+    public function test_phase2_technician_can_upgrade_with_card_verified_payment(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_annual',
+                'payment_method' => 'card',
+                'card_name' => 'AHMED KHAN',
+                'card_number' => '4242424242424242',
+                'card_expiry' => '12/28',
+                'card_cvc' => '123',
+            ]);
+
+        $response->assertRedirect(route('technician.dashboard'));
+        $this->professional->refresh();
+        $this->assertTrue($this->professional->isPro());
+        $this->assertEquals('pro_annual', $this->professional->subscription_plan);
+
+        $this->assertDatabaseHas('technician_subscriptions', [
+            'professional_id' => $this->professional->id,
+            'plan_name' => 'pro_annual',
+            'payment_method' => 'card',
+            'status' => 'active',
+        ]);
+    }
+
+    public function test_phase2_technician_subscription_fails_without_required_payment_credentials(): void
+    {
+        // Missing jazzcash_mobile when method is jazzcash
+        $response = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_monthly',
+                'payment_method' => 'jazzcash',
+            ]);
+
+        $response->assertSessionHasErrors(['jazzcash_mobile']);
+        $this->professional->refresh();
+        $this->assertFalse($this->professional->isPro());
+
+        // Missing card details when method is card
+        $cardResponse = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_monthly',
+                'payment_method' => 'card',
+            ]);
+
+        $cardResponse->assertSessionHasErrors(['card_name', 'card_number', 'card_expiry', 'card_cvc']);
+        $this->professional->refresh();
+        $this->assertFalse($this->professional->isPro());
+    }
 }

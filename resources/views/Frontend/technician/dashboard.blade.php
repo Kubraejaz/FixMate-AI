@@ -151,70 +151,141 @@
         </div>
 
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <button type="button" onclick="document.getElementById('techSubscriptionModal').style.display='flex';" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000000; font-weight: 900; font-size: 13.5px; padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
+            <button type="button" onclick="document.getElementById('techSubscriptionModal').style.display='flex';" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000000; font-weight: 900; font-size: 13.5px; padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
                 <span>👑</span>
                 <span>{{ $isPro ? 'Extend VIP Plan' : 'Upgrade to Pro VIP →' }}</span>
             </button>
+            <a href="{{ route('technician.subscription.checkout') }}" style="background: rgba(255,255,255,0.1); color: #FDE047; font-weight: 800; font-size: 13px; padding: 11px 18px; border-radius: 10px; border: 1.5px solid #F59E0B; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <span>💳</span> Secure Checkout &rarr;
+            </a>
         </div>
     </div>
 
-    <!-- Technician Subscription Modal -->
-    <div id="techSubscriptionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center; padding: 16px;">
-        <div style="background: #FFFFFF; border-radius: 20px; max-width: 520px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <!-- Technician Subscription Modal with Proper Payment Gateway Flow -->
+    <div id="techSubscriptionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 99999; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: #FFFFFF; border-radius: 20px; max-width: 540px; width: 100%; padding: 26px 28px; box-shadow: 0 20px 45px rgba(0,0,0,0.35); position: relative; max-height: 92vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 26px;">👑</span>
-                    <h3 style="font-size: 20px; font-weight: 900; color: #111; margin: 0;">Upgrade to FixMate Pro VIP</h3>
+                    <div>
+                        <h3 style="font-size: 19px; font-weight: 900; color: #111; margin: 0;">Upgrade to FixMate Pro VIP</h3>
+                        <span style="font-size: 12px; color: #059669; font-weight: 800;">Keep 100% of all customer payouts (0% Commission)</span>
+                    </div>
                 </div>
                 <button type="button" onclick="document.getElementById('techSubscriptionModal').style.display='none';" style="background: #F3F4F6; border: none; font-size: 18px; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;">✕</button>
             </div>
 
-            <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px; margin-bottom: 20px;">
-                <div style="font-size: 13.5px; font-weight: 800; color: #92400E; margin-bottom: 6px;">VIP Partner Perks Included:</div>
-                <ul style="font-size: 13px; color: #78350F; margin: 0; padding-left: 20px; line-height: 1.6;">
-                    <li><strong>0% Platform Commission:</strong> Keep 100% of all customer payments!</li>
-                    <li><strong>#1 Search Placement:</strong> Appear first in the customer technician directory.</li>
-                    <li><strong>FixMate Pro Verified Gold Badge:</strong> 3x higher customer booking conversion.</li>
-                    <li><strong>Priority Dispatches:</strong> Instant notification for all emergency jobs.</li>
+            <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="font-size: 12.5px; font-weight: 800; color: #92400E; margin-bottom: 4px;">VIP Partner Perks Included:</div>
+                <ul style="font-size: 12px; color: #78350F; margin: 0; padding-left: 18px; line-height: 1.5;">
+                    <li><strong>0% Platform Commission:</strong> Keep 100% of earnings!</li>
+                    <li><strong>#1 Search Placement:</strong> Appear first in technician search.</li>
+                    <li><strong>Verified Gold Pro Badge:</strong> 3x higher booking requests.</li>
                 </ul>
             </div>
 
-            <form action="{{ route('technician.subscription.upgrade') }}" method="POST">
+            <form action="{{ route('technician.subscription.upgrade') }}" method="POST" id="modalSubscriptionForm">
                 @csrf
-                <div style="margin-bottom: 18px;">
-                    <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 8px;">Select VIP Plan:</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <label style="border: 2px solid #F59E0B; border-radius: 12px; padding: 14px; cursor: pointer; background: #FFFDF5; display: block;">
-                            <input type="radio" name="plan_name" value="pro_monthly" checked style="margin-right: 6px;">
-                            <strong style="font-size: 14px; color: #111; display: block; margin-top: 4px;">Monthly Pass</strong>
-                            <span style="font-size: 18px; font-weight: 900; color: #D97706;">Rs. {{ number_format($monthlyPrice) }}</span>
-                            <span style="font-size: 11px; color: #6B7280; display: block;">Billed monthly</span>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 6px;">Select VIP Plan:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label id="modalPlanMonthlyLabel" style="border: 2px solid #F59E0B; border-radius: 12px; padding: 12px; cursor: pointer; background: #FFFDF5; display: block;">
+                            <input type="radio" name="plan_name" value="pro_monthly" checked onchange="onModalPlanChange('pro_monthly', {{ $monthlyPrice }})" style="margin-right: 4px; accent-color: #F59E0B;">
+                            <strong style="font-size: 13.5px; color: #111;">Monthly Pass</strong>
+                            <div style="font-size: 17px; font-weight: 900; color: #D97706; margin-top: 2px;">Rs. {{ number_format($monthlyPrice) }}</div>
+                            <span style="font-size: 10.5px; color: #6B7280; display: block;">Billed monthly</span>
                         </label>
-                        <label style="border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 14px; cursor: pointer; background: #FFFFFF; display: block;">
-                            <input type="radio" name="plan_name" value="pro_annual" style="margin-right: 6px;">
-                            <strong style="font-size: 14px; color: #111; display: block; margin-top: 4px;">Annual Pass</strong>
-                            <span style="font-size: 18px; font-weight: 900; color: #047857;">Rs. {{ number_format($annualPrice) }}</span>
-                            <span style="font-size: 11px; color: #10B981; font-weight: 800; display: block;">Save 17% (Rs. 1,000 off)</span>
+                        <label id="modalPlanAnnualLabel" style="border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px; cursor: pointer; background: #FFFFFF; display: block;">
+                            <input type="radio" name="plan_name" value="pro_annual" onchange="onModalPlanChange('pro_annual', {{ $annualPrice }})" style="margin-right: 4px; accent-color: #F59E0B;">
+                            <strong style="font-size: 13.5px; color: #111;">Annual Pass</strong>
+                            <div style="font-size: 17px; font-weight: 900; color: #047857; margin-top: 2px;">Rs. {{ number_format($annualPrice) }}</div>
+                            <span style="font-size: 10.5px; color: #10B981; font-weight: 800; display: block;">Save 17%</span>
                         </label>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 22px;">
-                    <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 8px;">Payment Method:</label>
-                    <select name="payment_method" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
-                        <option value="wallet">💰 Deduct from FixMate Wallet Balance (Instant)</option>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 6px;">Payment Method:</label>
+                    <select name="payment_method" id="modalPaymentMethod" onchange="onModalPaymentMethodChange(this.value)" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; background: #FFF;">
+                        <option value="wallet">💰 Deduct from FixMate Wallet (Available: Rs. {{ number_format($availableWallet) }})</option>
                         <option value="jazzcash">📱 JazzCash Mobile Account</option>
                         <option value="easypaisa">📱 EasyPaisa Mobile Account</option>
                         <option value="card">💳 Debit / Credit Card (Visa / Mastercard)</option>
                     </select>
                 </div>
 
+                <!-- Modal Payment Inputs -->
+                <!-- 1. Wallet Balance Info -->
+                <div id="modalBoxWallet" style="display: block; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px;">
+                        <span style="color: #64748B;">Wallet Balance:</span>
+                        <strong style="color: #0F172A;">Rs. {{ number_format($availableWallet) }}</strong>
+                    </div>
+                    @if($availableWallet >= $monthlyPrice)
+                        <span style="font-size: 11.5px; color: #059669; font-weight: 700;">✓ Sufficient funds available. Will be deducted immediately.</span>
+                    @else
+                        <span style="font-size: 11.5px; color: #DC2626; font-weight: 700;">⚠️ Insufficient balance for this plan. Select JazzCash, EasyPaisa, or Card.</span>
+                    @endif
+                </div>
+
+                <!-- 2. JazzCash Input -->
+                <div id="modalBoxJazzcash" style="display: none; background: #FFFDF0; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #78350F; margin-bottom: 4px;">
+                        JazzCash Mobile Number <span style="color: #DC2626;">*</span>
+                    </label>
+                    <input type="text" name="jazzcash_mobile" id="modal_jazzcash_mobile" placeholder="03001234567" value="{{ $user->phone ?? '' }}" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
+                    
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #78350F; margin-bottom: 4px;">
+                        JazzCash MPIN / OTP
+                    </label>
+                    <input type="password" name="jazzcash_mpin" maxlength="6" placeholder="Enter 4-digit MPIN" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; letter-spacing: 2px;">
+                </div>
+
+                <!-- 3. EasyPaisa Input -->
+                <div id="modalBoxEasypaisa" style="display: none; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">
+                        EasyPaisa Mobile Number <span style="color: #DC2626;">*</span>
+                    </label>
+                    <input type="text" name="easypaisa_mobile" id="modal_easypaisa_mobile" placeholder="03451234567" value="{{ $user->phone ?? '' }}" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
+                    
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">
+                        EasyPaisa MPIN / OTP
+                    </label>
+                    <input type="password" name="easypaisa_mpin" maxlength="6" placeholder="Enter 5-digit PIN" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; letter-spacing: 2px;">
+                </div>
+
+                <!-- 4. Card Input -->
+                <div id="modalBoxCard" style="display: none; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 4px;">Name on Card <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="card_name" placeholder="Cardholder Name" value="{{ $pro->name }}" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
+
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 4px;">Card Number <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="card_number" id="modal_card_number" maxlength="19" placeholder="4242 •••• •••• 4242" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 11.5px; font-weight: 800; color: #374151; margin-bottom: 4px;">Expiry (MM/YY) <span style="color: #DC2626;">*</span></label>
+                            <input type="text" name="card_expiry" maxlength="5" placeholder="12/28" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13px; font-weight: 700;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 11.5px; font-weight: 800; color: #374151; margin-bottom: 4px;">CVC <span style="color: #DC2626;">*</span></label>
+                            <input type="password" name="card_cvc" maxlength="4" placeholder="•••" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13px; font-weight: 700;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 12px;">
+                    <a href="{{ route('technician.subscription.checkout') }}" style="color: #D97706; font-weight: 800; text-decoration: underline;">
+                        Prefer dedicated full-screen checkout? Click here &rarr;
+                    </a>
+                </div>
+
                 <div style="display: flex; gap: 10px;">
-                    <button type="button" onclick="document.getElementById('techSubscriptionModal').style.display='none';" style="flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid #E5E7EB; background: #F9FAFB; font-weight: 700; cursor: pointer;">
+                    <button type="button" onclick="document.getElementById('techSubscriptionModal').style.display='none';" style="flex: 1; padding: 11px; border-radius: 10px; border: 1.5px solid #E5E7EB; background: #F9FAFB; font-weight: 700; cursor: pointer;">
                         Cancel
                     </button>
-                    <button type="submit" style="flex: 2; padding: 12px; border-radius: 10px; border: none; background: #111827; color: #FDE047; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                        Activate Pro VIP Now →
+                    <button type="submit" id="btnModalPaySubmit" style="flex: 2; padding: 11px; border-radius: 10px; border: none; background: #111827; color: #FDE047; font-weight: 900; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        Pay Rs. <span id="lblModalBtnPrice">{{ number_format($monthlyPrice) }}</span> &amp; Activate &rarr;
                     </button>
                 </div>
             </form>
@@ -466,6 +537,97 @@
 </div>
 
 <script>
+    let modalPrice = {{ $monthlyPrice }};
+    const modalAvailableWallet = {{ $availableWallet }};
+
+    function onModalPlanChange(plan, price) {
+        modalPrice = price;
+        const formatted = new Intl.NumberFormat().format(price);
+        const lbl = document.getElementById('lblModalBtnPrice');
+        if (lbl) lbl.textContent = formatted;
+
+        const monthlyLbl = document.getElementById('modalPlanMonthlyLabel');
+        const annualLbl = document.getElementById('modalPlanAnnualLabel');
+
+        if (plan === 'pro_monthly') {
+            if (monthlyLbl) {
+                monthlyLbl.style.borderColor = '#F59E0B';
+                monthlyLbl.style.background = '#FFFDF5';
+            }
+            if (annualLbl) {
+                annualLbl.style.borderColor = '#E5E7EB';
+                annualLbl.style.background = '#FFFFFF';
+            }
+        } else {
+            if (annualLbl) {
+                annualLbl.style.borderColor = '#F59E0B';
+                annualLbl.style.background = '#FFFDF5';
+            }
+            if (monthlyLbl) {
+                monthlyLbl.style.borderColor = '#E5E7EB';
+                monthlyLbl.style.background = '#FFFFFF';
+            }
+        }
+    }
+
+    function onModalPaymentMethodChange(method) {
+        const boxes = ['wallet', 'jazzcash', 'easypaisa', 'card'];
+        boxes.forEach(b => {
+            const el = document.getElementById('modalBox' + b.charAt(0).toUpperCase() + b.slice(1));
+            if (el) el.style.display = (b === method) ? 'block' : 'none';
+        });
+    }
+
+    // Modal Card formatting
+    const modalCardInput = document.getElementById('modal_card_number');
+    if (modalCardInput) {
+        modalCardInput.addEventListener('input', function (e) {
+            let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+            e.target.value = formatted;
+        });
+    }
+
+    // Modal Pre-submission validation
+    const modalForm = document.getElementById('modalSubscriptionForm');
+    if (modalForm) {
+        modalForm.addEventListener('submit', function (e) {
+            const method = document.getElementById('modalPaymentMethod').value;
+            if (method === 'wallet' && modalAvailableWallet < modalPrice) {
+                e.preventDefault();
+                alert('⚠️ Insufficient Wallet Balance! Your wallet has Rs. ' + new Intl.NumberFormat().format(modalAvailableWallet) + ', but this plan costs Rs. ' + new Intl.NumberFormat().format(modalPrice) + '.\n\nPlease select JazzCash, EasyPaisa, or Debit/Credit Card.');
+                return false;
+            }
+            if (method === 'jazzcash') {
+                const jc = document.getElementById('modal_jazzcash_mobile').value.trim();
+                if (!jc || jc.length < 10) {
+                    e.preventDefault();
+                    alert('Please enter your 11-digit JazzCash mobile number (e.g. 03001234567).');
+                    document.getElementById('modal_jazzcash_mobile').focus();
+                    return false;
+                }
+            }
+            if (method === 'easypaisa') {
+                const ep = document.getElementById('modal_easypaisa_mobile').value.trim();
+                if (!ep || ep.length < 10) {
+                    e.preventDefault();
+                    alert('Please enter your 11-digit EasyPaisa mobile number (e.g. 03451234567).');
+                    document.getElementById('modal_easypaisa_mobile').focus();
+                    return false;
+                }
+            }
+            if (method === 'card') {
+                const card = document.getElementById('modal_card_number').value.replace(/\s/g, '');
+                if (!card || card.length < 12) {
+                    e.preventDefault();
+                    alert('Please enter a valid 16-digit debit or credit card number.');
+                    document.getElementById('modal_card_number').focus();
+                    return false;
+                }
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         if (window.location.hash === '#techSubscription' || window.location.hash === '#techSubscriptionModal') {
             const modal = document.getElementById('techSubscriptionModal');

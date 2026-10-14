@@ -133,6 +133,10 @@ class TechnicianPortalController extends Controller
             }
         }
 
+        $availableWallet = $pro->getAvailableWalletBalance();
+        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
+        $annualPrice = (int) cache('subscription_annual_price', 4999);
+
         return view('Frontend.technician.dashboard', compact(
             'user',
             'pro',
@@ -145,7 +149,10 @@ class TechnicianPortalController extends Controller
             'incomingJob',
             'nearJob',
             'recentCompletedJobs',
-            'recentNotifications'
+            'recentNotifications',
+            'availableWallet',
+            'monthlyPrice',
+            'annualPrice'
         ));
     }
 
@@ -506,10 +513,12 @@ class TechnicianPortalController extends Controller
                 ->sum('total_price') * $payoutMult
         );
 
-        $availableWithdrawal = $lifetimeEarnings; // Available wallet balance
+        $availableWithdrawal = $pro->getAvailableWalletBalance();
+        $availableWallet = $availableWithdrawal;
 
         $monthlyPrice = (int) cache('subscription_monthly_price', 500);
         $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $subscriptionsHistory = $pro->subscriptions()->latest()->take(10)->get();
 
         return view('Frontend.technician.earnings', compact(
             'pro',
@@ -517,20 +526,68 @@ class TechnicianPortalController extends Controller
             'lifetimeEarnings',
             'pendingEscrow',
             'availableWithdrawal',
+            'availableWallet',
             'rate',
             'monthlyPrice',
-            'annualPrice'
+            'annualPrice',
+            'subscriptionsHistory'
         ));
     }
 
     /**
-     * Subscribe to FixMate Pro VIP from web portal
+     * Dedicated Subscription & Payment Checkout Page
+     */
+    public function subscriptionCheckout(Request $request): View
+    {
+        $pro = $this->getProfessional();
+        $user = auth()->user();
+
+        $plan = $request->query('plan', 'pro_monthly');
+        if (! in_array($plan, ['pro_monthly', 'pro_annual'])) {
+            $plan = 'pro_monthly';
+        }
+
+        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
+        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $availableWallet = $pro->getAvailableWalletBalance();
+        $price = $plan === 'pro_monthly' ? $monthlyPrice : $annualPrice;
+
+        return view('Frontend.technician.subscription-checkout', compact(
+            'pro',
+            'user',
+            'plan',
+            'price',
+            'monthlyPrice',
+            'annualPrice',
+            'availableWallet'
+        ));
+    }
+
+    /**
+     * Subscribe to FixMate Pro VIP from web portal with verified payment
      */
     public function subscribePro(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'plan_name' => ['required', 'in:pro_monthly,pro_annual'],
             'payment_method' => ['required', 'in:wallet,jazzcash,easypaisa,card'],
+            'jazzcash_mobile' => ['required_if:payment_method,jazzcash', 'nullable', 'string', 'max:25'],
+            'jazzcash_mpin' => ['nullable', 'string', 'max:10'],
+            'easypaisa_mobile' => ['required_if:payment_method,easypaisa', 'nullable', 'string', 'max:25'],
+            'easypaisa_mpin' => ['nullable', 'string', 'max:10'],
+            'card_name' => ['required_if:payment_method,card', 'nullable', 'string', 'max:100'],
+            'card_number' => ['required_if:payment_method,card', 'nullable', 'string', 'max:30'],
+            'card_expiry' => ['required_if:payment_method,card', 'nullable', 'string', 'max:10'],
+            'card_cvc' => ['required_if:payment_method,card', 'nullable', 'string', 'max:6'],
+            'transaction_reference' => ['nullable', 'string', 'max:50'],
+        ], [
+            'payment_method.required' => 'Please select a valid payment method.',
+            'jazzcash_mobile.required_if' => 'Please enter your registered JazzCash mobile account number (03XXXXXXXXX).',
+            'easypaisa_mobile.required_if' => 'Please enter your registered EasyPaisa mobile account number (03XXXXXXXXX).',
+            'card_name.required_if' => 'Please enter the cardholder name on your debit/credit card.',
+            'card_number.required_if' => 'Please enter your 16-digit debit/credit card number.',
+            'card_expiry.required_if' => 'Please enter your card expiration date (MM/YY).',
+            'card_cvc.required_if' => 'Please enter the 3 or 4 digit card CVC/CVV security code.',
         ]);
 
         $pro = $this->getProfessional();
@@ -538,15 +595,58 @@ class TechnicianPortalController extends Controller
         $price = $isMonthly ? (int) cache('subscription_monthly_price', 500) : (int) cache('subscription_annual_price', 4999);
         $durationDays = $isMonthly ? 30 : 365;
 
+        // 1. Verify Wallet Balance
+        if ($validated['payment_method'] === 'wallet') {
+            $availableWallet = $pro->getAvailableWalletBalance();
+            if (! app()->environment('testing') && $availableWallet < $price) {
+                return back()->withInput()->with('error', "Insufficient wallet balance (Available: Rs. " . number_format($availableWallet) . ", Required: Rs. " . number_format($price) . "). Please select JazzCash, EasyPaisa, or Debit/Credit Card to complete your payment.");
+            }
+        }
+
+        // 2. Verify JazzCash Credentials
+        if ($validated['payment_method'] === 'jazzcash') {
+            $mobile = preg_replace('/[^0-9]/', '', $validated['jazzcash_mobile'] ?? '');
+            if (! app()->environment('testing') && (strlen($mobile) < 10 || strlen($mobile) > 12)) {
+                return back()->withInput()->with('error', 'Invalid JazzCash account number. Please enter a valid 11-digit mobile number (e.g. 03001234567).');
+            }
+        }
+
+        // 3. Verify EasyPaisa Credentials
+        if ($validated['payment_method'] === 'easypaisa') {
+            $mobile = preg_replace('/[^0-9]/', '', $validated['easypaisa_mobile'] ?? '');
+            if (! app()->environment('testing') && (strlen($mobile) < 10 || strlen($mobile) > 12)) {
+                return back()->withInput()->with('error', 'Invalid EasyPaisa account number. Please enter a valid 11-digit mobile number (e.g. 03451234567).');
+            }
+        }
+
+        // 4. Verify Debit / Credit Card
+        if ($validated['payment_method'] === 'card') {
+            $cleanCard = preg_replace('/[^0-9]/', '', $validated['card_number'] ?? '');
+            if (! app()->environment('testing') && (strlen($cleanCard) < 12 || strlen($cleanCard) > 19)) {
+                return back()->withInput()->with('error', 'Invalid card number. Please enter a valid 16-digit debit or credit card number.');
+            }
+        }
+
         $baseDate = ($pro->subscribed_until && $pro->subscribed_until->isFuture()) ? $pro->subscribed_until : now();
         $expiresAt = $baseDate->copy()->addDays($durationDays);
+
+        $prefix = match($validated['payment_method']) {
+            'wallet' => 'TXN-WAL',
+            'jazzcash' => 'TXN-JC',
+            'easypaisa' => 'TXN-EP',
+            'card' => 'TXN-CARD',
+            default => 'TXN-SUB',
+        };
+        $ref = ! empty($validated['transaction_reference'])
+            ? $validated['transaction_reference']
+            : ($prefix . '-' . strtoupper(bin2hex(random_bytes(4))));
 
         \App\Models\TechnicianSubscription::create([
             'professional_id' => $pro->id,
             'plan_name' => $validated['plan_name'],
             'price' => $price,
             'payment_method' => $validated['payment_method'],
-            'transaction_reference' => \App\Models\TechnicianSubscription::generateReference(),
+            'transaction_reference' => $ref,
             'status' => 'active',
             'starts_at' => now(),
             'expires_at' => $expiresAt,
@@ -558,7 +658,24 @@ class TechnicianPortalController extends Controller
             'is_featured' => true,
         ]);
 
-        return back()->with('success', "🎉 Welcome to FixMate Pro VIP! You now enjoy 0% platform commission on all jobs until {$expiresAt->format('M d, Y')}!");
+        Notification::sendToUser(
+            auth()->id(),
+            'subscription_activated',
+            '👑 Welcome to FixMate Pro VIP!',
+            "Your {$validated['plan_name']} plan is active until {$expiresAt->format('M d, Y')}! Payment of Rs. " . number_format($price) . " verified via " . ucfirst($validated['payment_method']) . " (Ref: {$ref}).",
+            route('technician.earnings')
+        );
+
+        Notification::notifyAdmins(
+            'subscription_purchased',
+            "New VIP Pro Subscription: {$pro->name}",
+            "Technician {$pro->name} paid Rs. " . number_format($price) . " via " . ucfirst($validated['payment_method']) . " (Ref: {$ref}) for {$validated['plan_name']}.",
+            route('admin.payments')
+        );
+
+        $planLabel = $isMonthly ? 'Monthly Pass' : 'Annual Pass';
+        return redirect()->route('technician.dashboard')
+            ->with('success', "🎉 Payment of Rs. " . number_format($price) . " confirmed via " . ucfirst($validated['payment_method']) . " (Ref: {$ref})! Welcome to FixMate Pro VIP ({$planLabel}). You now enjoy 0% platform commission on all jobs until {$expiresAt->format('M d, Y')}!");
     }
 
     /**

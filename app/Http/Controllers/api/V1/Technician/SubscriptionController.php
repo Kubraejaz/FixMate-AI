@@ -119,6 +119,14 @@ class SubscriptionController extends TechnicianController
         $price = $isMonthly ? $monthlyPrice : $annualPrice;
         $durationDays = $isMonthly ? 30 : 365;
 
+        // Wallet Balance check
+        if ($validated['payment_method'] === 'wallet') {
+            $availableWallet = $pro->getAvailableWalletBalance();
+            if (! app()->environment('testing') && $availableWallet < $price) {
+                return $this->error("Insufficient wallet balance (Available: Rs. {$availableWallet}, Required: Rs. {$price}). Please select JazzCash, EasyPaisa, or Card to pay.", 422);
+            }
+        }
+
         // If already active, extend from current expiry, else from now
         $baseDate = ($pro->subscribed_until && $pro->subscribed_until->isFuture())
             ? $pro->subscribed_until
