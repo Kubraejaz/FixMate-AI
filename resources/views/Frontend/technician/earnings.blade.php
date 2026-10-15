@@ -133,10 +133,21 @@
 
                 <!-- 2. JazzCash Input -->
                 <div id="modalBoxJazzcash" style="display: none; background: #FFFDF0; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 800; color: #78350F; margin-bottom: 4px;">
-                        JazzCash Mobile Number <span style="color: #DC2626;">*</span>
-                    </label>
-                    <input type="text" name="jazzcash_mobile" id="modal_jazzcash_mobile" placeholder="03001234567" value="{{ auth()->user()->phone ?? '' }}" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 12px; font-weight: 800; color: #78350F; margin: 0;">
+                            JazzCash Mobile Number <span style="color: #DC2626;">*</span>
+                        </label>
+                        <span style="font-size: 10.5px; background: #FEF3C7; color: #92400E; font-weight: 800; padding: 2px 6px; border-radius: 4px;">⚡ Instant API Push</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <input type="text" name="jazzcash_mobile" id="modal_jazzcash_mobile" placeholder="03001234567" value="{{ auth()->user()->phone ?? '' }}" style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700;">
+                        <button type="button" id="modalBtnJcVerify" onclick="triggerModalGatewayPrompt('jazzcash')" style="background: #E11D48; color: #FFF; border: none; border-radius: 8px; padding: 0 12px; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap;">
+                            📲 Push USSD
+                        </button>
+                    </div>
+
+                    <div id="modalJcGatewayStatus" style="display: none; margin-bottom: 8px; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; line-height: 1.35;"></div>
+                    <input type="hidden" name="transaction_reference" id="modal_jc_txn_ref" value="{{ old('transaction_reference') }}">
                     
                     <label style="display: block; font-size: 12px; font-weight: 800; color: #78350F; margin-bottom: 4px;">
                         JazzCash MPIN / OTP
@@ -146,10 +157,21 @@
 
                 <!-- 3. EasyPaisa Input -->
                 <div id="modalBoxEasypaisa" style="display: none; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">
-                        EasyPaisa Mobile Number <span style="color: #DC2626;">*</span>
-                    </label>
-                    <input type="text" name="easypaisa_mobile" id="modal_easypaisa_mobile" placeholder="03451234567" value="{{ auth()->user()->phone ?? '' }}" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 12px; font-weight: 800; color: #166534; margin: 0;">
+                            EasyPaisa Mobile Number <span style="color: #DC2626;">*</span>
+                        </label>
+                        <span style="font-size: 10.5px; background: #DCFCE7; color: #166534; font-weight: 800; padding: 2px 6px; border-radius: 4px;">⚡ Instant API Push</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <input type="text" name="easypaisa_mobile" id="modal_easypaisa_mobile" placeholder="03451234567" value="{{ auth()->user()->phone ?? '' }}" style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700;">
+                        <button type="button" id="modalBtnEpVerify" onclick="triggerModalGatewayPrompt('easypaisa')" style="background: #059669; color: #FFF; border: none; border-radius: 8px; padding: 0 12px; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap;">
+                            📲 Push Prompt
+                        </button>
+                    </div>
+
+                    <div id="modalEpGatewayStatus" style="display: none; margin-bottom: 8px; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; line-height: 1.35;"></div>
+                    <input type="hidden" name="transaction_reference" id="modal_ep_txn_ref" value="{{ old('transaction_reference') }}">
                     
                     <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">
                         EasyPaisa MPIN / OTP
@@ -375,6 +397,76 @@
             const el = document.getElementById('modalBox' + b.charAt(0).toUpperCase() + b.slice(1));
             if (el) el.style.display = (b === method) ? 'block' : 'none';
         });
+    }
+
+    // Live Gateway Prompt Trigger for Modal
+    async function triggerModalGatewayPrompt(gateway) {
+        const isJc = gateway === 'jazzcash';
+        const mobileInput = document.getElementById(isJc ? 'modal_jazzcash_mobile' : 'modal_easypaisa_mobile');
+        const btn = document.getElementById(isJc ? 'modalBtnJcVerify' : 'modalBtnEpVerify');
+        const statusBox = document.getElementById(isJc ? 'modalJcGatewayStatus' : 'modalEpGatewayStatus');
+        const txnRefInput = document.getElementById(isJc ? 'modal_jc_txn_ref' : 'modal_ep_txn_ref');
+
+        const phone = mobileInput ? mobileInput.value.trim() : '';
+        if (!phone || phone.length < 10) {
+            alert('Please enter a valid Pakistani mobile number (e.g. 03001234567 or 03451234567).');
+            if (mobileInput) mobileInput.focus();
+            return;
+        }
+
+        const originalBtnHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳ Communicating...</span>';
+
+        statusBox.style.display = 'block';
+        statusBox.style.background = '#EFF6FF';
+        statusBox.style.border = '1px solid #BFDBFE';
+        statusBox.style.color = '#1E40AF';
+        statusBox.innerHTML = '<strong>Connecting to ' + (isJc ? 'JazzCash' : 'EasyPaisa') + ' API...</strong> Sending push prompt to ' + phone + '...';
+
+        try {
+            const response = await fetch("{{ route('technician.subscription.verify-gateway') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    gateway: gateway,
+                    phone: phone,
+                    amount: modalPrice
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                statusBox.style.background = '#ECFDF5';
+                statusBox.style.border = '1px solid #6EE7B7';
+                statusBox.style.color = '#065F46';
+                statusBox.innerHTML = '✓ <strong>Gateway Connected!</strong> ' + data.message + 
+                    '<div style="margin-top: 3px; font-weight: 700;">Ref: <span style="background: #D1FAE5; padding: 1px 5px; border-radius: 4px;">' + data.reference_id + '</span></div>';
+                
+                if (txnRefInput) txnRefInput.value = data.reference_id;
+                btn.innerHTML = '<span>✓ Sent</span>';
+                btn.style.background = '#059669';
+            } else {
+                statusBox.style.background = '#FEF2F2';
+                statusBox.style.border = '1px solid #FCA5A5';
+                statusBox.style.color = '#991B1B';
+                statusBox.innerHTML = '⚠️ <strong>Failed:</strong> ' + (data.message || 'Payment initiation failed.');
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
+        } catch (err) {
+            statusBox.style.background = '#FEF2F2';
+            statusBox.style.border = '1px solid #FCA5A5';
+            statusBox.style.color = '#991B1B';
+            statusBox.innerHTML = '⚠️ Network error communicating with payment gateway.';
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+        }
     }
 
     // Modal Card formatting

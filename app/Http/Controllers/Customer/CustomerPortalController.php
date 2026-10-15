@@ -934,14 +934,46 @@ class CustomerPortalController extends Controller
         ]);
 
         $status = $validated['payment_method'] === 'cash' ? 'cash_on_delivery' : 'escrow_held';
+        $txnRef = null;
+
+        if ($validated['payment_method'] === 'jazzcash') {
+            $phone = !empty($validated['account_number']) ? $validated['account_number'] : (auth()->user()->phone ?? '03001234567');
+            $jcResult = app(\App\Services\JazzCashService::class)->processMobileAccountPayment(
+                $phone,
+                $booking->total_price,
+                'FM-BK-' . $booking->id,
+                "FixMate Booking #{$booking->booking_number}"
+            );
+            if (! $jcResult['success']) {
+                return back()->withInput()->with('error', $jcResult['message'] ?? 'JazzCash payment failed. Please check your mobile account balance.');
+            }
+            $txnRef = $jcResult['transaction_reference'];
+        } elseif ($validated['payment_method'] === 'easypaisa') {
+            $phone = !empty($validated['account_number']) ? $validated['account_number'] : (auth()->user()->phone ?? '03451234567');
+            $epResult = app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment(
+                $phone,
+                $booking->total_price,
+                'FM-BK-' . $booking->id,
+                auth()->user()->email ?? 'customer@fixmate.pk'
+            );
+            if (! $epResult['success']) {
+                return back()->withInput()->with('error', $epResult['message'] ?? 'EasyPaisa payment failed. Please verify your EasyPaisa wallet.');
+            }
+            $txnRef = $epResult['transaction_reference'];
+        }
 
         $booking->update([
             'payment_method' => $validated['payment_method'],
             'payment_status' => $status,
         ]);
 
+        $successMsg = 'Payment method confirmed! Rs. ' . number_format($booking->total_price) . ' is secured in FixMate Escrow.';
+        if ($txnRef) {
+            $successMsg .= ' (Gateway Ref: ' . $txnRef . ')';
+        }
+
         return redirect()->route('customer.booking.confirm', $booking->id)
-            ->with('success', 'Payment method saved! Rs. ' . number_format($booking->total_price) . ' is secured in FixMate Escrow.');
+            ->with('success', $successMsg);
     }
 
     /**
@@ -952,12 +984,41 @@ class CustomerPortalController extends Controller
         $validated = $request->validate([
             'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
             'payment_method' => ['required', 'in:jazzcash,easypaisa,card'],
+            'account_number' => ['nullable', 'string', 'max:25'],
         ]);
 
         /** @var User $user */
         $user = auth()->user();
         $isMonthly = $validated['plan_name'] === 'vip_monthly';
+        $price = $isMonthly ? 499 : 4999;
         $durationDays = $isMonthly ? 30 : 365;
+        $txnRef = null;
+
+        if ($validated['payment_method'] === 'jazzcash') {
+            $phone = !empty($validated['account_number']) ? $validated['account_number'] : ($user->phone ?? '03001234567');
+            $jcResult = app(\App\Services\JazzCashService::class)->processMobileAccountPayment(
+                $phone,
+                $price,
+                'FM-VIP-' . $user->id . '-' . date('md'),
+                "FixMate Customer VIP {$validated['plan_name']}"
+            );
+            if (! $jcResult['success']) {
+                return back()->withInput()->with('error', $jcResult['message'] ?? 'JazzCash VIP subscription payment declined.');
+            }
+            $txnRef = $jcResult['transaction_reference'];
+        } elseif ($validated['payment_method'] === 'easypaisa') {
+            $phone = !empty($validated['account_number']) ? $validated['account_number'] : ($user->phone ?? '03451234567');
+            $epResult = app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment(
+                $phone,
+                $price,
+                'FM-VIP-' . $user->id . '-' . date('mdHis'),
+                $user->email ?? 'customer@fixmate.pk'
+            );
+            if (! $epResult['success']) {
+                return back()->withInput()->with('error', $epResult['message'] ?? 'EasyPaisa VIP subscription payment declined.');
+            }
+            $txnRef = $epResult['transaction_reference'];
+        }
 
         $baseDate = ($user->subscribed_until && $user->subscribed_until->isFuture()) ? $user->subscribed_until : now();
         $expiresAt = $baseDate->copy()->addDays($durationDays);
@@ -967,15 +1028,16 @@ class CustomerPortalController extends Controller
             'subscribed_until' => $expiresAt,
         ]);
 
+        $refNote = $txnRef ? " (Ref: {$txnRef})" : '';
         Notification::sendToUser(
             $user->id,
             'vip_activated',
             '👑 FixMate VIP Home Care Pass Activated!',
-            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')}. Enjoy waived booking fees and priority 15-minute dispatch!",
+            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')}{$refNote}. Enjoy waived booking fees and priority 15-minute dispatch!",
             route('customer.dashboard')
         );
 
-        return back()->with('success', "🎉 Welcome to FixMate VIP Club! Your Home Care Pass is active until {$expiresAt->format('M d, Y')}!");
+        return back()->with('success', "🎉 Welcome to FixMate VIP Club! Your Home Care Pass is active until {$expiresAt->format('M d, Y')}!{$refNote}");
     }
 
     /**

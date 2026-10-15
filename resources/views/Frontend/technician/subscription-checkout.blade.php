@@ -185,14 +185,28 @@
 
                     <!-- 2. JazzCash Box -->
                     <div id="boxJazzcash" style="display: {{ old('payment_method') === 'jazzcash' ? 'block' : 'none' }}; background: #FFFDF0; border: 1.5px solid #FDE68A; border-radius: 12px; padding: 20px;">
-                        <h4 style="font-size: 14px; font-weight: 800; color: #78350F; margin: 0 0 12px 0;">JazzCash Account Details</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="font-size: 14px; font-weight: 800; color: #78350F; margin: 0;">JazzCash Account Details</h4>
+                            <span style="font-size: 11px; background: #FEF3C7; color: #92400E; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1px solid #FCD34D;">⚡ Real-time API Direct Integration</span>
+                        </div>
+                        
                         <div style="margin-bottom: 14px;">
                             <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
                                 JazzCash Registered Mobile Number <span style="color: #DC2626;">*</span>
                             </label>
-                            <input type="text" name="jazzcash_mobile" id="jazzcash_mobile" value="{{ old('jazzcash_mobile', $user->phone ?? '') }}" placeholder="e.g. 03001234567" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" name="jazzcash_mobile" id="jazzcash_mobile" value="{{ old('jazzcash_mobile', $user->phone ?? '') }}" placeholder="03001234567" style="flex: 1; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
+                                <button type="button" id="btnJcVerify" onclick="triggerGatewayPrompt('jazzcash')" style="background: #E11D48; color: #FFF; border: none; border-radius: 10px; padding: 0 16px; font-size: 12.5px; font-weight: 800; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                                    <span>📲 Send USSD Push</span>
+                                </button>
+                            </div>
                             <span style="font-size: 11.5px; color: #64748B; display: block; margin-top: 4px;">Enter the 11-digit mobile number linked to your JazzCash wallet.</span>
                         </div>
+
+                        <!-- Live Gateway Status Box -->
+                        <div id="jcGatewayStatus" style="display: none; margin-bottom: 14px; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.4;"></div>
+                        <input type="hidden" name="transaction_reference" id="jc_txn_ref" value="{{ old('transaction_reference') }}">
+
                         <div>
                             <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
                                 JazzCash MPIN / Transaction OTP
@@ -204,14 +218,28 @@
 
                     <!-- 3. EasyPaisa Box -->
                     <div id="boxEasypaisa" style="display: {{ old('payment_method') === 'easypaisa' ? 'block' : 'none' }}; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 12px; padding: 20px;">
-                        <h4 style="font-size: 14px; font-weight: 800; color: #166534; margin: 0 0 12px 0;">EasyPaisa Account Details</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h4 style="font-size: 14px; font-weight: 800; color: #166534; margin: 0;">EasyPaisa Account Details</h4>
+                            <span style="font-size: 11px; background: #DCFCE7; color: #166534; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1px solid #86EFAC;">⚡ Direct REST API Integration</span>
+                        </div>
+
                         <div style="margin-bottom: 14px;">
                             <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
                                 EasyPaisa Mobile Number <span style="color: #DC2626;">*</span>
                             </label>
-                            <input type="text" name="easypaisa_mobile" id="easypaisa_mobile" value="{{ old('easypaisa_mobile', $user->phone ?? '') }}" placeholder="e.g. 03451234567" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" name="easypaisa_mobile" id="easypaisa_mobile" value="{{ old('easypaisa_mobile', $user->phone ?? '') }}" placeholder="03451234567" style="flex: 1; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
+                                <button type="button" id="btnEpVerify" onclick="triggerGatewayPrompt('easypaisa')" style="background: #059669; color: #FFF; border: none; border-radius: 10px; padding: 0 16px; font-size: 12.5px; font-weight: 800; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                                    <span>📲 Send App Prompt</span>
+                                </button>
+                            </div>
                             <span style="font-size: 11.5px; color: #64748B; display: block; margin-top: 4px;">Enter the 11-digit mobile number linked to your EasyPaisa wallet.</span>
                         </div>
+
+                        <!-- Live Gateway Status Box -->
+                        <div id="epGatewayStatus" style="display: none; margin-bottom: 14px; border-radius: 10px; padding: 10px 14px; font-size: 12px; line-height: 1.4;"></div>
+                        <input type="hidden" name="transaction_reference" id="ep_txn_ref" value="{{ old('transaction_reference') }}">
+
                         <div>
                             <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
                                 EasyPaisa OTP / MPIN
@@ -385,6 +413,76 @@
                 e.target.value = val;
             }
         });
+    }
+
+    // Live Gateway USSD / App Push API Trigger
+    async function triggerGatewayPrompt(gateway) {
+        const isJc = gateway === 'jazzcash';
+        const mobileInput = document.getElementById(isJc ? 'jazzcash_mobile' : 'easypaisa_mobile');
+        const btn = document.getElementById(isJc ? 'btnJcVerify' : 'btnEpVerify');
+        const statusBox = document.getElementById(isJc ? 'jcGatewayStatus' : 'epGatewayStatus');
+        const txnRefInput = document.getElementById(isJc ? 'jc_txn_ref' : 'ep_txn_ref');
+
+        const phone = mobileInput ? mobileInput.value.trim() : '';
+        if (!phone || phone.length < 10) {
+            alert('Please enter a valid Pakistani mobile number (e.g. 03001234567 or 03451234567).');
+            if (mobileInput) mobileInput.focus();
+            return;
+        }
+
+        const originalBtnHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳ Communicating API...</span>';
+
+        statusBox.style.display = 'block';
+        statusBox.style.background = '#EFF6FF';
+        statusBox.style.border = '1px solid #BFDBFE';
+        statusBox.style.color = '#1E40AF';
+        statusBox.innerHTML = '<strong>Connecting to ' + (isJc ? 'JazzCash MWALLET' : 'EasyPaisa Direct') + ' Gateway...</strong> Sending instant push notification to ' + phone + '...';
+
+        try {
+            const response = await fetch("{{ route('technician.subscription.verify-gateway') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    gateway: gateway,
+                    phone: phone,
+                    amount: currentPrice
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                statusBox.style.background = '#ECFDF5';
+                statusBox.style.border = '1.5px solid #6EE7B7';
+                statusBox.style.color = '#065F46';
+                statusBox.innerHTML = '✓ <strong>Gateway Handshake Successful!</strong> ' + data.message + 
+                    '<div style="margin-top: 4px; font-weight: 700;">Gateway Ref: <span style="background: #D1FAE5; padding: 2px 6px; border-radius: 4px;">' + data.reference_id + '</span></div>';
+                
+                if (txnRefInput) txnRefInput.value = data.reference_id;
+                btn.innerHTML = '<span>✓ Push Sent</span>';
+                btn.style.background = '#059669';
+            } else {
+                statusBox.style.background = '#FEF2F2';
+                statusBox.style.border = '1.5px solid #FCA5A5';
+                statusBox.style.color = '#991B1B';
+                statusBox.innerHTML = '⚠️ <strong>Gateway Error:</strong> ' + (data.message || 'Payment initiation failed. Please check your mobile number and retry.');
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
+        } catch (err) {
+            statusBox.style.background = '#FEF2F2';
+            statusBox.style.border = '1.5px solid #FCA5A5';
+            statusBox.style.color = '#991B1B';
+            statusBox.innerHTML = '⚠️ <strong>Network / Connection Error:</strong> Unable to reach payment gateway service. Please try again.';
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+        }
     }
 
     // Client side pre-submission check

@@ -359,4 +359,113 @@ class MonetizationAndSubscriptionTest extends TestCase
         $this->professional->refresh();
         $this->assertFalse($this->professional->isPro());
     }
+
+    public function test_technician_can_verify_jazzcash_gateway_push_prompt(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->postJson(route('technician.subscription.verify-gateway'), [
+                'gateway' => 'jazzcash',
+                'phone' => '03001234567',
+                'amount' => 500,
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('gateway', 'jazzcash')
+            ->assertJsonPath('phone', '03001234567')
+            ->assertJsonPath('prompt_dispatched', true);
+
+        $this->assertNotEmpty($response->json('reference_id'));
+    }
+
+    public function test_technician_can_verify_easypaisa_gateway_push_prompt(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->postJson(route('technician.subscription.verify-gateway'), [
+                'gateway' => 'easypaisa',
+                'phone' => '03451234567',
+                'amount' => 500,
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('gateway', 'easypaisa')
+            ->assertJsonPath('phone', '03451234567')
+            ->assertJsonPath('prompt_dispatched', true);
+
+        $this->assertNotEmpty($response->json('reference_id'));
+    }
+
+    public function test_gateway_verification_rejects_invalid_phone(): void
+    {
+        $response = $this->actingAs($this->techUser)
+            ->postJson(route('technician.subscription.verify-gateway'), [
+                'gateway' => 'jazzcash',
+                'phone' => '12345',
+                'amount' => 500,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
+
+    public function test_customer_can_process_escrow_payment_via_jazzcash(): void
+    {
+        $booking = Booking::create([
+            'booking_number' => 'FM-JC-001',
+            'user_id' => $this->customer->id,
+            'professional_id' => $this->professional->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'Electrical Fitting',
+            'service_date' => now()->toDateString(),
+            'service_time_slot' => '02:00 PM - 04:00 PM',
+            'service_address' => 'House 45, DHA Phase 5, Lahore',
+            'city' => 'Lahore',
+            'arrival_otp' => '9988',
+            'base_price' => 1500,
+            'total_price' => 1500,
+            'status' => 'confirmed',
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->post(route('customer.payment.process', $booking->id), [
+                'payment_method' => 'jazzcash',
+                'account_number' => '03001234567',
+            ]);
+
+        $response->assertRedirect(route('customer.booking.confirm', $booking->id));
+        $booking->refresh();
+        $this->assertEquals('jazzcash', $booking->payment_method);
+        $this->assertEquals('escrow_held', $booking->payment_status);
+    }
+
+    public function test_customer_can_process_escrow_payment_via_easypaisa(): void
+    {
+        $booking = Booking::create([
+            'booking_number' => 'FM-EP-001',
+            'user_id' => $this->customer->id,
+            'professional_id' => $this->professional->id,
+            'profession_id' => $this->profession->id,
+            'service_title' => 'AC Servicing',
+            'service_date' => now()->toDateString(),
+            'service_time_slot' => '11:00 AM - 01:00 PM',
+            'service_address' => 'Apartment 3B, Gulberg, Lahore',
+            'city' => 'Lahore',
+            'arrival_otp' => '4455',
+            'base_price' => 2500,
+            'total_price' => 2500,
+            'status' => 'confirmed',
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->post(route('customer.payment.process', $booking->id), [
+                'payment_method' => 'easypaisa',
+                'account_number' => '03451234567',
+            ]);
+
+        $response->assertRedirect(route('customer.booking.confirm', $booking->id));
+        $booking->refresh();
+        $this->assertEquals('easypaisa', $booking->payment_method);
+        $this->assertEquals('escrow_held', $booking->payment_status);
+    }
 }

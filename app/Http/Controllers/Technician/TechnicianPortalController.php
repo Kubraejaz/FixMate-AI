@@ -601,45 +601,68 @@ class TechnicianPortalController extends Controller
             if (! app()->environment('testing') && $availableWallet < $price) {
                 return back()->withInput()->with('error', "Insufficient wallet balance (Available: Rs. " . number_format($availableWallet) . ", Required: Rs. " . number_format($price) . "). Please select JazzCash, EasyPaisa, or Debit/Credit Card to complete your payment.");
             }
+            $ref = ! empty($validated['transaction_reference'])
+                ? $validated['transaction_reference']
+                : ('TXN-WAL-' . strtoupper(bin2hex(random_bytes(4))));
         }
 
-        // 2. Verify JazzCash Credentials
-        if ($validated['payment_method'] === 'jazzcash') {
-            $mobile = preg_replace('/[^0-9]/', '', $validated['jazzcash_mobile'] ?? '');
-            if (! app()->environment('testing') && (strlen($mobile) < 10 || strlen($mobile) > 12)) {
-                return back()->withInput()->with('error', 'Invalid JazzCash account number. Please enter a valid 11-digit mobile number (e.g. 03001234567).');
+        // 2. Process JazzCash API Gateway
+        elseif ($validated['payment_method'] === 'jazzcash') {
+            $jazzCash = app(\App\Services\JazzCashService::class);
+            $billRef = 'FM-PRO-' . $pro->id . '-' . date('md');
+            $jcResult = $jazzCash->processMobileAccountPayment(
+                $validated['jazzcash_mobile'],
+                $price,
+                $billRef,
+                "FixMate Pro {$validated['plan_name']}",
+                $validated['jazzcash_mpin'] ?? null
+            );
+
+            if (! $jcResult['success']) {
+                return back()->withInput()->with('error', $jcResult['message'] ?? 'JazzCash payment was declined. Please verify your account and try again.');
             }
+
+            $ref = ! empty($validated['transaction_reference'])
+                ? $validated['transaction_reference']
+                : $jcResult['transaction_reference'];
         }
 
-        // 3. Verify EasyPaisa Credentials
-        if ($validated['payment_method'] === 'easypaisa') {
-            $mobile = preg_replace('/[^0-9]/', '', $validated['easypaisa_mobile'] ?? '');
-            if (! app()->environment('testing') && (strlen($mobile) < 10 || strlen($mobile) > 12)) {
-                return back()->withInput()->with('error', 'Invalid EasyPaisa account number. Please enter a valid 11-digit mobile number (e.g. 03451234567).');
+        // 3. Process EasyPaisa API Gateway
+        elseif ($validated['payment_method'] === 'easypaisa') {
+            $easyPaisa = app(\App\Services\EasyPaisaService::class);
+            $orderId = 'FM-SUB-' . $pro->id . '-' . date('mdHis');
+            $epResult = $easyPaisa->processMobileAccountPayment(
+                $validated['easypaisa_mobile'],
+                $price,
+                $orderId,
+                auth()->user()?->email ?? 'technician@fixmate.pk',
+                $validated['easypaisa_mpin'] ?? null
+            );
+
+            if (! $epResult['success']) {
+                return back()->withInput()->with('error', $epResult['message'] ?? 'EasyPaisa payment was declined. Please verify your account and try again.');
             }
+
+            $ref = ! empty($validated['transaction_reference'])
+                ? $validated['transaction_reference']
+                : $epResult['transaction_reference'];
         }
 
         // 4. Verify Debit / Credit Card
-        if ($validated['payment_method'] === 'card') {
+        elseif ($validated['payment_method'] === 'card') {
             $cleanCard = preg_replace('/[^0-9]/', '', $validated['card_number'] ?? '');
             if (! app()->environment('testing') && (strlen($cleanCard) < 12 || strlen($cleanCard) > 19)) {
                 return back()->withInput()->with('error', 'Invalid card number. Please enter a valid 16-digit debit or credit card number.');
             }
+            $ref = ! empty($validated['transaction_reference'])
+                ? $validated['transaction_reference']
+                : ('TXN-CARD-' . strtoupper(bin2hex(random_bytes(4))));
+        } else {
+            $ref = 'TXN-SUB-' . strtoupper(bin2hex(random_bytes(4)));
         }
 
         $baseDate = ($pro->subscribed_until && $pro->subscribed_until->isFuture()) ? $pro->subscribed_until : now();
         $expiresAt = $baseDate->copy()->addDays($durationDays);
-
-        $prefix = match($validated['payment_method']) {
-            'wallet' => 'TXN-WAL',
-            'jazzcash' => 'TXN-JC',
-            'easypaisa' => 'TXN-EP',
-            'card' => 'TXN-CARD',
-            default => 'TXN-SUB',
-        };
-        $ref = ! empty($validated['transaction_reference'])
-            ? $validated['transaction_reference']
-            : ($prefix . '-' . strtoupper(bin2hex(random_bytes(4))));
 
         \App\Models\TechnicianSubscription::create([
             'professional_id' => $pro->id,
@@ -676,6 +699,38 @@ class TechnicianPortalController extends Controller
         $planLabel = $isMonthly ? 'Monthly Pass' : 'Annual Pass';
         return redirect()->route('technician.dashboard')
             ->with('success', "🎉 Payment of Rs. " . number_format($price) . " confirmed via " . ucfirst($validated['payment_method']) . " (Ref: {$ref})! Welcome to FixMate Pro VIP ({$planLabel}). You now enjoy 0% platform commission on all jobs until {$expiresAt->format('M d, Y')}!");
+    }
+
+    /**
+     * AJAX Endpoint to verify phone and dispatch USSD Push / OTP prompt.
+     */
+    public function verifyPaymentGateway(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'gateway' => ['required', 'in:jazzcash,easypaisa'],
+            'phone' => ['required', 'string', 'max:25'],
+            'amount' => ['nullable', 'numeric'],
+        ]);
+
+        $amount = (float) ($validated['amount'] ?? 500);
+
+        if ($validated['gateway'] === 'jazzcash') {
+            $res = app(\App\Services\JazzCashService::class)->initiatePushPrompt($validated['phone'], $amount);
+        } else {
+            $res = app(\App\Services\EasyPaisaService::class)->initiatePushPrompt($validated['phone'], $amount);
+        }
+
+        $formatted = [
+            'success' => $res['success'],
+            'gateway' => $validated['gateway'],
+            'gateway_name' => $res['gateway'] ?? ucfirst($validated['gateway']),
+            'phone' => $res['phone'] ?? $validated['phone'],
+            'reference_id' => $res['reference'] ?? ($res['transaction_reference'] ?? null),
+            'message' => $res['message'] ?? 'Payment prompt dispatched.',
+            'prompt_dispatched' => (bool) $res['success'],
+        ];
+
+        return response()->json($formatted, $res['success'] ? 200 : 422);
     }
 
     /**

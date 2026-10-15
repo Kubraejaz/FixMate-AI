@@ -39,4 +39,23 @@ return [
         'model' => env('GEMINI_MODEL', 'gemini-1.5-flash'),
     ],
 
+    'jazzcash' => [
+        'merchant_id' => env('JAZZCASH_MERCHANT_ID', ''),
+        'password' => env('JAZZCASH_PASSWORD', ''),
+        'integrity_salt' => env('JAZZCASH_INTEGRITY_SALT', ''),
+        'sandbox' => env('JAZZCASH_SANDBOX', true),
+        'sandbox_url' => env('JAZZCASH_SANDBOX_URL', 'https://sandbox.jazzcash.com.pk/Application/index.php/api/MWALLET/Pay'),
+        'live_url' => env('JAZZCASH_LIVE_URL', 'https://payments.jazzcash.com.pk/Application/index.php/api/MWALLET/Pay'),
+        'return_url' => env('JAZZCASH_RETURN_URL', ''),
+    ],
+
+    'easypaisa' => [
+        'store_id' => env('EASYPAISA_STORE_ID', ''),
+        'hash_key' => env('EASYPAISA_HASH_KEY', ''),
+        'sandbox' => env('EASYPAISA_SANDBOX', true),
+        'sandbox_url' => env('EASYPAISA_SANDBOX_URL', 'https://easypaystg.easypaisa.com.pk/easypay-service/rest/v4/initiate-ma-transaction'),
+        'live_url' => env('EASYPAISA_LIVE_URL', 'https://easypay.easypaisa.com.pk/easypay-service/rest/v4/initiate-ma-transaction'),
+        'post_back_url' => env('EASYPAISA_POST_BACK_URL', ''),
+    ],
+
 ];

@@ -287,6 +287,7 @@ Route::prefix('technician')->name('technician.')->middleware(['auth', 'role:tech
     Route::get('/payouts', [TechnicianPortalController::class, 'earnings'])->name('payouts');
     Route::get('/subscription/checkout', [TechnicianPortalController::class, 'subscriptionCheckout'])->name('subscription.checkout');
     Route::post('/subscription/upgrade', [TechnicianPortalController::class, 'subscribePro'])->name('subscription.upgrade');
+    Route::post('/subscription/verify-gateway', [TechnicianPortalController::class, 'verifyPaymentGateway'])->name('subscription.verify-gateway');
 
     // Schedule & Availability
     Route::get('/schedule', [TechnicianPortalController::class, 'schedule'])->name('schedule');
