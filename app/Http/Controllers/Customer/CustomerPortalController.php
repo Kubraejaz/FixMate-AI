@@ -936,25 +936,27 @@ class CustomerPortalController extends Controller
         $status = $validated['payment_method'] === 'cash' ? 'cash_on_delivery' : 'escrow_held';
         $txnRef = null;
 
-        if ($validated['payment_method'] === 'jazzcash') {
+        if ($validated['payment_method'] === 'jazzcash' && $request->filled('mpin')) {
             $phone = !empty($validated['account_number']) ? $validated['account_number'] : (auth()->user()->phone ?? '03001234567');
             $jcResult = app(\App\Services\JazzCashService::class)->processMobileAccountPayment(
                 $phone,
                 $booking->total_price,
                 'FM-BK-' . $booking->id,
-                "FixMate Booking #{$booking->booking_number}"
+                "FixMate Booking #{$booking->booking_number}",
+                $request->input('mpin')
             );
             if (! $jcResult['success']) {
                 return back()->withInput()->with('error', $jcResult['message'] ?? 'JazzCash payment failed. Please check your mobile account balance.');
             }
             $txnRef = $jcResult['transaction_reference'];
-        } elseif ($validated['payment_method'] === 'easypaisa') {
+        } elseif ($validated['payment_method'] === 'easypaisa' && $request->filled('mpin')) {
             $phone = !empty($validated['account_number']) ? $validated['account_number'] : (auth()->user()->phone ?? '03451234567');
             $epResult = app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment(
                 $phone,
                 $booking->total_price,
                 'FM-BK-' . $booking->id,
-                auth()->user()->email ?? 'customer@fixmate.pk'
+                auth()->user()->email ?? 'customer@fixmate.pk',
+                $request->input('mpin')
             );
             if (! $epResult['success']) {
                 return back()->withInput()->with('error', $epResult['message'] ?? 'EasyPaisa payment failed. Please verify your EasyPaisa wallet.');
@@ -985,6 +987,7 @@ class CustomerPortalController extends Controller
             'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
             'payment_method' => ['required', 'in:jazzcash,easypaisa,card'],
             'account_number' => ['nullable', 'string', 'max:25'],
+            'mpin' => ['nullable', 'string', 'max:10'],
         ]);
 
         /** @var User $user */
@@ -994,25 +997,27 @@ class CustomerPortalController extends Controller
         $durationDays = $isMonthly ? 30 : 365;
         $txnRef = null;
 
-        if ($validated['payment_method'] === 'jazzcash') {
+        if ($validated['payment_method'] === 'jazzcash' && $request->filled('mpin')) {
             $phone = !empty($validated['account_number']) ? $validated['account_number'] : ($user->phone ?? '03001234567');
             $jcResult = app(\App\Services\JazzCashService::class)->processMobileAccountPayment(
                 $phone,
                 $price,
                 'FM-VIP-' . $user->id . '-' . date('md'),
-                "FixMate Customer VIP {$validated['plan_name']}"
+                "FixMate Customer VIP {$validated['plan_name']}",
+                $request->input('mpin')
             );
             if (! $jcResult['success']) {
                 return back()->withInput()->with('error', $jcResult['message'] ?? 'JazzCash VIP subscription payment declined.');
             }
             $txnRef = $jcResult['transaction_reference'];
-        } elseif ($validated['payment_method'] === 'easypaisa') {
+        } elseif ($validated['payment_method'] === 'easypaisa' && $request->filled('mpin')) {
             $phone = !empty($validated['account_number']) ? $validated['account_number'] : ($user->phone ?? '03451234567');
             $epResult = app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment(
                 $phone,
                 $price,
                 'FM-VIP-' . $user->id . '-' . date('mdHis'),
-                $user->email ?? 'customer@fixmate.pk'
+                $user->email ?? 'customer@fixmate.pk',
+                $request->input('mpin')
             );
             if (! $epResult['success']) {
                 return back()->withInput()->with('error', $epResult['message'] ?? 'EasyPaisa VIP subscription payment declined.');

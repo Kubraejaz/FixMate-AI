@@ -209,10 +209,10 @@
 
                         <div>
                             <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
-                                JazzCash MPIN / Transaction OTP
+                                JazzCash 6-Digit Verification OTP <span style="color: #DC2626;">*</span>
                             </label>
-                            <input type="password" name="jazzcash_mpin" maxlength="6" placeholder="Enter 4 or 6-digit MPIN" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; background: #FFF; letter-spacing: 3px;">
-                            <span style="font-size: 11.5px; color: #64748B; display: block; margin-top: 4px;">An approval prompt will be sent to your JazzCash mobile app / SIM.</span>
+                            <input type="text" inputmode="numeric" name="jazzcash_mpin" id="jazzcash_mpin" maxlength="6" placeholder="e.g. 6-digit code" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 15px; font-weight: 800; background: #FFF; letter-spacing: 4px;">
+                            <span style="font-size: 11.5px; color: #64748B; display: block; margin-top: 4px;">Click "Send USSD Push" above to generate your verification code. Random OTPs will be rejected.</span>
                         </div>
                     </div>
 
@@ -242,10 +242,10 @@
 
                         <div>
                             <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
-                                EasyPaisa OTP / MPIN
+                                EasyPaisa 6-Digit Verification OTP <span style="color: #DC2626;">*</span>
                             </label>
-                            <input type="password" name="easypaisa_mpin" maxlength="6" placeholder="Enter 5-digit EasyPaisa PIN" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; background: #FFF; letter-spacing: 3px;">
-                            <span style="font-size: 11.5px; color: #64748B; display: block; margin-top: 4px;">Approve the payment pop-up on your smartphone to complete.</span>
+                            <input type="text" inputmode="numeric" name="easypaisa_mpin" id="easypaisa_mpin" maxlength="6" placeholder="e.g. 6-digit code" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 15px; font-weight: 800; background: #FFF; letter-spacing: 4px;">
+                            <span style="font-size: 11.5px; color: #64748B; display: block; margin-top: 4px;">Click "Send App Prompt" above to generate your verification code. Random OTPs will be rejected.</span>
                         </div>
                     </div>
 
@@ -461,12 +461,44 @@
                 statusBox.style.background = '#ECFDF5';
                 statusBox.style.border = '1.5px solid #6EE7B7';
                 statusBox.style.color = '#065F46';
-                statusBox.innerHTML = '✓ <strong>Gateway Handshake Successful!</strong> ' + data.message + 
-                    '<div style="margin-top: 4px; font-weight: 700;">Gateway Ref: <span style="background: #D1FAE5; padding: 2px 6px; border-radius: 4px;">' + data.reference_id + '</span></div>';
+                
+                let otpHtml = '';
+                if (data.otp && !data.sms_dispatched) {
+                    otpHtml = `
+                        <div style="background: #FFFBEB; border: 1.5px solid #FCD34D; border-radius: 8px; padding: 10px 12px; margin-top: 8px;">
+                            <div style="font-size: 11.5px; font-weight: 800; color: #92400E; margin-bottom: 4px;">
+                                🔑 FixMate Authorization Code (Sandbox OTP):
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <span style="font-size: 20px; font-weight: 900; letter-spacing: 4px; color: #B45309; font-family: monospace;">${data.otp}</span>
+                                <button type="button" onclick="autoFillOtp('${gateway}', '${data.otp}')" style="background: #D97706; color: #FFF; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11.5px; font-weight: 800; cursor: pointer; white-space: nowrap;">
+                                    📋 Auto-Fill OTP
+                                </button>
+                            </div>
+                            <div style="font-size: 10.5px; color: #78350F; margin-top: 4px;">
+                                ℹ️ SMS gateway is not configured in .env. Enter this exact 6-digit OTP below; random numbers will be strictly rejected!
+                            </div>
+                        </div>
+                    `;
+                } else if (data.sms_dispatched) {
+                    otpHtml = `
+                        <div style="background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: 12px; color: #166534;">
+                            📲 Real SMS sent to ${phone}! Please check your phone messages and enter the 6-digit OTP below.
+                        </div>
+                    `;
+                }
+
+                statusBox.innerHTML = `
+                    <div style="font-weight: 800; font-size: 13px;">✓ ${isJc ? 'JazzCash' : 'EasyPaisa'} Gateway Handshake Successful!</div>
+                    <div style="margin-top: 2px;">${data.message}</div>
+                    <div style="margin-top: 4px; font-size: 11px;">Gateway Ref: <strong style="background: #D1FAE5; padding: 1px 6px; border-radius: 4px;">${data.reference_id}</strong></div>
+                    ${otpHtml}
+                `;
                 
                 if (txnRefInput) txnRefInput.value = data.reference_id;
-                btn.innerHTML = '<span>✓ Push Sent</span>';
+                btn.innerHTML = '<span>✓ OTP Dispatched</span>';
                 btn.style.background = '#059669';
+                btn.disabled = false;
             } else {
                 statusBox.style.background = '#FEF2F2';
                 statusBox.style.border = '1.5px solid #FCA5A5';
@@ -482,6 +514,17 @@
             statusBox.innerHTML = '⚠️ <strong>Network / Connection Error:</strong> Unable to reach payment gateway service. Please try again.';
             btn.disabled = false;
             btn.innerHTML = originalBtnHtml;
+        }
+    }
+
+    function autoFillOtp(gateway, otp) {
+        const isJc = gateway === 'jazzcash';
+        const input = document.getElementById(isJc ? 'jazzcash_mpin' : 'easypaisa_mpin');
+        if (input) {
+            input.value = otp;
+            input.focus();
+            input.style.borderColor = '#059669';
+            input.style.boxShadow = '0 0 0 3px rgba(5, 150, 105, 0.2)';
         }
     }
 
@@ -502,6 +545,13 @@
                 document.getElementById('jazzcash_mobile').focus();
                 return false;
             }
+            const jcOtp = document.getElementById('jazzcash_mpin').value.trim();
+            if (!jcOtp || jcOtp.length < 4) {
+                e.preventDefault();
+                alert('Please click "Send USSD Push" and enter your verification OTP before confirming payment.');
+                document.getElementById('jazzcash_mpin').focus();
+                return false;
+            }
         }
 
         if (selectedMethod === 'easypaisa') {
@@ -510,6 +560,13 @@
                 e.preventDefault();
                 alert('Please enter your 11-digit EasyPaisa mobile account number (e.g. 03451234567).');
                 document.getElementById('easypaisa_mobile').focus();
+                return false;
+            }
+            const epOtp = document.getElementById('easypaisa_mpin').value.trim();
+            if (!epOtp || epOtp.length < 4) {
+                e.preventDefault();
+                alert('Please click "Send App Prompt" and enter your verification OTP before confirming payment.');
+                document.getElementById('easypaisa_mpin').focus();
                 return false;
             }
         }

@@ -468,4 +468,46 @@ class MonetizationAndSubscriptionTest extends TestCase
         $this->assertEquals('easypaisa', $booking->payment_method);
         $this->assertEquals('escrow_held', $booking->payment_status);
     }
+
+    public function test_technician_upgrade_fails_with_invalid_random_otp_and_succeeds_with_correct_otp(): void
+    {
+        // 1. Request OTP via verify-gateway
+        $verifyRes = $this->actingAs($this->techUser)
+            ->postJson(route('technician.subscription.verify-gateway'), [
+                'gateway' => 'jazzcash',
+                'phone' => '03001234567',
+                'amount' => 500,
+            ]);
+
+        $verifyRes->assertOk();
+        $realOtp = $verifyRes->json('otp');
+        $this->assertNotEmpty($realOtp);
+
+        // 2. Try submitting a completely random incorrect OTP
+        $wrongResponse = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_monthly',
+                'payment_method' => 'jazzcash',
+                'jazzcash_mobile' => '03001234567',
+                'jazzcash_mpin' => '999999', // random wrong number
+            ]);
+
+        // Must fail and redirect back with session error
+        $wrongResponse->assertSessionHas('error');
+        $this->professional->refresh();
+        $this->assertFalse($this->professional->isPro());
+
+        // 3. Submit with the exact real generated OTP
+        $correctResponse = $this->actingAs($this->techUser)
+            ->post(route('technician.subscription.upgrade'), [
+                'plan_name' => 'pro_monthly',
+                'payment_method' => 'jazzcash',
+                'jazzcash_mobile' => '03001234567',
+                'jazzcash_mpin' => $realOtp,
+            ]);
+
+        $correctResponse->assertRedirect(route('technician.dashboard'));
+        $this->professional->refresh();
+        $this->assertTrue($this->professional->isPro());
+    }
 }

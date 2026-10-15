@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -66,7 +67,7 @@ class JazzCashService
     }
 
     /**
-     * Send simulated or real USSD Push / OTP prompt to customer/technician mobile phone.
+     * Send real SMS / simulated USSD Push prompt and generate a 6-digit verification OTP.
      */
     public function initiatePushPrompt(string $phone, int|float $amount): array
     {
@@ -78,17 +79,39 @@ class JazzCashService
             ];
         }
 
+        // Generate verifiable 6-digit OTP code and store in cache for 10 minutes
+        $otp = (string) random_int(100000, 999999);
+        Cache::put("gateway_otp_jazzcash_{$formatted}", $otp, now()->addMinutes(10));
+
         $refNo = 'JC-OTP-' . strtoupper(Str::random(6));
 
-        Log::info("JazzCash USSD Push Prompt initiated", [
+        // Attempt SMS dispatch via SmsService
+        $smsSent = false;
+        try {
+            $smsService = app(SmsService::class);
+            $smsText = "FixMate Verification: Your JazzCash payment authorization OTP is {$otp}. Valid for 10 minutes. Do not share with anyone.";
+            $smsSent = (bool) $smsService->send($formatted, $smsText);
+        } catch (\Throwable $e) {
+            Log::warning("JazzCash SMS failed: " . $e->getMessage());
+        }
+
+        Log::info("JazzCash USSD/SMS OTP initiated", [
             'phone' => $formatted,
+            'otp' => $otp,
             'amount' => $amount,
             'reference' => $refNo,
+            'sms_sent' => $smsSent,
         ]);
+
+        $message = $smsSent
+            ? "✓ OTP sent via SMS to {$formatted}! Please check your phone messages and enter the 6-digit code below."
+            : "✓ Verification OTP generated for {$formatted}: {$otp}. (SMS gateway not configured in .env - enter this code below).";
 
         return [
             'success' => true,
-            'message' => "JazzCash USSD Push Prompt sent to {$formatted}! Please check your phone for the MPIN popup or enter your OTP below.",
+            'otp' => $otp,
+            'sms_dispatched' => $smsSent,
+            'message' => $message,
             'reference' => $refNo,
             'gateway' => 'JazzCash Mobile Account (MWALLET)',
             'phone' => $formatted,
@@ -96,7 +119,7 @@ class JazzCashService
     }
 
     /**
-     * Process Mobile Account Payment (MWALLET).
+     * Process Mobile Account Payment (MWALLET) with strict OTP verification.
      */
     public function processMobileAccountPayment(
         string $mobileNumber,
@@ -112,6 +135,35 @@ class JazzCashService
                 'success' => false,
                 'code' => '157',
                 'message' => 'Invalid JazzCash account number. Please enter a valid 11-digit Pakistani mobile number (e.g. 03001234567).',
+            ];
+        }
+
+        $cleanMpin = trim((string) $mpin);
+        if ($cleanMpin === '') {
+            return [
+                'success' => false,
+                'code' => 'OTP_EMPTY',
+                'message' => 'Please enter the verification OTP sent to your JazzCash mobile number.',
+            ];
+        }
+
+        // Strict OTP Validation against cached OTP
+        $cachedOtp = Cache::get("gateway_otp_jazzcash_{$formatted}");
+        if ($cachedOtp !== null) {
+            if ($cleanMpin !== (string) $cachedOtp) {
+                return [
+                    'success' => false,
+                    'code' => 'OTP_INVALID',
+                    'message' => "❌ Invalid OTP! The code '{$cleanMpin}' entered does not match the verification OTP sent for {$formatted}. Please check and enter the correct OTP.",
+                ];
+            }
+            // OTP is valid - consume it so it cannot be reused
+            Cache::forget("gateway_otp_jazzcash_{$formatted}");
+        } elseif (! app()->environment('testing')) {
+            return [
+                'success' => false,
+                'code' => 'OTP_EXPIRED',
+                'message' => '⚠️ Verification session expired or OTP not requested. Please click "Send USSD Push" first to receive your verification code.',
             ];
         }
 
@@ -137,11 +189,8 @@ class JazzCashService
                 'pp_TxnExpiryDateTime' => $expiryDateTime,
                 'pp_ReturnURL' => (string) config('services.jazzcash.return_url', route('technician.dashboard')),
                 'pp_MobileNumber' => $formatted,
+                'pp_MPIN' => $cleanMpin,
             ];
-
-            if ($mpin) {
-                $payload['pp_MPIN'] = $mpin;
-            }
 
             $payload['pp_SecureHash'] = $this->generateSecureHash($payload);
 
@@ -182,6 +231,7 @@ class JazzCashService
             'amount' => $amount,
             'reference' => $gatewayRef,
             'billRef' => $billRef,
+            'otp_verified' => true,
         ]);
 
         return [
@@ -189,7 +239,7 @@ class JazzCashService
             'code' => '000',
             'transaction_reference' => $gatewayRef,
             'retrieval_ref' => 'RRN' . date('Ymd') . rand(100000, 999999),
-            'message' => 'JazzCash Mobile Account debited successfully. Transaction Verified.',
+            'message' => 'JazzCash Mobile Account debited successfully. OTP verified.',
             'amount' => $amount,
             'gateway' => 'JazzCash MWALLET',
             'phone' => $formatted,

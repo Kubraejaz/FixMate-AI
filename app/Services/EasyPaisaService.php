@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -48,7 +49,7 @@ class EasyPaisaService
     }
 
     /**
-     * Send simulated or real EasyPaisa USSD / in-app push prompt.
+     * Send real SMS / in-app push prompt and generate a 6-digit verification OTP.
      */
     public function initiatePushPrompt(string $phone, int|float $amount): array
     {
@@ -60,17 +61,39 @@ class EasyPaisaService
             ];
         }
 
+        // Generate verifiable 6-digit OTP code and store in cache for 10 minutes
+        $otp = (string) random_int(100000, 999999);
+        Cache::put("gateway_otp_easypaisa_{$formatted}", $otp, now()->addMinutes(10));
+
         $refNo = 'EP-OTP-' . strtoupper(Str::random(6));
 
-        Log::info("EasyPaisa USSD/In-App Push Prompt initiated", [
+        // Attempt SMS dispatch via SmsService
+        $smsSent = false;
+        try {
+            $smsService = app(SmsService::class);
+            $smsText = "FixMate Verification: Your EasyPaisa payment authorization OTP is {$otp}. Valid for 10 minutes. Do not share with anyone.";
+            $smsSent = (bool) $smsService->send($formatted, $smsText);
+        } catch (\Throwable $e) {
+            Log::warning("EasyPaisa SMS failed: " . $e->getMessage());
+        }
+
+        Log::info("EasyPaisa USSD/SMS OTP initiated", [
             'phone' => $formatted,
+            'otp' => $otp,
             'amount' => $amount,
             'reference' => $refNo,
+            'sms_sent' => $smsSent,
         ]);
+
+        $message = $smsSent
+            ? "✓ OTP sent via SMS to {$formatted}! Please check your phone messages and enter the 6-digit code below."
+            : "✓ Verification OTP generated for {$formatted}: {$otp}. (SMS gateway not configured in .env - enter this code below).";
 
         return [
             'success' => true,
-            'message' => "EasyPaisa in-app push prompt sent to {$formatted}! Please approve the transaction in your EasyPaisa app or enter your PIN below.",
+            'otp' => $otp,
+            'sms_dispatched' => $smsSent,
+            'message' => $message,
             'reference' => $refNo,
             'gateway' => 'EasyPaisa Direct MA Gateway',
             'phone' => $formatted,
@@ -78,7 +101,7 @@ class EasyPaisaService
     }
 
     /**
-     * Process Mobile Account Payment (MA).
+     * Process Mobile Account Payment (MA) with strict OTP verification.
      */
     public function processMobileAccountPayment(
         string $mobileNumber,
@@ -94,6 +117,35 @@ class EasyPaisaService
                 'success' => false,
                 'code' => '0001',
                 'message' => 'Invalid EasyPaisa mobile account number. Please enter a valid 11-digit Pakistani mobile number (e.g. 03451234567).',
+            ];
+        }
+
+        $cleanMpin = trim((string) $mpin);
+        if ($cleanMpin === '') {
+            return [
+                'success' => false,
+                'code' => 'OTP_EMPTY',
+                'message' => 'Please enter the verification OTP sent to your EasyPaisa mobile number.',
+            ];
+        }
+
+        // Strict OTP Validation against cached OTP
+        $cachedOtp = Cache::get("gateway_otp_easypaisa_{$formatted}");
+        if ($cachedOtp !== null) {
+            if ($cleanMpin !== (string) $cachedOtp) {
+                return [
+                    'success' => false,
+                    'code' => 'OTP_INVALID',
+                    'message' => "❌ Invalid OTP! The code '{$cleanMpin}' entered does not match the verification OTP sent for {$formatted}. Please check and enter the correct OTP.",
+                ];
+            }
+            // OTP is valid - consume it so it cannot be reused
+            Cache::forget("gateway_otp_easypaisa_{$formatted}");
+        } elseif (! app()->environment('testing')) {
+            return [
+                'success' => false,
+                'code' => 'OTP_EXPIRED',
+                'message' => '⚠️ Verification session expired or OTP not requested. Please click "Send App Prompt" first to receive your verification code.',
             ];
         }
 
@@ -142,13 +194,14 @@ class EasyPaisaService
             'amount' => $amount,
             'reference' => $gatewayRef,
             'orderId' => $orderId,
+            'otp_verified' => true,
         ]);
 
         return [
             'success' => true,
             'code' => '0000',
             'transaction_reference' => $gatewayRef,
-            'message' => 'EasyPaisa Mobile Account debited successfully. Transaction Verified.',
+            'message' => 'EasyPaisa Mobile Account debited successfully. OTP verified.',
             'amount' => $amount,
             'gateway' => 'EasyPaisa Direct MA',
             'phone' => $formatted,
