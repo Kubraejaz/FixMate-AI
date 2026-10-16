@@ -281,6 +281,16 @@
                                 <input type="password" name="card_cvc" maxlength="4" placeholder="•••" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
                             </div>
                         </div>
+
+                        <div style="margin-top: 12px;">
+                            <label style="display: block; font-size: 12.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">
+                                Bank OTP (only if prompted)
+                            </label>
+                            <input type="text" inputmode="numeric" name="card_otp" maxlength="10" placeholder="Enter the OTP from your bank" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF; letter-spacing: 2px;">
+                            <small style="display: block; font-size: 11px; color: #64748B; margin-top: 6px; font-weight: 600;">
+                                Your bank may send a one-time password to your registered mobile number. Submit once to request it, then enter it here and submit again. Payments are processed securely by PayFast.
+                            </small>
+                        </div>
                     </div>
 
                 </div>

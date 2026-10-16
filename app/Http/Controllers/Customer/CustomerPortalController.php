@@ -999,6 +999,7 @@ class CustomerPortalController extends Controller
             'card_number' => ['required_if:payment_method,card', 'nullable', 'string', 'max:30'],
             'card_expiry' => ['required_if:payment_method,card', 'nullable', 'string', 'max:10'],
             'card_cvc' => ['required_if:payment_method,card', 'nullable', 'string', 'max:6'],
+            'card_otp' => ['nullable', 'string', 'max:10'],
         ], [
             'account_number.required_if' => 'Please enter your registered JazzCash/EasyPaisa mobile account number (03XXXXXXXXX).',
             'mpin.required_if' => 'Please enter the 6-digit verification OTP sent to your mobile number.',
@@ -1051,7 +1052,38 @@ class CustomerPortalController extends Controller
                     return back()->withInput()->with('error', 'Invalid card security code. Please enter the 3 or 4 digit CVC/CVV.');
                 }
             }
-            $txnRef = $plans->generateReference('TXN-CARD');
+
+            $sessionPrefix = 'card_pending_cust_' . $user->id;
+            $cardResult = app(\App\Services\CardPaymentService::class)->pay([
+                'mobile' => $user->phone ?? ($validated['account_number'] ?? ''),
+                'amount' => $price,
+                'basket_id' => 'FM-VIP-' . $user->id . '-' . date('Ymd'),
+                'description' => "FixMate Customer VIP {$planName}",
+                'merchant_user_id' => (string) $user->id,
+                'card_number' => $validated['card_number'] ?? '',
+                'card_expiry' => $validated['card_expiry'] ?? '',
+                'card_cvc' => $validated['card_cvc'] ?? '',
+                'otp' => $validated['card_otp'] ?? null,
+                'instrument_token' => session($sessionPrefix . '_token'),
+                'transaction_id' => session($sessionPrefix . '_txn'),
+            ]);
+
+            if (! empty($cardResult['otp_required'])) {
+                session([
+                    $sessionPrefix . '_token' => $cardResult['instrument_token'],
+                    $sessionPrefix . '_txn' => $cardResult['transaction_id'],
+                ]);
+
+                return back()->withInput()->with('error', $cardResult['message']);
+            }
+
+            session()->forget([$sessionPrefix . '_token', $sessionPrefix . '_txn']);
+
+            if (! $cardResult['success']) {
+                return back()->withInput()->with('error', $cardResult['message']);
+            }
+
+            $txnRef = $cardResult['transaction_reference'];
         }
 
         $expiresAt = $plans->calculateExpiry($user->subscribed_until, $planName);

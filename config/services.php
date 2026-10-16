@@ -58,4 +58,13 @@ return [
         'post_back_url' => env('EASYPAISA_POST_BACK_URL', ''),
     ],
 
+    'payfast' => [
+        'merchant_id' => env('PAYFAST_MERCHANT_ID', ''),
+        'secured_key' => env('PAYFAST_SECURED_KEY', ''),
+        'hash_key' => env('PAYFAST_HASH_KEY', ''),
+        'sandbox' => env('PAYFAST_SANDBOX', true),
+        'sandbox_url' => env('PAYFAST_SANDBOX_URL', 'https://uat.premierpayfast.com'),
+        'live_url' => env('PAYFAST_LIVE_URL', 'https://api.premierpayfast.com'),
+    ],
+
 ];

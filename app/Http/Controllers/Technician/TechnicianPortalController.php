@@ -582,6 +582,7 @@ class TechnicianPortalController extends Controller
             'card_number' => ['required_if:payment_method,card', 'nullable', 'string', 'max:30'],
             'card_expiry' => ['required_if:payment_method,card', 'nullable', 'string', 'max:10'],
             'card_cvc' => ['required_if:payment_method,card', 'nullable', 'string', 'max:6'],
+            'card_otp' => ['nullable', 'string', 'max:10'],
             'transaction_reference' => ['nullable', 'string', 'max:50'],
         ], [
             'payment_method.required' => 'Please select a valid payment method.',
@@ -653,7 +654,7 @@ class TechnicianPortalController extends Controller
                 : $epResult['transaction_reference'];
         }
 
-        // 4. Verify Debit / Credit Card
+        // 4. Process Debit / Credit Card via PayFast (APG) tokenized flow
         elseif ($validated['payment_method'] === 'card') {
             if (! app()->environment('testing')) {
                 if (! $plans->passesLuhnCheck($validated['card_number'] ?? '')) {
@@ -666,9 +667,40 @@ class TechnicianPortalController extends Controller
                     return back()->withInput()->with('error', 'Invalid card security code. Please enter the 3 or 4 digit CVC/CVV.');
                 }
             }
+
+            $sessionPrefix = 'card_pending_tech_' . auth()->id();
+            $cardResult = app(\App\Services\CardPaymentService::class)->pay([
+                'mobile' => auth()->user()->phone ?? ($pro->phone ?? ''),
+                'amount' => $price,
+                'basket_id' => 'FM-PRO-' . $pro->id . '-' . date('Ymd'),
+                'description' => "FixMate Pro {$validated['plan_name']}",
+                'merchant_user_id' => (string) $pro->id,
+                'card_number' => $validated['card_number'] ?? '',
+                'card_expiry' => $validated['card_expiry'] ?? '',
+                'card_cvc' => $validated['card_cvc'] ?? '',
+                'otp' => $validated['card_otp'] ?? null,
+                'instrument_token' => session($sessionPrefix . '_token'),
+                'transaction_id' => session($sessionPrefix . '_txn'),
+            ]);
+
+            if (! empty($cardResult['otp_required'])) {
+                session([
+                    $sessionPrefix . '_token' => $cardResult['instrument_token'],
+                    $sessionPrefix . '_txn' => $cardResult['transaction_id'],
+                ]);
+
+                return back()->withInput()->with('error', $cardResult['message']);
+            }
+
+            session()->forget([$sessionPrefix . '_token', $sessionPrefix . '_txn']);
+
+            if (! $cardResult['success']) {
+                return back()->withInput()->with('error', $cardResult['message']);
+            }
+
             $ref = ! empty($validated['transaction_reference'])
                 ? $validated['transaction_reference']
-                : $plans->generateReference('TXN-CARD');
+                : $cardResult['transaction_reference'];
         } else {
             $ref = $plans->generateReference('TXN-SUB');
         }

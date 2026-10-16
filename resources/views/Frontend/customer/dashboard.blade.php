@@ -219,6 +219,9 @@
                             <input type="password" name="card_cvc" maxlength="4" placeholder="•••" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700;">
                         </div>
                     </div>
+                    <label style="display: block; font-size: 11.5px; font-weight: 800; color: #374151; margin: 10px 0 6px;">Bank OTP (only if prompted)</label>
+                    <input type="text" inputmode="numeric" name="card_otp" maxlength="10" placeholder="OTP from your bank" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; letter-spacing: 2px;">
+                    <small style="display: block; font-size: 11px; color: #64748B; margin-top: 6px; font-weight: 600;">Processed securely by PayFast. If your bank sends an OTP, enter it and submit again.</small>
                 </div>
 
                 <div style="display: flex; gap: 10px;">
