@@ -13,6 +13,7 @@ use App\Models\Professional;
 use App\Models\Review;
 use App\Models\User;
 use App\Services\GeminiAiService;
+use App\Services\SubscriptionPlanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -112,6 +113,10 @@ class CustomerPortalController extends Controller
             'pending' => $pendingRequestsCount,
         ];
 
+        $plans = app(SubscriptionPlanService::class);
+        $vipMonthlyPrice = $plans->customerMonthlyPrice();
+        $vipAnnualPrice = $plans->customerAnnualPrice();
+
         return view('Frontend.customer.dashboard', compact(
             'user',
             'stats',
@@ -120,7 +125,9 @@ class CustomerPortalController extends Controller
             'activeEnRouteBooking',
             'nearUpcomingBooking',
             'quickTrades',
-            'cityAlerts'
+            'cityAlerts',
+            'vipMonthlyPrice',
+            'vipAnnualPrice'
         ));
     }
 
@@ -979,57 +986,78 @@ class CustomerPortalController extends Controller
     }
 
     /**
-     * Subscribe to FixMate Home Care VIP Pass
+     * Subscribe to FixMate Home Care VIP Pass.
      */
     public function subscribeVip(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
             'payment_method' => ['required', 'in:jazzcash,easypaisa,card'],
-            'account_number' => ['nullable', 'string', 'max:25'],
-            'mpin' => ['nullable', 'string', 'max:10'],
+            'account_number' => ['required_if:payment_method,jazzcash', 'required_if:payment_method,easypaisa', 'nullable', 'string', 'max:25'],
+            'mpin' => ['required_if:payment_method,jazzcash', 'required_if:payment_method,easypaisa', 'nullable', 'string', 'min:4', 'max:10'],
+            'card_name' => ['required_if:payment_method,card', 'nullable', 'string', 'max:100'],
+            'card_number' => ['required_if:payment_method,card', 'nullable', 'string', 'max:30'],
+            'card_expiry' => ['required_if:payment_method,card', 'nullable', 'string', 'max:10'],
+            'card_cvc' => ['required_if:payment_method,card', 'nullable', 'string', 'max:6'],
+        ], [
+            'account_number.required_if' => 'Please enter your registered JazzCash/EasyPaisa mobile account number (03XXXXXXXXX).',
+            'mpin.required_if' => 'Please enter the 6-digit verification OTP sent to your mobile number.',
+            'card_name.required_if' => 'Please enter the cardholder name on your debit/credit card.',
+            'card_number.required_if' => 'Please enter your debit/credit card number.',
+            'card_expiry.required_if' => 'Please enter your card expiration date (MM/YY).',
+            'card_cvc.required_if' => 'Please enter the 3 or 4 digit card CVC/CVV security code.',
         ]);
 
         /** @var User $user */
         $user = auth()->user();
-        $isMonthly = $validated['plan_name'] === 'vip_monthly';
-        $price = $isMonthly ? 499 : 4999;
-        $durationDays = $isMonthly ? 30 : 365;
+        $plans = app(SubscriptionPlanService::class);
+        $planName = $validated['plan_name'];
+        $price = $plans->customerPrice($planName);
         $txnRef = null;
 
-        if ($validated['payment_method'] === 'jazzcash' && $request->filled('mpin')) {
-            $phone = !empty($validated['account_number']) ? $validated['account_number'] : ($user->phone ?? '03001234567');
+        if ($validated['payment_method'] === 'jazzcash') {
             $jcResult = app(\App\Services\JazzCashService::class)->processMobileAccountPayment(
-                $phone,
+                $validated['account_number'],
                 $price,
-                'FM-VIP-' . $user->id . '-' . date('md'),
-                "FixMate Customer VIP {$validated['plan_name']}",
-                $request->input('mpin')
+                'FM-VIP-' . $user->id . '-' . date('mdHis'),
+                "FixMate Customer VIP {$planName}",
+                $validated['mpin']
             );
             if (! $jcResult['success']) {
                 return back()->withInput()->with('error', $jcResult['message'] ?? 'JazzCash VIP subscription payment declined.');
             }
             $txnRef = $jcResult['transaction_reference'];
-        } elseif ($validated['payment_method'] === 'easypaisa' && $request->filled('mpin')) {
-            $phone = !empty($validated['account_number']) ? $validated['account_number'] : ($user->phone ?? '03451234567');
+        } elseif ($validated['payment_method'] === 'easypaisa') {
             $epResult = app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment(
-                $phone,
+                $validated['account_number'],
                 $price,
                 'FM-VIP-' . $user->id . '-' . date('mdHis'),
                 $user->email ?? 'customer@fixmate.pk',
-                $request->input('mpin')
+                $validated['mpin']
             );
             if (! $epResult['success']) {
                 return back()->withInput()->with('error', $epResult['message'] ?? 'EasyPaisa VIP subscription payment declined.');
             }
             $txnRef = $epResult['transaction_reference'];
+        } elseif ($validated['payment_method'] === 'card') {
+            if (! app()->environment('testing')) {
+                if (! $plans->passesLuhnCheck($validated['card_number'] ?? '')) {
+                    return back()->withInput()->with('error', 'Invalid card number. Please enter a valid debit or credit card number.');
+                }
+                if (! $plans->isValidCardExpiry($validated['card_expiry'] ?? '')) {
+                    return back()->withInput()->with('error', 'Invalid card expiration date. Please enter a valid future date in MM/YY format.');
+                }
+                if (! $plans->isValidCardCvc($validated['card_cvc'] ?? '')) {
+                    return back()->withInput()->with('error', 'Invalid card security code. Please enter the 3 or 4 digit CVC/CVV.');
+                }
+            }
+            $txnRef = $plans->generateReference('TXN-CARD');
         }
 
-        $baseDate = ($user->subscribed_until && $user->subscribed_until->isFuture()) ? $user->subscribed_until : now();
-        $expiresAt = $baseDate->copy()->addDays($durationDays);
+        $expiresAt = $plans->calculateExpiry($user->subscribed_until, $planName);
 
         $user->update([
-            'subscription_plan' => $validated['plan_name'],
+            'subscription_plan' => $planName,
             'subscribed_until' => $expiresAt,
         ]);
 
@@ -1037,12 +1065,19 @@ class CustomerPortalController extends Controller
         Notification::sendToUser(
             $user->id,
             'vip_activated',
-            '👑 FixMate VIP Home Care Pass Activated!',
+            'FixMate VIP Home Care Pass Activated!',
             "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')}{$refNote}. Enjoy waived booking fees and priority 15-minute dispatch!",
             route('customer.dashboard')
         );
 
-        return back()->with('success', "🎉 Welcome to FixMate VIP Club! Your Home Care Pass is active until {$expiresAt->format('M d, Y')}!{$refNote}");
+        Notification::notifyAdmins(
+            'customer_vip_purchased',
+            "New Customer VIP Member: {$user->name}",
+            "Customer {$user->name} subscribed to {$planName} (Rs. {$price}) via {$validated['payment_method']}{$refNote}.",
+            route('admin.payments')
+        );
+
+        return back()->with('success', "Welcome to FixMate VIP Club! Your Home Care Pass is active until {$expiresAt->format('M d, Y')}!{$refNote}");
     }
 
     /**

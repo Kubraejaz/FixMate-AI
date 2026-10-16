@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api\V1\Customer;
 use App\Http\Controllers\Api\V1\ApiController;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\SubscriptionPlanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends ApiController
 {
+    public function __construct(private readonly SubscriptionPlanService $plans) {}
+
     /**
      * Get current customer subscription status and available Home Care VIP plans.
      */
@@ -18,8 +21,8 @@ class SubscriptionController extends ApiController
         /** @var User $user */
         $user = $request->user();
 
-        $monthlyPrice = 299;
-        $annualPrice = 2999;
+        $monthlyPrice = $this->plans->customerMonthlyPrice();
+        $annualPrice = $this->plans->customerAnnualPrice();
 
         $plans = [
             [
@@ -40,9 +43,9 @@ class SubscriptionController extends ApiController
                 'id' => 'vip_monthly',
                 'name' => 'FixMate Home Care VIP (Monthly)',
                 'price' => $monthlyPrice,
-                'billing_period' => 'Rs. ' . number_format($monthlyPrice) . ' / month',
+                'billing_period' => 'Rs. '.number_format($monthlyPrice).' / month',
                 'convenience_fee' => '0% Waived (Rs. 0 Forever)',
-                'badge' => 'Most Popular 👑',
+                'badge' => 'Most Popular',
                 'perks' => [
                     '0% Convenience & Booking Fees — Unlimited Bookings',
                     'Priority 15-Minute Express Dispatch',
@@ -56,9 +59,9 @@ class SubscriptionController extends ApiController
                 'id' => 'vip_annual',
                 'name' => 'FixMate Home Care VIP (Annual Pass)',
                 'price' => $annualPrice,
-                'billing_period' => 'Rs. ' . number_format($annualPrice) . ' / year',
+                'billing_period' => 'Rs. '.number_format($annualPrice).' / year',
                 'convenience_fee' => '0% Waived (Rs. 0 Forever)',
-                'badge' => 'Save 17% 🔥',
+                'badge' => 'Best Value',
                 'perks' => [
                     'All VIP Home Care perks for a full 12 months',
                     '2 Months Free with Annual Billing',
@@ -88,43 +91,35 @@ class SubscriptionController extends ApiController
     {
         $validated = $request->validate([
             'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
-            'payment_method' => ['required', 'in:jazzcash,easypaisa,card,wallet'],
+            'payment_method' => ['required', 'in:jazzcash,easypaisa,card'],
             'phone_or_account' => ['nullable', 'string', 'max:50'],
         ]);
 
         /** @var User $user */
         $user = $request->user();
 
-        $monthlyPrice = 299;
-        $annualPrice = 2999;
-
-        $isMonthly = $validated['plan_name'] === 'vip_monthly';
-        $price = $isMonthly ? $monthlyPrice : $annualPrice;
-        $durationDays = $isMonthly ? 30 : 365;
-
-        $baseDate = ($user->subscribed_until && $user->subscribed_until->isFuture())
-            ? $user->subscribed_until
-            : now();
-
-        $expiresAt = $baseDate->copy()->addDays($durationDays);
+        $planName = $validated['plan_name'];
+        $price = $this->plans->customerPrice($planName);
+        $txnRef = $this->plans->generateReference('TXN-VIP');
+        $expiresAt = $this->plans->calculateExpiry($user->subscribed_until, $planName);
 
         $user->update([
-            'subscription_plan' => $validated['plan_name'],
+            'subscription_plan' => $planName,
             'subscribed_until' => $expiresAt,
         ]);
 
         Notification::sendToUser(
             $user->id,
             'vip_activated',
-            '👑 FixMate VIP Home Care Pass Activated!',
-            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')}. Enjoy waived booking fees and priority dispatch!",
+            'FixMate VIP Home Care Pass Activated!',
+            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')} (Ref: {$txnRef}). Enjoy waived booking fees and priority dispatch!",
             route('customer.dashboard')
         );
 
         Notification::notifyAdmins(
             'customer_vip_purchased',
             "New Customer VIP Member: {$user->name}",
-            "Customer {$user->name} subscribed to {$validated['plan_name']} (Rs. {$price}).",
+            "Customer {$user->name} subscribed to {$planName} (Rs. {$price}) via {$validated['payment_method']} (Ref: {$txnRef}).",
             route('admin.payments')
         );
 
@@ -133,6 +128,7 @@ class SubscriptionController extends ApiController
                 'plan_name' => $user->subscription_plan,
                 'price' => $price,
                 'payment_method' => $validated['payment_method'],
+                'reference' => $txnRef,
                 'is_vip' => true,
                 'subscribed_until' => $expiresAt->toIso8601String(),
                 'days_remaining' => max(0, (int) now()->diffInDays($expiresAt, false)),

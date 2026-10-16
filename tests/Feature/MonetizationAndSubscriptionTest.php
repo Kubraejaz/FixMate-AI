@@ -15,9 +15,13 @@ class MonetizationAndSubscriptionTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $techUser;
+
     private Professional $professional;
+
     private User $customer;
+
     private Profession $profession;
 
     protected function setUp(): void
@@ -235,6 +239,8 @@ class MonetizationAndSubscriptionTest extends TestCase
             ->post(route('customer.subscription.upgrade'), [
                 'plan_name' => 'vip_monthly',
                 'payment_method' => 'jazzcash',
+                'account_number' => '03001234567',
+                'mpin' => '1234',
             ]);
 
         $upgradeResponse->assertRedirect();

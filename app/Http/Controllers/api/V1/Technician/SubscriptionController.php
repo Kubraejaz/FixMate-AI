@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api\V1\Technician;
 
 use App\Models\Notification;
 use App\Models\TechnicianSubscription;
+use App\Services\SubscriptionPlanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends TechnicianController
 {
+    public function __construct(private readonly SubscriptionPlanService $plans) {}
+
     /**
      * Get current subscription status and available VIP plans.
      */
@@ -16,11 +19,11 @@ class SubscriptionController extends TechnicianController
     {
         $pro = $this->professional();
 
-        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
-        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $monthlyPrice = $this->plans->technicianMonthlyPrice();
+        $annualPrice = $this->plans->technicianAnnualPrice();
         $standardCommission = (float) cache('platform_commission', 10.0);
 
-        $plans = [
+        $availablePlans = [
             [
                 'id' => 'free',
                 'name' => 'Starter Free Tier',
@@ -41,7 +44,7 @@ class SubscriptionController extends TechnicianController
                 'price' => $monthlyPrice,
                 'billing_period' => 'Rs. '.number_format($monthlyPrice).' / month',
                 'commission_rate' => 0.0,
-                'badge' => 'Most Popular 👑',
+                'badge' => 'Most Popular',
                 'perks' => [
                     '0% Platform Commission — Keep 100% of all job earnings!',
                     'Top of Search directory placement (3x more leads)',
@@ -57,7 +60,7 @@ class SubscriptionController extends TechnicianController
                 'price' => $annualPrice,
                 'billing_period' => 'Rs. '.number_format($annualPrice).' / year',
                 'commission_rate' => 0.0,
-                'badge' => 'Save 17% 🔥',
+                'badge' => 'Best Value',
                 'perks' => [
                     'All Pro VIP perks for a full 12 months',
                     '0% Platform Commission for entire year',
@@ -93,7 +96,7 @@ class SubscriptionController extends TechnicianController
                 'subscribed_until' => optional($pro->subscribed_until)->toIso8601String(),
                 'days_remaining' => $pro->subscribed_until ? max(0, (int) now()->diffInDays($pro->subscribed_until, false)) : 0,
             ],
-            'available_plans' => $plans,
+            'available_plans' => $availablePlans,
             'history' => $history,
         ], 'Subscription status retrieved.');
     }
@@ -112,14 +115,9 @@ class SubscriptionController extends TechnicianController
         $pro = $this->professional();
         $user = $request->user();
 
-        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
-        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $planName = $validated['plan_name'];
+        $price = $this->plans->technicianPrice($planName);
 
-        $isMonthly = $validated['plan_name'] === 'pro_monthly';
-        $price = $isMonthly ? $monthlyPrice : $annualPrice;
-        $durationDays = $isMonthly ? 30 : 365;
-
-        // Wallet Balance check
         if ($validated['payment_method'] === 'wallet') {
             $availableWallet = $pro->getAvailableWalletBalance();
             if (! app()->environment('testing') && $availableWallet < $price) {
@@ -127,28 +125,22 @@ class SubscriptionController extends TechnicianController
             }
         }
 
-        // If already active, extend from current expiry, else from now
-        $baseDate = ($pro->subscribed_until && $pro->subscribed_until->isFuture())
-            ? $pro->subscribed_until
-            : now();
-
-        $startsAt = now();
-        $expiresAt = $baseDate->copy()->addDays($durationDays);
+        $expiresAt = $this->plans->calculateExpiry($pro->subscribed_until, $planName);
         $ref = TechnicianSubscription::generateReference();
 
         $sub = TechnicianSubscription::create([
             'professional_id' => $pro->id,
-            'plan_name' => $validated['plan_name'],
+            'plan_name' => $planName,
             'price' => $price,
             'payment_method' => $validated['payment_method'],
             'transaction_reference' => $ref,
             'status' => 'active',
-            'starts_at' => $startsAt,
+            'starts_at' => now(),
             'expires_at' => $expiresAt,
         ]);
 
         $pro->update([
-            'subscription_plan' => $validated['plan_name'],
+            'subscription_plan' => $planName,
             'subscribed_until' => $expiresAt,
             'is_featured' => true,
         ]);
@@ -156,15 +148,15 @@ class SubscriptionController extends TechnicianController
         Notification::sendToUser(
             $user->id,
             'subscription_activated',
-            '👑 Welcome to FixMate Pro VIP!',
-            "Your {$validated['plan_name']} plan is active until {$expiresAt->format('M d, Y')}. Enjoy 0% commission on all jobs!",
+            'Welcome to FixMate Pro VIP!',
+            "Your {$planName} plan is active until {$expiresAt->format('M d, Y')} (Ref: {$ref}). Enjoy 0% commission on all jobs!",
             route('technician.earnings')
         );
 
         Notification::notifyAdmins(
             'subscription_purchased',
             "New VIP Pro Subscription: {$pro->name}",
-            "Technician {$pro->name} subscribed to {$validated['plan_name']} (Rs. {$price}).",
+            "Technician {$pro->name} subscribed to {$planName} (Rs. {$price}) via {$validated['payment_method']} (Ref: {$ref}).",
             route('admin.payments')
         );
 
@@ -188,25 +180,26 @@ class SubscriptionController extends TechnicianController
     }
 
     /**
-     * Cancel Pro subscription (reverts to free at expiry).
+     * Cancel Pro subscription (reverts to free tier immediately).
      */
     public function cancel(Request $request): JsonResponse
     {
         $pro = $this->professional();
 
-        $activeSub = $pro->subscriptions()->where('status', 'active')->latest()->first();
-        if ($activeSub) {
-            $activeSub->update(['status' => 'cancelled']);
-        }
+        $pro->subscriptions()
+            ->where('status', 'active')
+            ->update(['status' => 'cancelled']);
 
         $pro->update([
             'subscription_plan' => 'free',
+            'subscribed_until' => null,
             'is_featured' => false,
         ]);
 
         return $this->ok([
             'is_pro' => false,
             'subscription_plan' => 'free',
+            'subscribed_until' => null,
             'commission_rate' => (float) cache('platform_commission', 10.0),
         ], 'Your FixMate Pro plan has been cancelled and reverted to the Starter Free Tier.');
     }

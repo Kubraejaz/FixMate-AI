@@ -134,8 +134,9 @@ class TechnicianPortalController extends Controller
         }
 
         $availableWallet = $pro->getAvailableWalletBalance();
-        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
-        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $plans = app(\App\Services\SubscriptionPlanService::class);
+        $monthlyPrice = $plans->technicianMonthlyPrice();
+        $annualPrice = $plans->technicianAnnualPrice();
 
         return view('Frontend.technician.dashboard', compact(
             'user',
@@ -516,8 +517,9 @@ class TechnicianPortalController extends Controller
         $availableWithdrawal = $pro->getAvailableWalletBalance();
         $availableWallet = $availableWithdrawal;
 
-        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
-        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $plans = app(\App\Services\SubscriptionPlanService::class);
+        $monthlyPrice = $plans->technicianMonthlyPrice();
+        $annualPrice = $plans->technicianAnnualPrice();
         $subscriptionsHistory = $pro->subscriptions()->latest()->take(10)->get();
 
         return view('Frontend.technician.earnings', compact(
@@ -541,16 +543,17 @@ class TechnicianPortalController extends Controller
     {
         $pro = $this->getProfessional();
         $user = auth()->user();
+        $plans = app(\App\Services\SubscriptionPlanService::class);
 
         $plan = $request->query('plan', 'pro_monthly');
-        if (! in_array($plan, ['pro_monthly', 'pro_annual'])) {
+        if (! $plans->isValidTechnicianPlan($plan)) {
             $plan = 'pro_monthly';
         }
 
-        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
-        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $monthlyPrice = $plans->technicianMonthlyPrice();
+        $annualPrice = $plans->technicianAnnualPrice();
         $availableWallet = $pro->getAvailableWalletBalance();
-        $price = $plan === 'pro_monthly' ? $monthlyPrice : $annualPrice;
+        $price = $plans->technicianPrice($plan);
 
         return view('Frontend.technician.subscription-checkout', compact(
             'pro',
@@ -593,9 +596,9 @@ class TechnicianPortalController extends Controller
         ]);
 
         $pro = $this->getProfessional();
+        $plans = app(\App\Services\SubscriptionPlanService::class);
         $isMonthly = $validated['plan_name'] === 'pro_monthly';
-        $price = $isMonthly ? (int) cache('subscription_monthly_price', 500) : (int) cache('subscription_annual_price', 4999);
-        $durationDays = $isMonthly ? 30 : 365;
+        $price = $plans->technicianPrice($validated['plan_name']);
 
         // 1. Verify Wallet Balance
         if ($validated['payment_method'] === 'wallet') {
@@ -605,7 +608,7 @@ class TechnicianPortalController extends Controller
             }
             $ref = ! empty($validated['transaction_reference'])
                 ? $validated['transaction_reference']
-                : ('TXN-WAL-' . strtoupper(bin2hex(random_bytes(4))));
+                : $plans->generateReference('TXN-WAL');
         }
 
         // 2. Process JazzCash API Gateway
@@ -652,19 +655,25 @@ class TechnicianPortalController extends Controller
 
         // 4. Verify Debit / Credit Card
         elseif ($validated['payment_method'] === 'card') {
-            $cleanCard = preg_replace('/[^0-9]/', '', $validated['card_number'] ?? '');
-            if (! app()->environment('testing') && (strlen($cleanCard) < 12 || strlen($cleanCard) > 19)) {
-                return back()->withInput()->with('error', 'Invalid card number. Please enter a valid 16-digit debit or credit card number.');
+            if (! app()->environment('testing')) {
+                if (! $plans->passesLuhnCheck($validated['card_number'] ?? '')) {
+                    return back()->withInput()->with('error', 'Invalid card number. Please enter a valid debit or credit card number.');
+                }
+                if (! $plans->isValidCardExpiry($validated['card_expiry'] ?? '')) {
+                    return back()->withInput()->with('error', 'Invalid card expiration date. Please enter a valid future date in MM/YY format.');
+                }
+                if (! $plans->isValidCardCvc($validated['card_cvc'] ?? '')) {
+                    return back()->withInput()->with('error', 'Invalid card security code. Please enter the 3 or 4 digit CVC/CVV.');
+                }
             }
             $ref = ! empty($validated['transaction_reference'])
                 ? $validated['transaction_reference']
-                : ('TXN-CARD-' . strtoupper(bin2hex(random_bytes(4))));
+                : $plans->generateReference('TXN-CARD');
         } else {
-            $ref = 'TXN-SUB-' . strtoupper(bin2hex(random_bytes(4)));
+            $ref = $plans->generateReference('TXN-SUB');
         }
 
-        $baseDate = ($pro->subscribed_until && $pro->subscribed_until->isFuture()) ? $pro->subscribed_until : now();
-        $expiresAt = $baseDate->copy()->addDays($durationDays);
+        $expiresAt = $plans->calculateExpiry($pro->subscribed_until, $validated['plan_name']);
 
         \App\Models\TechnicianSubscription::create([
             'professional_id' => $pro->id,
@@ -686,7 +695,7 @@ class TechnicianPortalController extends Controller
         Notification::sendToUser(
             auth()->id(),
             'subscription_activated',
-            '👑 Welcome to FixMate Pro VIP!',
+            'Welcome to FixMate Pro VIP!',
             "Your {$validated['plan_name']} plan is active until {$expiresAt->format('M d, Y')}! Payment of Rs. " . number_format($price) . " verified via " . ucfirst($validated['payment_method']) . " (Ref: {$ref}).",
             route('technician.earnings')
         );
@@ -700,7 +709,7 @@ class TechnicianPortalController extends Controller
 
         $planLabel = $isMonthly ? 'Monthly Pass' : 'Annual Pass';
         return redirect()->route('technician.dashboard')
-            ->with('success', "🎉 Payment of Rs. " . number_format($price) . " confirmed via " . ucfirst($validated['payment_method']) . " (Ref: {$ref})! Welcome to FixMate Pro VIP ({$planLabel}). You now enjoy 0% platform commission on all jobs until {$expiresAt->format('M d, Y')}!");
+            ->with('success', "Payment of Rs. " . number_format($price) . " confirmed via " . ucfirst($validated['payment_method']) . " (Ref: {$ref})! Welcome to FixMate Pro VIP ({$planLabel}). You now enjoy 0% platform commission on all jobs until {$expiresAt->format('M d, Y')}!");
     }
 
     /**

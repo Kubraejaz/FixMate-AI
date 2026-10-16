@@ -116,8 +116,9 @@
     <!-- FixMate Pro VIP Technician Subscription Banner & Status Card -->
     @php
         $isPro = $pro->hasActiveProSubscription();
-        $monthlyPrice = (int) cache('subscription_monthly_price', 500);
-        $annualPrice = (int) cache('subscription_annual_price', 4999);
+        $planSvc = app(\App\Services\SubscriptionPlanService::class);
+        $monthlyPrice = $planSvc->technicianMonthlyPrice();
+        $annualPrice = $planSvc->technicianAnnualPrice();
     @endphp
 
     <div id="techSubscriptionBanner" style="background: {{ $isPro ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' : 'linear-gradient(135deg, #18181B 0%, #27272A 100%)' }}; border: 2px solid {{ $isPro ? '#F59E0B' : '#EAB308' }}; border-radius: 18px; padding: 22px 26px; margin-bottom: 24px; color: #FFFFFF; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
@@ -186,6 +187,7 @@
 
             <form action="{{ route('technician.subscription.upgrade') }}" method="POST" id="modalSubscriptionForm">
                 @csrf
+                <input type="hidden" name="transaction_reference" id="modal_txn_ref" value="{{ old('transaction_reference') }}">
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 6px;">Select VIP Plan:</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -222,9 +224,9 @@
                         <strong style="color: #0F172A;">Rs. {{ number_format($availableWallet) }}</strong>
                     </div>
                     @if($availableWallet >= $monthlyPrice)
-                        <span style="font-size: 11.5px; color: #059669; font-weight: 700;">✓ Sufficient funds available. Will be deducted immediately.</span>
+                        <span id="modalWalletHint" style="font-size: 11.5px; color: #059669; font-weight: 700;">✓ Sufficient funds available. Will be deducted immediately.</span>
                     @else
-                        <span style="font-size: 11.5px; color: #DC2626; font-weight: 700;">⚠️ Insufficient balance for this plan. Select JazzCash, EasyPaisa, or Card.</span>
+                        <span id="modalWalletHint" style="font-size: 11.5px; color: #DC2626; font-weight: 700;">⚠️ Insufficient balance for the Monthly plan. Select JazzCash, EasyPaisa, or Card.</span>
                     @endif
                 </div>
 
@@ -244,7 +246,6 @@
                     </div>
                     
                     <div id="modalJcGatewayStatus" style="display: none; margin-bottom: 8px; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; line-height: 1.35;"></div>
-                    <input type="hidden" name="transaction_reference" id="modal_jc_txn_ref" value="{{ old('transaction_reference') }}">
 
                     <label style="display: block; font-size: 12px; font-weight: 800; color: #78350F; margin-bottom: 4px;">
                         JazzCash 6-Digit Verification OTP <span style="color: #DC2626;">*</span>
@@ -269,8 +270,7 @@
                     </div>
 
                     <div id="modalEpGatewayStatus" style="display: none; margin-bottom: 8px; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; line-height: 1.35;"></div>
-                    <input type="hidden" name="transaction_reference" id="modal_ep_txn_ref" value="{{ old('transaction_reference') }}">
-                    
+
                     <label style="display: block; font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 4px;">
                         EasyPaisa 6-Digit Verification OTP <span style="color: #DC2626;">*</span>
                     </label>
@@ -570,6 +570,17 @@
         const lbl = document.getElementById('lblModalBtnPrice');
         if (lbl) lbl.textContent = formatted;
 
+        const hint = document.getElementById('modalWalletHint');
+        if (hint) {
+            if (modalAvailableWallet >= price) {
+                hint.textContent = '✓ Sufficient funds available. Will be deducted immediately.';
+                hint.style.color = '#059669';
+            } else {
+                hint.textContent = '⚠️ Insufficient balance for this plan. Select JazzCash, EasyPaisa, or Card.';
+                hint.style.color = '#DC2626';
+            }
+        }
+
         const monthlyLbl = document.getElementById('modalPlanMonthlyLabel');
         const annualLbl = document.getElementById('modalPlanAnnualLabel');
 
@@ -608,7 +619,7 @@
         const mobileInput = document.getElementById(isJc ? 'modal_jazzcash_mobile' : 'modal_easypaisa_mobile');
         const btn = document.getElementById(isJc ? 'modalBtnJcVerify' : 'modalBtnEpVerify');
         const statusBox = document.getElementById(isJc ? 'modalJcGatewayStatus' : 'modalEpGatewayStatus');
-        const txnRefInput = document.getElementById(isJc ? 'modal_jc_txn_ref' : 'modal_ep_txn_ref');
+        const txnRefInput = document.getElementById('modal_txn_ref');
 
         const phone = mobileInput ? mobileInput.value.trim() : '';
         if (!phone || phone.length < 10) {

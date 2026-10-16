@@ -105,8 +105,8 @@
     <!-- FixMate Home Care VIP Pass Banner & Status Card -->
     @php
         $isCustVip = $user->isVip();
-        $vipMonthlyPrice = 299;
-        $vipAnnualPrice = 2499;
+        $vipAnnualSavings = max(0, ($vipMonthlyPrice * 12) - $vipAnnualPrice);
+        $vipAnnualSavingsPct = $vipMonthlyPrice > 0 ? (int) round(($vipAnnualSavings / ($vipMonthlyPrice * 12)) * 100) : 0;
     @endphp
 
     <div id="vipSubscriptionSection" style="background: {{ $isCustVip ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' : 'linear-gradient(135deg, #18181B 0%, #27272A 100%)' }}; border: 2px solid {{ $isCustVip ? '#F59E0B' : '#EAB308' }}; border-radius: 18px; padding: 22px 26px; margin-bottom: 24px; color: #FFFFFF; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
@@ -183,18 +183,42 @@
                             <input type="radio" name="plan_name" value="vip_annual" style="margin-right: 6px;">
                             <strong style="font-size: 14px; color: #111; display: block; margin-top: 4px;">Annual VIP Pass</strong>
                             <span style="font-size: 18px; font-weight: 900; color: #047857;">Rs. {{ number_format($vipAnnualPrice) }}</span>
-                            <span style="font-size: 11px; color: #10B981; font-weight: 800; display: block;">Save 30% (Rs. 1,089 off)</span>
+                            <span style="font-size: 11px; color: #10B981; font-weight: 800; display: block;">Save {{ $vipAnnualSavingsPct }}% (Rs. {{ number_format($vipAnnualSavings) }} off)</span>
                         </label>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 22px;">
+                <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 13px; font-weight: 800; color: #374151; margin-bottom: 8px;">Payment Method:</label>
-                    <select name="payment_method" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
-                        <option value="jazzcash">📱 JazzCash Mobile Account</option>
-                        <option value="easypaisa">📱 EasyPaisa Mobile Account</option>
-                        <option value="card">💳 Debit / Credit Card (Visa / Mastercard)</option>
+                    <select name="payment_method" id="custVipPaymentMethod" onchange="onCustVipPaymentChange(this.value)" style="width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #D1D5DB; font-size: 14px; font-weight: 700; background: #FFF;">
+                        <option value="jazzcash">JazzCash Mobile Account</option>
+                        <option value="easypaisa">EasyPaisa Mobile Account</option>
+                        <option value="card">Debit / Credit Card (Visa / Mastercard)</option>
                     </select>
+                </div>
+
+                <div id="custVipMobileBox" style="margin-bottom: 18px; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 14px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 6px;">Mobile Account Number <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="account_number" maxlength="25" placeholder="03001234567" value="{{ $user->phone ?? '' }}" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; margin-bottom: 10px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 6px;">Verification OTP / MPIN <span style="color: #DC2626;">*</span></label>
+                    <input type="text" inputmode="numeric" name="mpin" maxlength="10" placeholder="Enter OTP / MPIN" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; letter-spacing: 2px;">
+                </div>
+
+                <div id="custVipCardBox" style="display: none; margin-bottom: 18px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 14px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 6px;">Name on Card <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="card_name" maxlength="100" placeholder="Cardholder Name" value="{{ $user->name ?? '' }}" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 6px;">Card Number <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="card_number" maxlength="19" placeholder="4242 4242 4242 4242" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 11.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">Expiry (MM/YY) <span style="color: #DC2626;">*</span></label>
+                            <input type="text" name="card_expiry" maxlength="5" placeholder="12/28" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 11.5px; font-weight: 800; color: #374151; margin-bottom: 6px;">CVC <span style="color: #DC2626;">*</span></label>
+                            <input type="password" name="card_cvc" maxlength="4" placeholder="•••" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 13.5px; font-weight: 700;">
+                        </div>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px;">
@@ -208,6 +232,16 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function onCustVipPaymentChange(method) {
+            const mobileBox = document.getElementById('custVipMobileBox');
+            const cardBox = document.getElementById('custVipCardBox');
+            if (!mobileBox || !cardBox) return;
+            mobileBox.style.display = method === 'card' ? 'none' : 'block';
+            cardBox.style.display = method === 'card' ? 'block' : 'none';
+        }
+    </script>
 
     <!-- 4 Stats Cards matching Mockup 1 -->
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
