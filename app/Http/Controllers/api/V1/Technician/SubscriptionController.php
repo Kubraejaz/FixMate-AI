@@ -102,14 +102,88 @@ class SubscriptionController extends TechnicianController
     }
 
     /**
-     * Subscribe or renew FixMate Pro VIP.
+     * Start a payment: dispatch a JazzCash / EasyPaisa OTP or tokenize a card so the
+     * app can complete the charge in the follow-up `upgrade` call.
+     */
+    public function initiatePayment(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'gateway' => ['required', 'in:jazzcash,easypaisa,card'],
+            'plan_name' => ['required', 'in:pro_monthly,pro_annual'],
+            'phone' => ['required', 'string', 'max:25'],
+            'card_number' => ['nullable', 'string', 'max:30'],
+            'card_expiry' => ['nullable', 'string', 'max:10'],
+            'card_cvc' => ['nullable', 'string', 'max:6'],
+        ]);
+
+        $pro = $this->professional();
+        $price = $this->plans->technicianPrice($validated['plan_name']);
+        $gateway = $validated['gateway'];
+
+        if ($gateway === 'card') {
+            if (! $this->cardDetailsPresent($validated)) {
+                return $this->error('Please provide complete card details (number, expiry and CVC) to start card verification.', 422);
+            }
+
+            $result = app(\App\Services\CardPaymentService::class)->pay([
+                'mobile' => $validated['phone'],
+                'amount' => $price,
+                'basket_id' => 'FM-PRO-' . $pro->id . '-' . date('Ymd'),
+                'description' => "FixMate Pro {$validated['plan_name']}",
+                'merchant_user_id' => (string) $pro->id,
+                'card_number' => $validated['card_number'],
+                'card_expiry' => $validated['card_expiry'],
+                'card_cvc' => $validated['card_cvc'],
+            ]);
+
+            if (! empty($result['otp_required'])) {
+                return $this->ok([
+                    'otp_required' => true,
+                    'instrument_token' => $result['instrument_token'] ?? null,
+                    'transaction_id' => $result['transaction_id'] ?? null,
+                ], $result['message']);
+            }
+
+            if (! $result['success']) {
+                return $this->error($result['message'] ?? 'Unable to start card verification.', 422);
+            }
+
+            return $this->ok(['otp_required' => false], $result['message']);
+        }
+
+        $service = $gateway === 'jazzcash'
+            ? app(\App\Services\JazzCashService::class)
+            : app(\App\Services\EasyPaisaService::class);
+
+        $res = $service->initiatePushPrompt($validated['phone'], $price);
+        if (! $res['success']) {
+            return $this->error($res['message'] ?? 'Unable to dispatch your verification code.', 422);
+        }
+
+        return $this->ok([
+            'otp_sent' => true,
+            'otp' => app()->environment('production') ? null : ($res['otp'] ?? null),
+            'gateway' => $res['gateway'] ?? $gateway,
+            'phone' => $res['phone'] ?? $validated['phone'],
+        ], $res['message']);
+    }
+
+    /**
+     * Subscribe or renew FixMate Pro VIP (charges a real gateway).
      */
     public function upgrade(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'plan_name' => ['required', 'in:pro_monthly,pro_annual'],
             'payment_method' => ['required', 'in:wallet,jazzcash,easypaisa,card'],
-            'phone_or_account' => ['nullable', 'string', 'max:50'],
+            'account' => ['nullable', 'string', 'max:25'],
+            'otp' => ['nullable', 'string', 'max:10'],
+            'card_number' => ['nullable', 'string', 'max:30'],
+            'card_expiry' => ['nullable', 'string', 'max:10'],
+            'card_cvc' => ['nullable', 'string', 'max:6'],
+            'card_otp' => ['nullable', 'string', 'max:10'],
+            'instrument_token' => ['nullable', 'string', 'max:100'],
+            'transaction_id' => ['nullable', 'string', 'max:100'],
         ]);
 
         $pro = $this->professional();
@@ -117,22 +191,20 @@ class SubscriptionController extends TechnicianController
 
         $planName = $validated['plan_name'];
         $price = $this->plans->technicianPrice($planName);
+        $method = $validated['payment_method'];
 
-        if ($validated['payment_method'] === 'wallet') {
-            $availableWallet = $pro->getAvailableWalletBalance();
-            if (! app()->environment('testing') && $availableWallet < $price) {
-                return $this->error("Insufficient wallet balance (Available: Rs. {$availableWallet}, Required: Rs. {$price}). Please select JazzCash, EasyPaisa, or Card to pay.", 422);
-            }
+        $ref = $this->chargeProPayment($pro, $validated, $price, $planName, $method);
+        if ($ref instanceof JsonResponse) {
+            return $ref;
         }
 
         $expiresAt = $this->plans->calculateExpiry($pro->subscribed_until, $planName);
-        $ref = TechnicianSubscription::generateReference();
 
         $sub = TechnicianSubscription::create([
             'professional_id' => $pro->id,
             'plan_name' => $planName,
             'price' => $price,
-            'payment_method' => $validated['payment_method'],
+            'payment_method' => $method,
             'transaction_reference' => $ref,
             'status' => 'active',
             'starts_at' => now(),
@@ -156,7 +228,7 @@ class SubscriptionController extends TechnicianController
         Notification::notifyAdmins(
             'subscription_purchased',
             "New VIP Pro Subscription: {$pro->name}",
-            "Technician {$pro->name} subscribed to {$planName} (Rs. {$price}) via {$validated['payment_method']} (Ref: {$ref}).",
+            "Technician {$pro->name} subscribed to {$planName} (Rs. {$price}) via {$method} (Ref: {$ref}).",
             route('admin.payments')
         );
 
@@ -177,6 +249,95 @@ class SubscriptionController extends TechnicianController
                 'subscribed_until' => $expiresAt->toIso8601String(),
             ],
         ], "Congratulations {$pro->name}! You are now a FixMate Pro Partner with 0% platform commission!");
+    }
+
+    /**
+     * Run the selected gateway charge. Returns the gateway reference on success or a
+     * ready-to-send JSON error response on failure.
+     *
+     * @param  array<string,mixed>  $validated
+     * @return string|\Illuminate\Http\JsonResponse
+     */
+    private function chargeProPayment($pro, array $validated, float $price, string $planName, string $method): string|\Illuminate\Http\JsonResponse
+    {
+        if ($method === 'wallet') {
+            $availableWallet = $pro->getAvailableWalletBalance();
+            if (! app()->environment('testing') && $availableWallet < $price) {
+                return $this->error("Insufficient wallet balance (Available: Rs. {$availableWallet}, Required: Rs. {$price}). Please select JazzCash, EasyPaisa, or Card to pay.", 422);
+            }
+
+            return TechnicianSubscription::generateReference();
+        }
+
+        if ($method === 'jazzcash' || $method === 'easypaisa') {
+            $account = trim((string) ($validated['account'] ?? ''));
+            $otp = trim((string) ($validated['otp'] ?? ''));
+            if ($account === '' || $otp === '') {
+                return $this->error('Please request an OTP first (POST subscription/initiate-payment), then submit your account number together with the OTP.', 422);
+            }
+
+            $orderId = 'FM-PRO-' . $pro->id . '-' . date('mdHis');
+            $result = $method === 'jazzcash'
+                ? app(\App\Services\JazzCashService::class)->processMobileAccountPayment($account, $price, $orderId, "FixMate Pro {$planName}", $otp)
+                : app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment($account, $price, $orderId, '', $otp);
+
+            if (! $result['success']) {
+                return $this->error($result['message'] ?? ucfirst($method) . ' payment was declined.', 422);
+            }
+
+            return (string) ($result['transaction_reference'] ?? '');
+        }
+
+        if ($method === 'card') {
+            if (! $this->cardDetailsPresent($validated)) {
+                return $this->error('Please provide complete card details (number, expiry and CVC).', 422);
+            }
+
+            $userPhone = request()->user()?->phone;
+            $result = app(\App\Services\CardPaymentService::class)->pay([
+                'mobile' => (string) ($validated['account'] ?? '') ?: ($userPhone ?? ''),
+                'amount' => $price,
+                'basket_id' => 'FM-PRO-' . $pro->id . '-' . date('Ymd'),
+                'description' => "FixMate Pro {$planName}",
+                'merchant_user_id' => (string) $pro->id,
+                'card_number' => $validated['card_number'],
+                'card_expiry' => $validated['card_expiry'],
+                'card_cvc' => $validated['card_cvc'],
+                'otp' => $validated['card_otp'] ?? null,
+                'instrument_token' => $validated['instrument_token'] ?? null,
+                'transaction_id' => $validated['transaction_id'] ?? null,
+            ]);
+
+            if (! empty($result['otp_required'])) {
+                return $this->error($result['message'], 422, [
+                    'otp_required' => true,
+                    'instrument_token' => $result['instrument_token'] ?? null,
+                    'transaction_id' => $result['transaction_id'] ?? null,
+                ]);
+            }
+
+            if (! $result['success']) {
+                return $this->error($result['message'] ?? 'Card payment was declined.', 422);
+            }
+
+            return (string) ($result['transaction_reference'] ?? '');
+        }
+
+        return TechnicianSubscription::generateReference();
+    }
+
+    /**
+     * @param  array<string,mixed>  $validated
+     */
+    private function cardDetailsPresent(array $validated): bool
+    {
+        foreach (['card_number', 'card_expiry', 'card_cvc'] as $field) {
+            if (trim((string) ($validated[$field] ?? '')) === '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

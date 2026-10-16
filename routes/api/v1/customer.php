@@ -55,6 +55,7 @@ Route::prefix('customer')->middleware(['auth:sanctum', 'api.role:customer'])->gr
 
     // Subscriptions & VIP Home Care Pass (Phase 2)
     Route::get('subscription', [SubscriptionController::class, 'show'])->name('api.customer.subscription.show');
+    Route::post('subscription/initiate-payment', [SubscriptionController::class, 'initiatePayment'])->name('api.customer.subscription.initiate-payment');
     Route::post('subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('api.customer.subscription.upgrade');
     Route::post('subscription/cancel', [SubscriptionController::class, 'cancel'])->name('api.customer.subscription.cancel');
 

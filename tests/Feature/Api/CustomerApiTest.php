@@ -269,11 +269,24 @@ class CustomerApiTest extends TestCase
             ->assertJsonPath('data.current_subscription.is_vip', false)
             ->assertJsonPath('data.current_subscription.plan', 'free');
 
-        // 2. Upgrade to VIP
+        // 2a. Start a JazzCash payment (dispatches an OTP to the account holder)
+        $init = $this->actingAs($this->customer, 'sanctum')
+            ->postJson('/api/v1/customer/subscription/initiate-payment', [
+                'gateway' => 'jazzcash',
+                'plan_name' => 'vip_monthly',
+                'phone' => '03001112233',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.otp_sent', true);
+        $otp = $init->json('data.otp');
+
+        // 2b. Complete the charge with the account number + OTP
         $this->actingAs($this->customer, 'sanctum')
             ->postJson('/api/v1/customer/subscription/upgrade', [
                 'plan_name' => 'vip_monthly',
                 'payment_method' => 'jazzcash',
+                'account' => '03001112233',
+                'otp' => $otp,
             ])
             ->assertStatus(201)
             ->assertJsonPath('data.subscription.is_vip', true)

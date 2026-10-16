@@ -85,14 +85,89 @@ class SubscriptionController extends ApiController
     }
 
     /**
-     * Subscribe or renew FixMate Home Care VIP Pass.
+     * Start a payment: dispatch a JazzCash / EasyPaisa OTP or tokenize a card so the
+     * app can complete the charge in the follow-up `upgrade` call.
+     */
+    public function initiatePayment(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'gateway' => ['required', 'in:jazzcash,easypaisa,card'],
+            'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
+            'phone' => ['required', 'string', 'max:25'],
+            'card_number' => ['nullable', 'string', 'max:30'],
+            'card_expiry' => ['nullable', 'string', 'max:10'],
+            'card_cvc' => ['nullable', 'string', 'max:6'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $price = $this->plans->customerPrice($validated['plan_name']);
+        $gateway = $validated['gateway'];
+
+        if ($gateway === 'card') {
+            if (! $this->cardDetailsPresent($validated)) {
+                return $this->error('Please provide complete card details (number, expiry and CVC) to start card verification.', 422);
+            }
+
+            $result = app(\App\Services\CardPaymentService::class)->pay([
+                'mobile' => $validated['phone'],
+                'amount' => $price,
+                'basket_id' => 'FM-VIP-' . $user->id . '-' . date('Ymd'),
+                'description' => "FixMate Customer VIP {$validated['plan_name']}",
+                'merchant_user_id' => (string) $user->id,
+                'card_number' => $validated['card_number'],
+                'card_expiry' => $validated['card_expiry'],
+                'card_cvc' => $validated['card_cvc'],
+            ]);
+
+            if (! empty($result['otp_required'])) {
+                return $this->ok([
+                    'otp_required' => true,
+                    'instrument_token' => $result['instrument_token'] ?? null,
+                    'transaction_id' => $result['transaction_id'] ?? null,
+                ], $result['message']);
+            }
+
+            if (! $result['success']) {
+                return $this->error($result['message'] ?? 'Unable to start card verification.', 422);
+            }
+
+            return $this->ok(['otp_required' => false], $result['message']);
+        }
+
+        $service = $gateway === 'jazzcash'
+            ? app(\App\Services\JazzCashService::class)
+            : app(\App\Services\EasyPaisaService::class);
+
+        $res = $service->initiatePushPrompt($validated['phone'], $price);
+        if (! $res['success']) {
+            return $this->error($res['message'] ?? 'Unable to dispatch your verification code.', 422);
+        }
+
+        return $this->ok([
+            'otp_sent' => true,
+            'otp' => app()->environment('production') ? null : ($res['otp'] ?? null),
+            'gateway' => $res['gateway'] ?? $gateway,
+            'phone' => $res['phone'] ?? $validated['phone'],
+        ], $res['message']);
+    }
+
+    /**
+     * Subscribe or renew FixMate Home Care VIP Pass (charges a real gateway).
      */
     public function upgrade(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'plan_name' => ['required', 'in:vip_monthly,vip_annual'],
             'payment_method' => ['required', 'in:jazzcash,easypaisa,card'],
-            'phone_or_account' => ['nullable', 'string', 'max:50'],
+            'account' => ['nullable', 'string', 'max:25'],
+            'otp' => ['nullable', 'string', 'max:10'],
+            'card_number' => ['nullable', 'string', 'max:30'],
+            'card_expiry' => ['nullable', 'string', 'max:10'],
+            'card_cvc' => ['nullable', 'string', 'max:6'],
+            'card_otp' => ['nullable', 'string', 'max:10'],
+            'instrument_token' => ['nullable', 'string', 'max:100'],
+            'transaction_id' => ['nullable', 'string', 'max:100'],
         ]);
 
         /** @var User $user */
@@ -100,7 +175,13 @@ class SubscriptionController extends ApiController
 
         $planName = $validated['plan_name'];
         $price = $this->plans->customerPrice($planName);
-        $txnRef = $this->plans->generateReference('TXN-VIP');
+        $method = $validated['payment_method'];
+
+        $txnRef = $this->chargeCustomerPayment($request, $user, $validated, $price, $planName, $method);
+        if ($txnRef instanceof JsonResponse) {
+            return $txnRef;
+        }
+
         $expiresAt = $this->plans->calculateExpiry($user->subscribed_until, $planName);
 
         $user->update([
@@ -108,18 +189,19 @@ class SubscriptionController extends ApiController
             'subscribed_until' => $expiresAt,
         ]);
 
+        $refNote = $txnRef ? " (Ref: {$txnRef})" : '';
         Notification::sendToUser(
             $user->id,
             'vip_activated',
             'FixMate VIP Home Care Pass Activated!',
-            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')} (Ref: {$txnRef}). Enjoy waived booking fees and priority dispatch!",
+            "Your VIP Home Care Pass is active until {$expiresAt->format('M d, Y')}{$refNote}. Enjoy waived booking fees and priority dispatch!",
             route('customer.dashboard')
         );
 
         Notification::notifyAdmins(
             'customer_vip_purchased',
             "New Customer VIP Member: {$user->name}",
-            "Customer {$user->name} subscribed to {$planName} (Rs. {$price}) via {$validated['payment_method']} (Ref: {$txnRef}).",
+            "Customer {$user->name} subscribed to {$planName} (Rs. {$price}) via {$method}{$refNote}.",
             route('admin.payments')
         );
 
@@ -127,13 +209,92 @@ class SubscriptionController extends ApiController
             'subscription' => [
                 'plan_name' => $user->subscription_plan,
                 'price' => $price,
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $method,
                 'reference' => $txnRef,
                 'is_vip' => true,
                 'subscribed_until' => $expiresAt->toIso8601String(),
                 'days_remaining' => max(0, (int) now()->diffInDays($expiresAt, false)),
             ],
         ], "Congratulations {$user->name}! Your FixMate Home Care VIP Pass is now active!");
+    }
+
+    /**
+     * Run the selected gateway charge. Returns the gateway reference on success or a
+     * ready-to-send JSON error response on failure.
+     *
+     * @param  array<string,mixed>  $validated
+     * @return string|\Illuminate\Http\JsonResponse
+     */
+    private function chargeCustomerPayment(Request $request, User $user, array $validated, float $price, string $planName, string $method): string|\Illuminate\Http\JsonResponse
+    {
+        if ($method === 'jazzcash' || $method === 'easypaisa') {
+            $account = trim((string) ($validated['account'] ?? ''));
+            $otp = trim((string) ($validated['otp'] ?? ''));
+            if ($account === '' || $otp === '') {
+                return $this->error('Please request an OTP first (POST subscription/initiate-payment), then submit your account number together with the OTP.', 422);
+            }
+
+            $orderId = 'FM-VIP-' . $user->id . '-' . date('mdHis');
+            $result = $method === 'jazzcash'
+                ? app(\App\Services\JazzCashService::class)->processMobileAccountPayment($account, $price, $orderId, "FixMate Customer VIP {$planName}", $otp)
+                : app(\App\Services\EasyPaisaService::class)->processMobileAccountPayment($account, $price, $orderId, $user->email ?? 'customer@fixmate.pk', $otp);
+
+            if (! $result['success']) {
+                return $this->error($result['message'] ?? ucfirst($method) . ' VIP subscription payment declined.', 422);
+            }
+
+            return (string) ($result['transaction_reference'] ?? '');
+        }
+
+        if ($method === 'card') {
+            if (! $this->cardDetailsPresent($validated)) {
+                return $this->error('Please provide complete card details (number, expiry and CVC).', 422);
+            }
+
+            $result = app(\App\Services\CardPaymentService::class)->pay([
+                'mobile' => (string) ($validated['account'] ?? '') ?: ($user->phone ?? ''),
+                'amount' => $price,
+                'basket_id' => 'FM-VIP-' . $user->id . '-' . date('Ymd'),
+                'description' => "FixMate Customer VIP {$planName}",
+                'merchant_user_id' => (string) $user->id,
+                'card_number' => $validated['card_number'],
+                'card_expiry' => $validated['card_expiry'],
+                'card_cvc' => $validated['card_cvc'],
+                'otp' => $validated['card_otp'] ?? null,
+                'instrument_token' => $validated['instrument_token'] ?? null,
+                'transaction_id' => $validated['transaction_id'] ?? null,
+            ]);
+
+            if (! empty($result['otp_required'])) {
+                return $this->error($result['message'], 422, [
+                    'otp_required' => true,
+                    'instrument_token' => $result['instrument_token'] ?? null,
+                    'transaction_id' => $result['transaction_id'] ?? null,
+                ]);
+            }
+
+            if (! $result['success']) {
+                return $this->error($result['message'] ?? 'Card payment was declined.', 422);
+            }
+
+            return (string) ($result['transaction_reference'] ?? '');
+        }
+
+        return '';
+    }
+
+    /**
+     * @param  array<string,mixed>  $validated
+     */
+    private function cardDetailsPresent(array $validated): bool
+    {
+        foreach (['card_number', 'card_expiry', 'card_cvc'] as $field) {
+            if (trim((string) ($validated[$field] ?? '')) === '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

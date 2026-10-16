@@ -45,6 +45,7 @@ Route::prefix('technician')->middleware(['auth:sanctum', 'api.role:technician'])
 
         // Subscriptions & FixMate Pro VIP (Phase 2)
         Route::get('subscription', [SubscriptionController::class, 'show'])->name('api.technician.subscription.show');
+        Route::post('subscription/initiate-payment', [SubscriptionController::class, 'initiatePayment'])->name('api.technician.subscription.initiate-payment');
         Route::post('subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('api.technician.subscription.upgrade');
         Route::post('subscription/cancel', [SubscriptionController::class, 'cancel'])->name('api.technician.subscription.cancel');
 
