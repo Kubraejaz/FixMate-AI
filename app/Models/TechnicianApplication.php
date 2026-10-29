@@ -65,6 +65,11 @@ class TechnicianApplication extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function professional(): BelongsTo
+    {
+        return $this->belongsTo(Professional::class, 'user_id', 'user_id');
+    }
+
     public function scopePending(Builder $query): Builder
     {
         return $query->where('status', 'pending');

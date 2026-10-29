@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +22,18 @@ class User extends Authenticatable
     public const ROLE_ADMIN = 1;
     public const ROLE_CUSTOMER = 2;
     public const ROLE_TECHNICIAN = 3;
+
+    public const ROLE_NAMES = [
+        self::TYPE_ADMIN => 'admin',
+        self::TYPE_CUSTOMER => 'customer',
+        self::TYPE_TECHNICIAN => 'technician',
+    ];
+
+    public const ROLE_LABELS = [
+        self::TYPE_ADMIN => 'Administrator',
+        self::TYPE_CUSTOMER => 'Customer',
+        self::TYPE_TECHNICIAN => 'Technician / Partner',
+    ];
 
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -143,6 +156,98 @@ class User extends Authenticatable
         return (int) $this->user_type === self::TYPE_TECHNICIAN;
     }
 
+    /**
+     * Get textual role name string ('admin', 'customer', 'technician').
+     */
+    public function getRoleNameAttribute(): string
+    {
+        return self::ROLE_NAMES[(int) ($this->user_type ?? self::TYPE_CUSTOMER)] ?? 'customer';
+    }
+
+    /**
+     * Get human-friendly role label string.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return self::ROLE_LABELS[(int) ($this->user_type ?? self::TYPE_CUSTOMER)] ?? 'Customer';
+    }
+
+    /**
+     * Check if user has a specific role (by string, integer, or array of roles).
+     */
+    public function hasRole(string|int|array $roles): bool
+    {
+        if (is_array($roles)) {
+            return $this->hasAnyRole(...$roles);
+        }
+
+        $typeMap = [
+            '1' => self::TYPE_ADMIN,
+            'admin' => self::TYPE_ADMIN,
+            '2' => self::TYPE_CUSTOMER,
+            'customer' => self::TYPE_CUSTOMER,
+            '3' => self::TYPE_TECHNICIAN,
+            'technician' => self::TYPE_TECHNICIAN,
+            'provider' => self::TYPE_TECHNICIAN,
+        ];
+
+        $expectedType = $typeMap[strtolower((string) $roles)] ?? (int) $roles;
+
+        return (int) $this->user_type === $expectedType;
+    }
+
+    /**
+     * Check if user matches any of the given roles.
+     */
+    public function hasAnyRole(string|int|array ...$roles): bool
+    {
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                if ($this->hasAnyRole(...$role)) {
+                    return true;
+                }
+            } elseif ($this->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has all of the given roles.
+     */
+    public function hasAllRoles(string|int|array ...$roles): bool
+    {
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                if (! $this->hasAllRoles(...$role)) {
+                    return false;
+                }
+            } elseif (! $this->hasRole($role)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if user has permission to perform an action.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return \App\Support\Permissions::roleHas($this->user_type, $permission);
+    }
+
+    /**
+     * Get list of all permissions user possesses.
+     */
+    public function getPermissions(): array
+    {
+        return \App\Support\Permissions::forRole($this->user_type);
+    }
+
     public function dashboardRoute(): string
     {
         return match ((int) $this->user_type) {
@@ -185,6 +290,41 @@ class User extends Authenticatable
     public function receivedMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function technicianApplications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TechnicianApplication::class);
+    }
+
+    public function technicianApplication(): HasOne
+    {
+        return $this->hasOne(TechnicianApplication::class)->latestOfMany();
+    }
+
+    public function communityIssues(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CommunityIssue::class);
+    }
+
+    public function communityIssueUpvotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CommunityIssueUpvote::class);
+    }
+
+    public function callerMeetings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VideoMeeting::class, 'caller_id');
+    }
+
+    public function receiverMeetings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VideoMeeting::class, 'receiver_id');
+    }
+
+    public function contactInquiries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ContactInquiry::class, 'email', 'email');
     }
 
     public function getNotificationPref(string $key, bool $default = true): bool

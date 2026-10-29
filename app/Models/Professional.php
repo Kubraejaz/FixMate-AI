@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Professional extends Model
 {
@@ -73,14 +75,24 @@ class Professional extends Model
         return $this->belongsTo(Profession::class);
     }
 
-    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
     }
 
-    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function subscriptions(): HasMany
     {
         return $this->hasMany(TechnicianSubscription::class);
+    }
+
+    public function application(): HasOne
+    {
+        return $this->hasOne(TechnicianApplication::class, 'user_id', 'user_id');
     }
 
     /**
@@ -89,7 +101,7 @@ class Professional extends Model
      */
     public function getAvailableWalletBalance(): int
     {
-        $completedBookings = Booking::where('professional_id', $this->id)
+        $completedBookings = $this->bookings()
             ->where('status', 'completed')
             ->get();
 

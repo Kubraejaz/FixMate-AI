@@ -65,6 +65,7 @@ Route::prefix('v1')->group(function () {
     })->name('api.v1.index');
 
     require __DIR__.'/api/v1/public.php';
+    Route::post('register', [\App\Http\Controllers\Api\V1\AuthController::class, 'register']);
     require __DIR__.'/api/v1/auth.php';
     require __DIR__.'/api/v1/customer.php';
     require __DIR__.'/api/v1/technician.php';

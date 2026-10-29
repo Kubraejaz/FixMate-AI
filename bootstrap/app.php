@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
             'user_type' => EnsureUserHasRole::class,
+            'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
             'technician.verified' => \App\Http\Middleware\EnsureTechnicianVerified::class,
             'api.role' => \App\Http\Middleware\Api\EnsureApiRole::class,
             'api.verified' => \App\Http\Middleware\Api\EnsureApiTechnicianVerified::class,

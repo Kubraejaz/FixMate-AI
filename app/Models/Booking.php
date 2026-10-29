@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
@@ -86,6 +87,25 @@ class Booking extends Model
     protected static function booted(): void
     {
         static::creating(function (Booking $booking) {
+            if (empty($booking->booking_number)) {
+                $booking->booking_number = static::generateBookingNumber();
+            }
+            if (empty($booking->arrival_otp)) {
+                $booking->arrival_otp = static::generateOtp();
+            }
+            if (empty($booking->service_date)) {
+                $booking->service_date = now()->toDateString();
+            }
+            if (empty($booking->service_time_slot)) {
+                $booking->service_time_slot = '10:00 AM - 12:00 PM';
+            }
+            if (empty($booking->service_address)) {
+                $booking->service_address = 'Address not specified';
+            }
+            if (empty($booking->city)) {
+                $booking->city = 'Karachi';
+            }
+
             if ($booking->technician_payout === null || $booking->technician_payout === 0) {
                 $booking->calculateFinancials();
             }
@@ -134,6 +154,54 @@ class Booking extends Model
     public function review(): HasOne
     {
         return $this->hasOne(Review::class);
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function videoMeetings(): HasMany
+    {
+        return $this->hasMany(VideoMeeting::class);
+    }
+
+    public function latestVideoMeeting(): HasOne
+    {
+        return $this->hasOne(VideoMeeting::class)->latestOfMany();
+    }
+
+    /**
+     * Check if a given user is the customer who made this booking.
+     */
+    public function isCustomer(User|int $user): bool
+    {
+        $userId = $user instanceof User ? $user->id : (int) $user;
+        return (int) $this->user_id === $userId;
+    }
+
+    /**
+     * Check if a given user or technician is the assigned professional.
+     */
+    public function isAssignedTechnician(User|int $user): bool
+    {
+        if ($user instanceof User) {
+            return $this->professional && (int) $this->professional->user_id === $user->id;
+        }
+
+        return (int) $this->professional_id === (int) $user;
+    }
+
+    /**
+     * Determine if a user can view or manage this booking.
+     */
+    public function canBeManagedBy(User $user): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $this->isCustomer($user) || $this->isAssignedTechnician($user);
     }
 
     public function getStatusLabelAttribute(): string

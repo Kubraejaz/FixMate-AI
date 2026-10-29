@@ -137,5 +137,15 @@ class Profession extends Model
     {
         return $this->hasMany(User::class, 'profession_id')->where('user_type', User::TYPE_TECHNICIAN);
     }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(TechnicianApplication::class);
+    }
 }
 

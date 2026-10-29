@@ -14,6 +14,80 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends ApiController
 {
     /**
+     * Unified registration endpoint for mobile apps and web API.
+     */
+    public function register(Request $request): JsonResponse
+    {
+        $role = strtolower((string) ($request->input('role') ?? $request->input('user_type') ?? 'customer'));
+        $isTechnician = in_array($role, ['technician', 'provider', '3', 3], true);
+
+        // Normalize inputs
+        $name = trim((string) ($request->input('name') ?? $request->input('full_name') ?? ''));
+        $identifier = trim((string) ($request->input('identifier') ?? $request->input('email') ?? $request->input('phone') ?? ''));
+        $password = (string) $request->input('password');
+        $city = (string) ($request->input('city') ?? 'Islamabad');
+
+        $request->merge([
+            'name' => $name,
+            'identifier' => $identifier,
+            'city' => $city,
+            'password_confirmation' => $request->input('password_confirmation') ?? $password,
+        ]);
+
+        $request->validate([
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'identifier' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:6', 'max:100'],
+        ]);
+
+        $isEmail = OtpService::isEmail($identifier);
+        $email = $isEmail ? strtolower($identifier) : ($request->input('email') ? strtolower(trim($request->input('email'))) : null);
+        $phone = $isEmail ? ($request->input('phone') ? OtpService::normalizePhone($request->input('phone')) : null) : OtpService::normalizePhone($identifier);
+
+        if ($email && User::where('email', $email)->exists()) {
+            throw ValidationException::withMessages(['email' => 'An account already exists with this email.']);
+        }
+
+        if ($phone && User::where('phone', $phone)->exists()) {
+            throw ValidationException::withMessages(['phone' => 'An account already exists with this phone number.']);
+        }
+
+        $userType = $isTechnician ? User::TYPE_TECHNICIAN : User::TYPE_CUSTOMER;
+
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'city' => $city,
+            'password' => $password,
+            'user_type' => $userType,
+            'is_active' => true,
+            'is_verified' => true,
+        ]);
+
+        if ($isTechnician) {
+            Professional::create([
+                'user_id' => $user->id,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone ?? '',
+                'experience' => $request->input('experience') ?? '1 year',
+                'cnic_number' => $request->input('cnic') ?? '00000-0000000-0',
+                'is_verified' => false,
+            ]);
+        }
+
+        $token = $user->createToken($request->input('device_name') ?? 'mobile')->plainTextToken;
+
+        return $this->created([
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'user' => new \App\Http\Resources\UserResource($user),
+            'requires_otp' => false,
+        ], 'Registration successful.');
+    }
+
+    /**
      * Register a new customer account and dispatch a verification OTP.
      */
     public function registerCustomer(Request $request): JsonResponse
@@ -146,6 +220,9 @@ class AuthController extends ApiController
      */
     public function login(Request $request): JsonResponse
     {
+        if (! $request->has('identifier') && $request->has('email')) {
+            $request->merge(['identifier' => $request->input('email')]);
+        }
         $data = $request->validate([
             'identifier' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],

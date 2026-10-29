@@ -25,3 +25,4 @@ Thumbs.db
 /public/assets/images/ai_scan_*
 /public/assets/images/defect_*
 /public/uploads/
+.git_backup

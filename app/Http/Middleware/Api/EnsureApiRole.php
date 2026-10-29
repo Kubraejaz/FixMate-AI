@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class EnsureApiRole
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
@@ -30,11 +30,22 @@ class EnsureApiRole
             'customer' => 2,
             '3' => 3,
             'technician' => 3,
+            'provider' => 3,
         ];
 
-        $expectedType = $typeMap[$role] ?? (int) $role;
+        // Flatten roles by splitting commas or pipes
+        $allowedTypes = [];
+        foreach ($roles as $roleGroup) {
+            $splitRoles = preg_split('/[,|]/', $roleGroup);
+            foreach ($splitRoles as $r) {
+                $r = trim(strtolower($r));
+                if ($r !== '') {
+                    $allowedTypes[] = $typeMap[$r] ?? (int) $r;
+                }
+            }
+        }
 
-        if ((int) $user->user_type !== $expectedType) {
+        if (! empty($allowedTypes) && ! in_array((int) $user->user_type, $allowedTypes, true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not authorized to access this resource.',
